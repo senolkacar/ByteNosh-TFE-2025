@@ -2,7 +2,7 @@ import MenuItem from "@/app/components/menuitem";
 
 export default function HomeMenu() {
     return (
-        <section className="m-4">
+        <section className="m-4 w-full">
             <div className="text-center">
                 <h2 className="text-4xl font-semibold text-fuchsia-600">Menu</h2>
                 <p className="text-lg mt-4 text-gray-500">Découvrez nos plats</p>
@@ -14,7 +14,7 @@ export default function HomeMenu() {
                 <p className="text-gray-500">Desserts</p>
                 <p className="text-gray-500">Drinks</p>
             </div>
-            <div className="grid grid-cols-3 gap-4 m-4">
+            <div className="grid grid-cols-2 gap-4 m-4 md:grid-cols-3">
             <MenuItem/>
             <MenuItem/>
                 <MenuItem/>
