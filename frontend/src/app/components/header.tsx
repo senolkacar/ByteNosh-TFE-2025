@@ -1,26 +1,53 @@
-import Link from "next/link";
-import {Avatar} from "@mui/material";
 
+'use client';
+import Hero from "@/app/components/hero";
+import {useState} from "react";
+import MenuIcon from '@mui/icons-material/Menu';
 
 export default function Header() {
+    const [state, setState] = useState(false)
+    const navigation = [
+        { title: "Meals", path: "" },
+        { title: "Blog", path: "" },
+        { title: "Contact", path: "" },
+        { title: "About", path: "" }
+    ]
     return (
         <>
-            <header className="flex items-center m-4 justify-between">
-                <Link className="text-fuchsia-600 font-semibold text-2xl" href="">
-                    ByteNosh
-                </Link>
-                <nav className="hidden items-center gap-4 text-gray-500 font-semibold sm:flex">
-                    <Link href="/menu">Menu</Link>
-                    <Link href="/about">About</Link>
-                    <Link href="/contact">Contact</Link>
-                    <Link href={"/login"} className="bg-fuchsia-600 text-white px-6 py-2 rounded-full">Login</Link>
-                    {/*visible only when logged in:
-                TODO: implement dropdown menu for user settings,profile and logout
-                maybe add a notification icon next to it ?*/}
-
-                    <Avatar></Avatar>
-                </nav>
-            </header>
+            <div className="bg-amber-50">
+                <header>
+                    <nav className="items-center pt-5 px-4 mx-auto max-w-screen-xl sm:px-8 md:flex md:space-x-6">
+                        <div className="flex justify-between">
+                            <a href="">
+                                <p className="text-fuchsia-600 font-bold text-2xl">ByteNosh</p>
+                            </a>
+                            <button className="text-fuchsia-600 outline-none md:hidden"
+                                    onClick={() => setState(!state)}
+                            >
+                                <MenuIcon/>
+                            </button>
+                        </div>
+                        <ul className={`flex-1 justify-between mt-12 md:flex md:mt-0 ${state ? '' : 'hidden'}`}>
+                            <li className="order-2 pb-5 md:pb-0">
+                                <a href=""
+                                   className="py-3 px-6 rounded-md shadow-md font-bold text-center bg-yellow-400 focus:shadow-none block md:inline">
+                                    Sign In
+                                </a>
+                            </li>
+                            <div
+                                className="order-1 flex-1 justify-center items-center space-y-5 md:flex md:space-x-6 md:space-y-0">
+                                {
+                                    navigation.map((item, idx) => (
+                                        <li className="text-gray-500 hover:text-indigo-600" key={idx}>
+                                            <a href={item.path}>{item.title}</a>
+                                        </li>
+                                    ))
+                                }
+                            </div>
+                        </ul>
+                    </nav>
+                </header>
+            </div>
         </>
     )
 }
