@@ -6,7 +6,7 @@ export default function Hero() {
         <section className="mx-auto max-w-screen-xl p-8">
             <div className="flex flex-col items-center md:grid grid-cols-2">
             <div className="py-12 col-span-1">
-                <h1 className="text-6xl font-semibold">
+                <h1 className="text-center text-6xl font-semibold md:text-left">
                     Welcome to ByteNosh
                 </h1>
                 <p className="text-lg mt-4 text-gray-500">
@@ -15,7 +15,7 @@ export default function Hero() {
                 </p>
                 <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
-                    <button className="bg-white mt-2 md:bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
+                    <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
                 </div>
             </div>
             <div className="col-span-1 relative">

@@ -1,5 +1,6 @@
 'use client';
 import MenuItem from "@/app/components/menuitem";
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import Carousel from "react-multi-carousel";
 import 'react-multi-carousel/lib/styles.css';
 
@@ -24,7 +25,10 @@ export default function HomeMenu() {
     return (
         <section className="m-4 mx-auto max-w-screen-xl ">
             <div className="mt-10 pl-4">
+                <div className="flex justify-between">
                 <h2 className="text-5xl font-extrabold ">Most popular dishes</h2>
+                <button className="bg-yellow-400 font-bold px-6 py-2 mr-4"><ListAltIcon/> Full Menu</button>
+                </div>
                 <p className="text-lg mt-4 text-gray-500">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
             </div>
             {/*<div className="grid grid-cols-2 mt-4 mr-5 gap-3 md:grid-cols-3">
