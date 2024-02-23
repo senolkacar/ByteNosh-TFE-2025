@@ -22,7 +22,7 @@ export default function HomeMenu() {
         }
     };
     return (
-        <section className="m-4 w-full ">
+        <section className="m-4 mx-auto max-w-screen-xl ">
             <div className="mt-10 pl-4">
                 <h2 className="text-5xl font-extrabold ">Most popular dishes</h2>
                 <p className="text-lg mt-4 text-gray-500">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>

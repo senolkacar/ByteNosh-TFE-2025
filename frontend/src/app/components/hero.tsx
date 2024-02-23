@@ -2,8 +2,10 @@ import Image from 'next/image';
 
 export default function Hero() {
     return (
-        <section className="bg-amber-50 grid grid-cols-2 p-8">
-            <div className="py-12">
+        <div className="bg-amber-50">
+        <section className="mx-auto max-w-screen-xl p-8">
+            <div className="flex flex-col items-center md:grid grid-cols-2">
+            <div className="py-12 col-span-1">
                 <h1 className="text-6xl font-semibold">
                     Welcome to ByteNosh
                 </h1>
@@ -11,14 +13,16 @@ export default function Hero() {
                     A restaurant management system for small businesses.
                     We help you manage your restaurant, so you can focus on your food.
                 </p>
-                <div className="mt-4">
+                <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
-                    <button className="mt-2 md:bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
+                    <button className="bg-white mt-2 md:bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
                 </div>
             </div>
-            <div className="relative">
-                <Image src={'/food.png'} alt={'food'} layout={'fill'} objectFit={'contain'}/>
+            <div className="col-span-1 relative">
+                <Image src="/food.png" alt="food" height="450" width="450"/>
+            </div>
             </div>
         </section>
+        </div>
     );
 }
