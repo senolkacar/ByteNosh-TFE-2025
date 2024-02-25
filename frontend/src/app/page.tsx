@@ -1,11 +1,10 @@
 import Header from './components/header'
-import Hero from './components/hero'
+import HomeHero from './components/homehero'
 import HomeMenu from "@/app/components/homemenu";
 export default function Home() {
   return (
     <>
-    <Header></Header>
-      <Hero></Hero>
+      <HomeHero></HomeHero>
       <HomeMenu></HomeMenu>
     </>
   )

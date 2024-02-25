@@ -1,8 +1,8 @@
 import Image from 'next/image';
 
-export default function Hero() {
+export default function HomeHero() {
     return (
-        <div className="bg-amber-50">
+        <div className="bg-amber-50 px-4 py-24">
         <section className="mx-auto max-w-screen-xl p-8">
             <div className="flex flex-col items-center md:grid grid-cols-2">
             <div className="py-12 col-span-1">
