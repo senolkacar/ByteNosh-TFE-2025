@@ -1,6 +1,12 @@
 import Link from "next/link";
 
 export default function Sidebar() {
+    const navigation = [
+        { name: 'Soup', href: '#', icon: '🍲' },
+        { name: 'Starter', href: '#', icon: '🥗' },
+        { name: 'Hot Dishes', href: '#', icon: '🔥' },
+        // Add other navigation items here
+    ];
     return (
         <div className="mt-8">
             <Link href="/" className="text-xl font-bold mb-4">
