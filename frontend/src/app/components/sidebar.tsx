@@ -1,44 +1,64 @@
-import Link from "next/link";
+'use client';
 
-export default function Sidebar() {
-    const navigation = [
-        { name: 'Soup', href: '#', icon: '🍲' },
-        { name: 'Starter', href: '#', icon: '🥗' },
-        { name: 'Hot Dishes', href: '#', icon: '🔥' },
-        // Add other navigation items here
-    ];
-    return (
-        <div className="mt-8">
-            <Link href="/" className="text-xl font-bold mb-4">
-                My Restaurant POS
-            </Link>
-            <ul className="space-y-2">
-                <li>
-                    <Link href="/dashboard" className="hover:text-gray-300">
-                        Dashboard
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/orders" className="hover:text-gray-300">
-                        Orders
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/inventory" className="hover:text-gray-300">
-                        Inventory
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/customers" className="hover:text-gray-300">
-                        Customers
-                    </Link>
-                </li>
-                <li>
-                    <Link href="/settings" className="hover:text-gray-300">
-                        Settings
-                    </Link>
-                </li>
-            </ul>
-        </div>
-);
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BackHandIcon from '@mui/icons-material/BackHand';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Link from "next/link";
+import {useSelectedLayoutSegment} from "next/navigation";
+
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(' ')
 }
+
+const Sidebar = () => {
+    const path = useSelectedLayoutSegment();
+    const sidebarOptions = [
+        {name: 'Orders', href: 'orders', icon: BackHandIcon},
+        {name: 'Menu', href: 'menu', icon: FastfoodIcon},
+        {name: 'Tables', href: 'tables', icon: TableRestaurantIcon},
+        {name: 'Reports', href: 'reports', icon: EqualizerIcon},
+        {name: 'Settings', href: 'settings', icon: SettingsIcon},
+    ];
+
+    return (
+            <div className="fixed inset-y-0 flex w-72 flex-col">
+                <div className="flex flex-col w-64 h-full bg-gray-800 text-white">
+                    <div className="flex items-center justify-center shrink-0 h-16 bg-gray-800">
+                        <Link href="/">
+                            <p className="text-2xl font-bold text-fuchsia-600">ByteNosh</p>
+                        </Link>
+                    </div>
+                    <nav className="flex flex-1 flex-col px-3">
+                        {sidebarOptions.map((option, idx) => (
+                            <Link href={option.href} key={idx}>
+                            <span
+                                className={classNames(
+                                    option.href === path
+                                        ? 'bg-fuchsia-700 text-white'
+                                        : 'text-gray-300 hover:bg-fuchsia-700 hover:text-white hover:px-3',
+                                    'group flex gap-x-3 p-2 py-6 my-1 text-sm rounded-lg leading-6 font-semibold'
+                                )}
+                            >
+                                <option.icon className="w-6 h-6" aria-hidden="true"/>
+                                <span className="ml-2">{option.name}</span>
+                            </span>
+                            </Link>
+                        ))}
+                    </nav>
+                    <div className="mt-auto flex items-center px-3">
+                        <AccountCircleIcon className="w-8 h-8 text-gray-400" aria-hidden="true"/>
+                        <span className="ml-3 text-sm font-medium text-gray-300">User Name</span>
+                    </div>
+                    <div className="mt-auto flex items-center p-3">
+                        <LogoutIcon className="w-8 h-8 text-gray-400" aria-hidden="true"/>
+                        <span className="ml-3 text-sm font-medium text-gray-300">Log out</span>
+                    </div>
+                </div>
+            </div>
+    )
+}
+export default Sidebar;
