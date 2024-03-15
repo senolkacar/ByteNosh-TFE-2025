@@ -1,3 +1,4 @@
+'use client';
 export default function MenuItem() {
     return (
         <div className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">

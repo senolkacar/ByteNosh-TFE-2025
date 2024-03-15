@@ -1,8 +1,11 @@
 'use client';
 import MenuItem from "@/app/components/menuitem";
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import Carousel from "react-multi-carousel";
-import 'react-multi-carousel/lib/styles.css';
+import { Swiper, SwiperSlide} from "swiper/react";
+import { Navigation,Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import Link from "next/link";
 
 export default function HomeMenu() {
@@ -34,16 +37,46 @@ export default function HomeMenu() {
                 </div>
                 <p className="text-lg mt-4 text-gray-500">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
             </div>
-            <Carousel
-                responsive={responsive}
-            >
-                <MenuItem/>
-                <MenuItem/>
-                <MenuItem/>
-                <MenuItem/>
-                <MenuItem/>
-                <MenuItem/>
-            </Carousel>
+            <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={5}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                breakpoints={{
+                    640: {
+                        slidesPerView: 1,
+                        spaceBetween: 4,
+                    },
+                    768: {
+                        slidesPerView: 2,
+                        spaceBetween: 4,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                        spaceBetween: 5,
+                    },
+
+                }}
+                >
+
+                <SwiperSlide>
+                    <MenuItem/>
+                </SwiperSlide>
+                <SwiperSlide>
+                    <MenuItem/>
+                </SwiperSlide>
+                <SwiperSlide>
+                    <MenuItem/>
+                </SwiperSlide>
+                <SwiperSlide>
+                    <MenuItem/>
+                </SwiperSlide>
+                <SwiperSlide>
+                    <MenuItem/>
+                </SwiperSlide>
+
+            </Swiper>
         </section>
     );
 }
