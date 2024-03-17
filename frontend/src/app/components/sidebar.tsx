@@ -17,11 +17,11 @@ function classNames(...classes: string[]) {
 const Sidebar = () => {
     const path = useSelectedLayoutSegment();
     const sidebarOptions = [
-        {name: 'Orders', href: 'orders', icon: BackHandIcon},
-        {name: 'Menu', href: 'menu', icon: FastfoodIcon},
-        {name: 'Tables', href: 'tables', icon: TableRestaurantIcon},
-        {name: 'Reports', href: 'reports', icon: EqualizerIcon},
-        {name: 'Settings', href: 'settings', icon: SettingsIcon},
+        {name: 'Orders', href: '/pos/orders', icon: BackHandIcon},
+        {name: 'Menu', href: '/pos/menu', icon: FastfoodIcon},
+        {name: 'Tables', href: '/pos/tables', icon: TableRestaurantIcon},
+        {name: 'Reports', href: '/pos/reports', icon: EqualizerIcon},
+        {name: 'Settings', href: '/pos/settings', icon: SettingsIcon},
     ];
 
     return (

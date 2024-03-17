@@ -3,6 +3,7 @@
 import MainTitle from "@/app/components/maintitle";
 import {useEffect, useState} from "react";
 
+
 interface Meal {
     _id: string;
     name: string;

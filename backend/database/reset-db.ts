@@ -1,29 +1,33 @@
 import mongoose from 'mongoose';
+import user from '../src/user';
+import meal from '../src/meal';
+import table from '../src/table';
+import order from '../src/order';
 
 const DB_URI = 'mongodb://localhost:27017/bytenosh';
 
-interface DummyUser{
-    username: string;
-    password: string;
-}
 
-const DUMMY_USERS: DummyUser[] = [
-    {username: 'user1',password: 'password1'},
-    {username: 'user2',password: 'password2'}
+const USERS = [
+    {
+        username: 'admin',
+        password: 'admin',
+        role: 'admin',
+    },
+    {
+        username: 'user',
+        password: 'user',
+        role: 'user',
+    },
+    {
+        username:'employee',
+        password:'employee',
+        role:'employee'
+    }
+
 ];
 
-interface Meals{
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    vegetarian: boolean;
-    vegan: boolean;
-    category: string;
-}
-
-const MEALS: Meals[] = [
-{
+const MEALS = [
+    {
         name: 'Spaghetti Carbonara',
         description: 'Spaghetti with bacon, eggs, and parmesan cheese',
         price: 12.99,
@@ -141,46 +145,79 @@ const MEALS: Meals[] = [
         vegan: false,
         category: 'Drinks'
     }
+];
 
-
-]
+const TABLES = [{
+    number: 1,
+    name: 'Table 1',
+    seats: 4,
+    available: true,
+}, {
+    number: 2,
+    name: 'Table 2',
+    seats: 4,
+    available: true,
+}, {
+    number: 3,
+    name: 'Table 3',
+    seats: 6,
+    available: true,
+}, {
+    number: 4,
+    name: 'Table 4',
+    seats: 6,
+    available: true,
+}
+];
 
 async function main(): Promise<void> {
     try {
         // Connect to MongoDB
         await mongoose.connect(DB_URI);
+        console.log('Connected to MongoDB');
 
-        // Define User model with type safety
-        const User = mongoose.model<DummyUser>(
-            'User',
-            new mongoose.Schema({
-                username: String,
-                password: String,
-            }),
-        );
+        await meal.deleteMany({});
+        console.log('Deleted existing meals');
+        await user.deleteMany({});
+        console.log('Deleted existing users');
+        await table.deleteMany({});
+        console.log('Deleted existing tables');
+        await order.deleteMany({});
+        console.log('Deleted existing orders');
 
-        // Define Meal model with type safety
-        const Meal = mongoose.model<Meals>(
-            'Meal',
-            new mongoose.Schema({
-                name: String,
-                description: String,
-                price: Number,
-                image: String,
-                vegetarian: Boolean,
-                vegan: Boolean,
-                category: String
-            }),
-        );
+        const meals = await meal.insertMany(MEALS);
+        console.log('Inserted meals');
+        const users = await user.insertMany(USERS);
+        console.log('Inserted users');
+        const tables = await table.insertMany(TABLES);
+        console.log('Inserted tables');
+        const ORDERS = [
+            {
+                table: tables.find(t => t.name === 'Table 1')!._id,
+                meals: meals.filter(m => m.name && ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => m._id),
+                date: new Date(),
+                status: 'pending'
+            },
+            {
+                table: tables.find(t => t.name === 'Table 2')!._id,
+                meals: meals.filter(m => m.name && ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => m._id),
+                date: new Date(),
+                status: 'completed'
+            },
+            {
+                table: tables.find(t => t.name === 'Table 3')!._id,
+                meals: meals.filter(m => m.name && ['Tiramisu', 'Pastéis de Nata'].includes(m.name)).map(m => m._id),
+                date: new Date(),
+                status: 'pending'
+            }
+        ];
 
-         await Meal.deleteMany({});
-         await User.deleteMany({});
-         await Meal.insertMany(MEALS);
-         await User.insertMany(DUMMY_USERS);
+        await order.insertMany(ORDERS);
+        console.log('Inserted orders');
 
-        console.log('Dummy user data and meals inserted successfully!');
+        console.log('Data inserted successfully!');
     } catch (error) {
-        console.error('Error inserting dummy user data:', error);
+        console.error('Error inserting users data:', error);
         process.exit(1);
     } finally {
         await mongoose.disconnect();
