@@ -6,9 +6,10 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
+import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from "next/link";
-import {useSelectedLayoutSegment} from "next/navigation";
+import {usePathname, useSelectedLayoutSegment} from "next/navigation";
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
@@ -16,13 +17,21 @@ function classNames(...classes: string[]) {
 
 const Sidebar = () => {
     const path = useSelectedLayoutSegment();
-    const sidebarOptions = [
-        {name: 'Orders', href: '/pos/orders', icon: BackHandIcon},
-        {name: 'Menu', href: '/pos/menu', icon: FastfoodIcon},
-        {name: 'Tables', href: '/pos/tables', icon: TableRestaurantIcon},
-        {name: 'Reports', href: '/pos/reports', icon: EqualizerIcon},
-        {name: 'Settings', href: '/pos/settings', icon: SettingsIcon},
-    ];
+    const pathName = usePathname();
+    let sidebarOptions = [];
+    if(pathName === '/pos'){
+        sidebarOptions = [
+            {name: 'Orders', href: '/pos/orders', icon: BackHandIcon},
+            {name: 'Menu', href: '/pos/menu', icon: FastfoodIcon},
+            {name: 'Tables', href: '/pos/tables', icon: TableRestaurantIcon},
+            {name: 'Reports', href: '/pos/reports', icon: EqualizerIcon},
+            {name: 'Settings', href: '/pos/settings', icon: SettingsIcon},];
+    }else{
+        sidebarOptions = [
+            {name: 'Dashboard', href: '/tablet/dashboard', icon: HomeIcon},
+            {name: 'Menu', href: '/tablet/menu', icon: FastfoodIcon},];
+    }
+
 
     return (
             <div className="fixed inset-y-0 flex w-72 flex-col">

@@ -20,7 +20,6 @@ export default function Menu(){
     const [selectedCategory, setSelectedCategory] = useState<string>('All dishes');
     const [searchQuery, setSearchQuery] = useState<string>('');
     useEffect(() => {
-        // Fetch meals data from your API
         fetch('/api/meals')
             .then(response => response.json())
             .then((data: Meal[]) => setMeals(data)) // Use the Meal type for fetched data
