@@ -2,8 +2,33 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/tablet/client/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/client/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/client/build" />
+      <excludeFolder url="file://$MODULE_DIR$/backend/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/frontend/.next" />
+      <excludeFolder url="file://$MODULE_DIR$/frontend/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/android/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/build" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/macos/Flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/windows/flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/employe/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/employe/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/employe/macos/Flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/client/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/client/macos/Flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/pos/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/pos/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/pos/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/pos/build" />
+      <excludeFolder url="file://$MODULE_DIR$/tablet/pos/macos/Flutter/ephemeral" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
   </component>
 </module>
