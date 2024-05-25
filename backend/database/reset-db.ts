@@ -3,24 +3,30 @@ import user from '../src/user';
 import meal from '../src/meal';
 import table from '../src/table';
 import order from '../src/order';
+import * as bcrypt from 'bcrypt';
 
 const DB_URI = 'mongodb://localhost:27017/bytenosh';
+const saltRounds = 10;
+
+const hashPassword = async (password: string): Promise<string> => {
+    return bcrypt.hash(password, saltRounds);
+};
 
 
 const USERS = [
     {
-        username: 'admin',
-        password: 'admin',
+        email: 'admin@test.com',
+        password:'admin123',
         role: 'admin',
     },
     {
-        username: 'user',
-        password: 'user',
+        username: 'user@test.com',
+        password: 'user123',
         role: 'user',
     },
     {
-        username:'employee',
-        password:'employee',
+        username:'employee@test.com',
+        password: 'employee123',
         role:'employee'
     }
 
@@ -184,6 +190,10 @@ async function main(): Promise<void> {
         console.log('Deleted existing tables');
         await order.deleteMany({});
         console.log('Deleted existing orders');
+
+        for (let user of USERS) {
+            user.password = await hashPassword(user.password);
+        }
 
         const meals = await meal.insertMany(MEALS);
         console.log('Inserted meals');

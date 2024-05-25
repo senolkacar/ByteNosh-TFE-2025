@@ -1,7 +1,11 @@
+import 'dart:convert';
+
+import 'package:client/screens/homepage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:client/components/input_field.dart';
 import 'package:client/components/login_button.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -21,11 +26,36 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void signUserIn() {
+  void signUserIn() async {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-      // If the form is valid, perform the login logic here
-      // For example, call the AuthService to sign the user in
-      print('Form is valid. Perform login.');
+      final email = emailController.text;
+      final password = passwordController.text;
+
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:5000/api/auth/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final String token = responseData['token'];
+
+        // Navigate to HomePageScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomepageScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${response.body}')),
+        );
+      }
     }
   }
 
@@ -85,7 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   InputField(
                     controller: passwordController,
                     hintText: 'Password',
-                    obscureText: true,
+                    obscureText: !_passwordVisible,
+                    isPassword: true,
                     validator: validatePassword,
                   ),
                   const SizedBox(height: 10),

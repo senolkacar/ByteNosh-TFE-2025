@@ -25,6 +25,8 @@
       <excludeFolder url="file://$MODULE_DIR$/tablet/pos/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/tablet/pos/build" />
       <excludeFolder url="file://$MODULE_DIR$/tablet/pos/macos/Flutter/ephemeral" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/client/linux/flutter/ephemeral" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -6,6 +6,7 @@ import Meal from "./meal";
 import Table from "./table";
 import User from "./user";
 import Order from "./order";
+import Auth from "./auth";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,8 @@ app.use(express.json());
 mongoose.connect('mongodb://localhost:27017/bytenosh');
 
 // Define routes and other backend logic...
+app.use('/api/auth', Auth);
+
 app.get('/api/meals', async (req, res) => {
     try {
         const meals = await Meal.find(); // Fetch all meals from the database

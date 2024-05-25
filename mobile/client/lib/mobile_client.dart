@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:client/screens/login_screen.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MobileApp());
 }
 
