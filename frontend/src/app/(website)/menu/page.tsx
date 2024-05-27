@@ -40,6 +40,7 @@ export default function Menu(){
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value.toLowerCase());
     };
+    const baseUrl = 'http://localhost:5000';
     return(
         <>
             <MainTitle title={"Menu"} description={"Discover our delicious dishes and drinks"} linkText={"Home"} linkUrl={"/"}/>
@@ -70,7 +71,7 @@ export default function Menu(){
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {filteredMeals.map(meal => (
                             <div key={meal._id} className="border rounded-lg overflow-hidden shadow-lg">
-                                <img src={meal.image} alt={meal.name} className="w-full h-64 object-cover"/>
+                                <img src={`${baseUrl}${meal.image}`} alt={meal.name} className="w-full h-64 object-cover"/>
                                 <div className="p-4">
                                     <h3 className="font-bold text-lg mb-2">{meal.name}</h3>
                                     <p className="text-gray-700 text-base mb-4">{meal.description}</p>

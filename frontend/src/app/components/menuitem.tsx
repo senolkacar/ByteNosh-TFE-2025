@@ -3,7 +3,7 @@ export default function MenuItem() {
     return (
         <div className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">
             <div className="flex justify-center">
-            <img className="w-1/2" src="/images/food.png" alt="food"/>
+            <img className="w-1/2" src="http://localhost:5000/images/food.png" alt="food"/>
             </div>
             <h4 className="text-xl font-semibold my-3">Food Name</h4>
             <p className="text-gray-500">Description of the food</p>

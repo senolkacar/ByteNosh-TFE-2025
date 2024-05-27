@@ -9,6 +9,7 @@ import Order from "./order";
 import Auth from "./auth";
 
 const app = express();
+const path = require('path');
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -20,6 +21,8 @@ mongoose.connect('mongodb://localhost:27017/bytenosh');
 
 // Define routes and other backend logic...
 app.use('/api/auth', Auth);
+
+app.use('/images', express.static(path.join(__dirname, '..', 'images')));
 
 app.get('/api/meals', async (req, res) => {
     try {

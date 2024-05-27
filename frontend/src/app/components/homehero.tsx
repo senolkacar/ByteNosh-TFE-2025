@@ -19,7 +19,7 @@ export default function HomeHero() {
                 </div>
             </div>
             <div className="col-span-1 relative">
-                <Image src="/images/food.png" alt="food" height="450" width="450"/>
+                <Image src="http://localhost:5000/images/food.png" alt="food" height="450" width="450"/>
             </div>
             </div>
         </section>
