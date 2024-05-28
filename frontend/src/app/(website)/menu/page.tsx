@@ -12,7 +12,7 @@ interface Meal {
     image: string;
     vegetarian: boolean;
     vegan: boolean;
-    category: string;
+    categoryName: string;
 }
 
 export default function Menu(){
@@ -31,7 +31,7 @@ export default function Menu(){
     };
 
     const filteredMeals = meals.filter(meal =>
-        (selectedCategory === 'All dishes' || meal.category === selectedCategory) &&
+        (selectedCategory === 'All dishes' || meal.categoryName === selectedCategory) &&
         (meal.name.toLowerCase().includes(searchQuery) ||
             (meal.vegan && 'vegan'.includes(searchQuery)) ||
             (meal.vegetarian && 'vegetarian'.includes(searchQuery)))

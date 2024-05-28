@@ -7,7 +7,8 @@ const mealSchema = new mongoose.Schema({
     image: String,
     vegetarian: Boolean,
     vegan: Boolean,
-    category: String,
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    categoryName : String
 });
 
 export default mongoose.model('Meal', mealSchema);

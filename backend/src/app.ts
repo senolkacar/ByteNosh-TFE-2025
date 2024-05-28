@@ -7,6 +7,7 @@ import Table from "./table";
 import User from "./user";
 import Order from "./order";
 import Auth from "./auth";
+import Category from "./category";
 
 const app = express();
 const path = require('path');
@@ -30,6 +31,15 @@ app.get('/api/meals', async (req, res) => {
         res.json(meals);
     } catch (error) {
         res.status(500).json({ message: "Error fetching meals" });
+    }
+});
+
+app.get('/api/categories',async (req, res) => {
+    try {
+        const categories = await Category.find();
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({message: "Error fetching categories"});
     }
 });
 
