@@ -9,19 +9,21 @@ class FoodItem {
   final bool vegetarian;
   final bool vegan;
   final String category;
+  final String categoryName;
 
-  FoodItem({required this.id,required this.name, required this.description, required this.price, required this.imageUrl, required this.vegetarian, required this.vegan, required this.category});
+  FoodItem({required this.id,required this.name, required this.description, required this.price, required this.imageUrl, required this.vegetarian, required this.vegan, required this.category,required this.categoryName});
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
     return FoodItem(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      price: json['price'],
-      imageUrl: json['image'],
-      vegetarian: json['vegetarian'],
-      vegan: json['vegan'],
-      category: json['category'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description']?? '',
+      price: json['price'] ?? 0.0,
+      imageUrl: json['image'] ?? '',
+      vegetarian: json['vegetarian'] ?? false,
+      vegan: json['vegan'] ?? false,
+      category: json['category'] ?? '',
+      categoryName: json['category_name'] ?? '',
     );
   }
 }

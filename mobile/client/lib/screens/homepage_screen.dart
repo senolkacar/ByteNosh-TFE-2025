@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '/models/food_item.dart';
 import 'package:http/http.dart' as http;
@@ -7,9 +6,7 @@ import 'package:http/http.dart' as http;
 class HomepageScreen extends StatefulWidget {
   final String userEmail;
 
-  const HomepageScreen(
-      {super.key,required this.userEmail}
-      );
+  const HomepageScreen({super.key, required this.userEmail});
 
   @override
   State<HomepageScreen> createState() => _HomepageScreenState();
@@ -19,6 +16,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
   late Future<List<FoodItem>> foodItems;
   final String baseUrl = 'http://10.0.2.2:5000';
   TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -26,10 +24,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
   }
 
   Future<List<FoodItem>> fetchFoodItems() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:5000/api/meals'));
+    final response = await http.get(Uri.parse('$baseUrl/api/meals'));
 
     if (response.statusCode == 200) {
       List jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
       return jsonResponse.map((item) => FoodItem.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load food items');
@@ -39,9 +38,20 @@ class _HomepageScreenState extends State<HomepageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Home Page'),
+        foregroundColor: Colors.pink[900],
+        backgroundColor: Colors.grey[200],
+        title: const Text(
+          'ByteNosh',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          Text('Welcome, '),
+          Text(widget.userEmail,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black)),
+        ],
       ),
       body: Column(
         children: [
@@ -58,83 +68,141 @@ class _HomepageScreenState extends State<HomepageScreen> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Our Menu',
+                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.pink[900],
+                      backgroundColor: Colors.white,
+                      textStyle: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    child: const Text('View All'),
+                    onPressed: () {
+                      // Redirect to the menu page
+                    },
+                  ),
+                ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 100.0, // Set a fixed height for the container
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  Card(
+                    child: Container(
+                      width: 100,
+                      child: Center(child: Text('All dishes')),
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      width: 100,
+                      child: Center(child: Text('Starters')),
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      width: 100,
+                      child: Center(child: Text('Main Dishes')),
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      width: 100,
+                      child: Center(child: Text('Desserts')),
+                    ),
+                  ),
+                  Card(
+                    child: Container(
+                      width: 100,
+                      child: Center(child: Text('Drinks')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Popular Dishes',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
           Expanded(
             child: FutureBuilder<List<FoodItem>>(
               future: foodItems,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Text('${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No food items available'));
+                  return Center(child: Text('No popular dishes available'));
                 } else {
                   return GridView.builder(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Number of columns in the grid
-                      childAspectRatio: 0.8, // Adjust the aspect ratio as needed
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                      childAspectRatio: 2/3,
                     ),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final foodItem = snapshot.data![index];
-                      final fullImageUrl = '$baseUrl${foodItem.imageUrl}';
-                      int quantity = 0;
                       return Card(
-                        margin: const EdgeInsets.all(10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
+                            ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
                               child: Image.network(
-                                fullImageUrl,
+                                '$baseUrl${foodItem.imageUrl}',
+                                width: double.infinity,
+                                height: 100,
                                 fit: BoxFit.cover,
                               ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    foodItem.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    foodItem.description,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    foodItem.price.toString()+'€',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                      ElevatedButton(
-                      onPressed: () {
-                      // Add the item to the cart with the specified quantity
-                      },
-                      style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber[400],
-                      ),
-                      child: const Center(
-                        child: Text(
-                        'Add to cart',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                        ),
-                      ),
-                      ),
-                                ],
+                              child: Text(
+                                foodItem.name,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(foodItem.description,maxLines: 2,
+                                overflow: TextOverflow.ellipsis,),
+                            ),
+                            Spacer(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${foodItem.price.toStringAsFixed(2)}€',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ],
@@ -148,9 +216,27 @@ class _HomepageScreenState extends State<HomepageScreen> {
           ),
         ],
       ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu),
+              label: 'Menu',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Cart',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: 'Favorites',
+            ),
+          ],
+        ),
     );
   }
 }
-
-
-
