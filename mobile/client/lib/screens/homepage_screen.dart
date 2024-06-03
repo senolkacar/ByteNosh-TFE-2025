@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '/models/food_item.dart';
+import '/screens/add_screen.dart';
+import '/screens/profile_screen.dart';
+import '/screens/menu_screen.dart';
 import 'package:http/http.dart' as http;
 
 class HomepageScreen extends StatefulWidget {
@@ -33,6 +36,15 @@ class _HomepageScreenState extends State<HomepageScreen> {
     } else {
       throw Exception('Failed to load food items');
     }
+  }
+
+  void _showAddItemModal(FoodItem foodItem) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return AddItemModal(foodItem: foodItem);
+      },
+    );
   }
 
   @override
@@ -155,7 +167,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8.0,
                       mainAxisSpacing: 8.0,
-                      childAspectRatio: 2/3,
+                      childAspectRatio: 2/2.5,
                     ),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
@@ -197,12 +209,27 @@ class _HomepageScreenState extends State<HomepageScreen> {
                             Spacer(),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                '${foodItem.price.toStringAsFixed(2)}€',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${foodItem.price.toStringAsFixed(2)}€',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.pink,
+                                    ),
+                                      onPressed: () {
+                                        _showAddItemModal(foodItem);
+                                      },
+                                      icon: Icon(Icons.add_shopping_cart),
+                                      label: Text('Add'),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -216,6 +243,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
           ),
         ],
       ),
+
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
@@ -235,7 +263,39 @@ class _HomepageScreenState extends State<HomepageScreen> {
               icon: Icon(Icons.favorite),
               label: 'Favorites',
             ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile'
+            ),
           ],
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                break;
+              case 1:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MenuScreen(),
+                  ),
+                );
+                break;
+              case 2:
+                // Redirect to the cart page
+                break;
+              case 3:
+                // Redirect to the favorites page
+                break;
+              case 4:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(userEmail: widget.userEmail),
+                  ),
+                );
+                break;
+            }
+          },
         ),
     );
   }
