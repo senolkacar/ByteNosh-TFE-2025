@@ -27,7 +27,8 @@ app.use('/images', express.static(path.join(__dirname, '..', 'images')));
 
 app.get('/api/meals', async (req, res) => {
     try {
-        const meals = await Meal.find(); // Fetch all meals from the database
+       const categoryName = req.query.categoryName;
+               const meals = await Meal.find(categoryName ? { categoryName } : {});
         res.json(meals);
     } catch (error) {
         res.status(500).json({ message: "Error fetching meals" });
