@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from "next/link";
 
 export default function HomeHero() {
     return (
@@ -15,7 +16,9 @@ export default function HomeHero() {
                 </p>
                 <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
-                    <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
+                    <Link href="signup">
+                        <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
+                    </Link>
                 </div>
             </div>
             <div className="col-span-1 relative">
