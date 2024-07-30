@@ -5,20 +5,26 @@ import { body, validationResult } from 'express-validator';
 import User from './user';
 
 const router = express.Router();
-const JWT_SECRET = 'your_jwt_secret'; // Replace with a secure secret in production
+const JWT_SECRET = 'NYhTFQ20lSC6KcnTaTk397mDxfPe4MvZWQY3ekdAiH8=';
 
 // Register a new user
 router.post(
     '/register',
     body('email').isEmail(),
     body('password').isLength({ min: 6 }),
+    body('confirmPassword').isLength({ min: 6 }),
+    body('role').isIn(['ADMIN', 'USER', 'EMPLOYEE']),
     async (req: Request, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { username, email, password } = req.body;
+        const { username, email, password, confirmPassword } = req.body;
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
 
         try {
             const existingUser = await User.findOne({ email });
@@ -27,7 +33,7 @@ router.post(
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({ username, email, password: hashedPassword });
+            const newUser = new User({ username, email, password: hashedPassword,role:'USER' });
             await newUser.save();
 
             res.status(201).json({ message: 'User created successfully' });
@@ -62,9 +68,45 @@ router.post(
             }
 
             const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token });
+            res.status(200).json({ user, token });
         } catch (error) {
             res.status(500).json({ message: 'Error logging in' });
+        }
+    }
+);
+
+// Return the user with the provided mail else return null
+router.get(
+    '/getUserByMail',
+    async (req: Request, res: Response) => {
+        const { email } = req.body;
+
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(400).json({ message: 'User not found' });
+            }
+
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching user' });
+        }
+    }
+);
+router.get(
+    'getUserById',
+    async (req: Request, res: Response) => {
+        const { id } = req.body;
+
+        try {
+            const user = await User.findOne({ id });
+            if (!user) {
+                return res.status(400).json({ message: 'User not found' });
+            }
+
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({message: 'Error fetching user'});
         }
     }
 );

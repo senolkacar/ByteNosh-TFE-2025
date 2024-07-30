@@ -41,17 +41,17 @@ const USERS = [
     {
         email: 'admin@test.com',
         password: 'admin123',
-        role: 'admin',
+        role: 'ADMIN',
     },
     {
         email: 'user@test.com',
         password: 'user123',
-        role: 'user',
+        role: 'USER',
     },
     {
         email: 'employee@test.com',
         password: 'employee123',
-        role: 'employee'
+        role: 'EMPLOYEE'
     }
 ];
 
