@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import "@/app/globals.css";
 import Header from "@/app/components/header";
+import AuthWrapper from "@/app/components/authwrapper";
 
 const rubik = Rubik({ subsets: ["latin"] });
 
@@ -11,15 +12,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={rubik.className}>
+      <AuthWrapper>
       <Header/>
       {children}
+      </AuthWrapper>
       </body>
     </html>
   );

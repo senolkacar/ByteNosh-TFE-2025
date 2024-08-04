@@ -1,7 +1,10 @@
+"use client";
 import Image from 'next/image';
 import Link from "next/link";
+import {useSession} from "next-auth/react";
 
 export default function HomeHero() {
+    const {data: session,status} = useSession();
     return (
         <div className="bg-amber-50 px-4 py-24">
         <section className="mx-auto max-w-screen-xl p-8">
@@ -16,9 +19,11 @@ export default function HomeHero() {
                 </p>
                 <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
-                    <Link href="signup">
-                        <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
-                    </Link>
+                    {!session && status !== 'loading' ? (
+                        <Link href="signup">
+                            <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
+                        </Link>
+                    ) : ("")}
                 </div>
             </div>
             <div className="col-span-1 relative">
