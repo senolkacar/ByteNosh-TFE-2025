@@ -7,6 +7,8 @@ import clientPromise from "@/lib/db";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import authConfig from "@/auth.config";
 import {signInSchema} from "@/lib/zod";
+import {ZodError} from "zod";
+
 
 const authOptions: NextAuthConfig = {
     adapter: MongoDBAdapter(clientPromise),
@@ -35,25 +37,22 @@ const authOptions: NextAuthConfig = {
                     });
 
                     const data = await res.json();
-
-                    if (!res.ok) {
-                        throw new Error(data.message || 'Login failed');
+                    console.log(data);
+                    if (res.status !== 200) {
+                        console.log('TRIGGERED');
+                        return null;
                     }
 
                     const { user, token } = data;
 
                     if (!user || !token) {
-                        throw new Error('Invalid response from server');
+                        return null;
                     }
 
                     return { ...user, token };
                 } catch (error) {
-                    if (error instanceof Error) {
-                        console.error('Error in authorize function:', error.message);
-                        throw new Error(error.message);
-                    } else {
-                        console.error('Unexpected error in authorize function:', error);
-                        throw new Error('Unexpected error occurred');
+                    if (error instanceof ZodError) {
+                        return null;
                     }
                 }
             },
@@ -63,6 +62,9 @@ const authOptions: NextAuthConfig = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
     ],
+    pages:{
+        signIn: "/auth/login",
+    }
 };
-//TODO: IMPLEMENT SESSION MANAGEMENT
+
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);

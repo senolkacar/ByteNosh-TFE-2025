@@ -1,10 +1,11 @@
 "use client";
-import React, {useEffect, useState, useTransition} from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
-import {Input} from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
 
 import {
     Form,
@@ -14,19 +15,15 @@ import {
     FormLabel,
     FormMessage
 } from "@/components/ui/form";
-import {Button} from "@/components/ui/button";
-import {FormError} from "@/components/form-error";
-import {FormSuccess} from "@/components/form-success";
+import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/form-error";
+import { FormSuccess } from "@/components/form-success";
 import Link from "next/link";
 
-type FormValues = {
-    email: string;
-    password: string;
-};
-
 export default function Register() {
-    const [error,setError] = useState<string | undefined>("");
-    const [success,setSuccess] = useState<string | undefined>("");
+    const [error, setError] = useState<string | undefined>("");
+    const [success, setSuccess] = useState<string | undefined>("");
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof RegisterSchema>>({
         resolver: zodResolver(RegisterSchema),
@@ -37,7 +34,7 @@ export default function Register() {
         }
     });
 
-    const onSubmit = async (values:z.infer<typeof RegisterSchema>) => {
+    const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
         try {
             const res = await fetch('http://localhost:5000/api/auth/register', {
                 method: 'POST',
@@ -52,6 +49,7 @@ export default function Register() {
                 setError(data.errors[0].msg);
             } else {
                 setSuccess('Registration successful');
+                router.push('/auth/login');
             }
         } catch (error) {
             setError('Something went wrong');
@@ -71,28 +69,28 @@ export default function Register() {
                                 >
                                     <div className="space-y-4">
                                         <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({ field })=>(
-                                            <FormItem>
-                                                <FormLabel>
-                                                    Email
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        {...field}
-                                                        placeholder="enter your mail"
-                                                        type="email"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                    )}
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Email
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            placeholder="enter your mail"
+                                                            type="email"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
                                         <FormField
                                             control={form.control}
                                             name="password"
-                                            render={({ field })=>(
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>
                                                         Password
@@ -103,14 +101,14 @@ export default function Register() {
                                                             type="password"
                                                         />
                                                     </FormControl>
-                                                    <FormMessage/>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                         <FormField
                                             control={form.control}
                                             name="confirmPassword"
-                                            render={({ field })=>(
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>
                                                         Confirm Password
@@ -121,15 +119,15 @@ export default function Register() {
                                                             type="password"
                                                         />
                                                     </FormControl>
-                                                    <FormMessage/>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                     </div>
-                                    <FormError message={error}/>
-                                    <FormSuccess message={success}/>
+                                    <FormError message={error} />
+                                    <FormSuccess message={success} />
                                     <Button
-                                    type="submit" className="w-full py-3 px-6">
+                                        type="submit" className="w-full py-3 px-6">
                                         Create an account
                                     </Button>
                                 </form>

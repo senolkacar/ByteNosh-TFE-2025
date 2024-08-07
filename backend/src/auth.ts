@@ -3,9 +3,14 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from './user';
+import dotenv from 'dotenv';
 
+dotenv.config({path: '../.env'});
 const router = express.Router();
-const JWT_SECRET = 'NYhTFQ20lSC6KcnTaTk397mDxfPe4MvZWQY3ekdAiH8=';
+const JWT_SECRET = process.env.AUTH_SECRET
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+}
 
 // Register a new user
 router.post(
@@ -13,7 +18,6 @@ router.post(
     body('email').isEmail(),
     body('password').isLength({ min: 6 }),
     body('confirmPassword').isLength({ min: 6 }),
-    body('role').isIn(['ADMIN', 'USER', 'EMPLOYEE']),
     async (req: Request, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -33,7 +37,7 @@ router.post(
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({ username, email, password: hashedPassword,role:'USER' });
+            const newUser = new User({ username, email, password: hashedPassword, role: 'USER' });
             await newUser.save();
 
             res.status(201).json({ message: 'User created successfully' });
@@ -59,12 +63,12 @@ router.post(
         try {
             const user = await User.findOne({ email });
             if (!user || !user.password) {
-                return res.status(400).json({ message: 'Invalid credentials user not found' });
+                return res.status(400).json({ message: 'Invalid credentials' });
             }
 
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
             if (!isPasswordCorrect) {
-                return res.status(400).json({ message: 'Invalid credentials'+user.password });
+                return res.status(401).json({ message: 'Password is incorrect' });
             }
 
             const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });

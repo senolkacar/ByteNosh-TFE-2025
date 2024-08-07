@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from "next/link";
 import {useSession} from "next-auth/react";
+import {RegisterButton} from "@/components/auth/register-button";
 
 export default function HomeHero() {
     const {data: session,status} = useSession();
@@ -20,9 +21,9 @@ export default function HomeHero() {
                 <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
                     {!session && status !== 'loading' ? (
-                        <Link href="signup">
+                        <RegisterButton>
                             <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>
-                        </Link>
+                        </RegisterButton>
                     ) : ("")}
                 </div>
             </div>

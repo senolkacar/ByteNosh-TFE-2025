@@ -34,28 +34,32 @@ export default function Login() {
         }
     });
 
-    const onSubmit = async (values:z.infer<typeof LoginSchema>) => {
-        setError('');
-        setSuccess('');
 
-        const { email, password } = values;
+    const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
+            setError('');
+            setSuccess('');
 
-        try {
-            const result = await signIn('credentials', {
-                email,
-                password,
-                redirectTo: DEFAULT_REDIRECT,
-            });
+            const {email, password} = values;
 
-            if (result?.error) {
-                setError(result.error);
-            } else {
-                setSuccess('Login successful');
+            try {
+                const result = await signIn('credentials', {
+                    email,
+                    password,
+                    redirect:false,
+                });
+
+                if (result?.error) {
+                    result.error === 'CredentialsSignin' ? setError('Invalid credentials') :
+                    setError(result.error);
+                } else {
+                    console.log(result)
+                    setSuccess('Login successful');
+                    window.location.href = DEFAULT_REDIRECT;
+                }
+            } catch (error) {
+                setError("An unexpected error occurred.");
             }
-        } catch (error) {
-            setError('Something went wrong');
-        }
-    };
+        };
 
     return (
         <div className="bg-amber-50 px-4 py-24 pb-4">
