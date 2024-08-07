@@ -22,7 +22,6 @@ const authOptions: NextAuthConfig = {
             },
             authorize: async (credentials, request) => {
                 if (!credentials) {
-                    console.error('No credentials provided');
                     return null;
                 }
 
@@ -39,7 +38,6 @@ const authOptions: NextAuthConfig = {
                     const data = await res.json();
                     console.log(data);
                     if (res.status !== 200) {
-                        console.log('TRIGGERED');
                         return null;
                     }
 

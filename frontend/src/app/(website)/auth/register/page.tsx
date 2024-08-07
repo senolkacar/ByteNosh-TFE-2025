@@ -46,13 +46,18 @@ export default function Register() {
 
             if (!res.ok) {
                 const data = await res.json();
-                setError(data.errors[0].msg);
+                setError(data.message || data.errors[0].msg);
             } else {
                 setSuccess('Registration successful');
                 router.push('/auth/login');
             }
         } catch (error) {
-            setError('Something went wrong');
+            if (error instanceof Response) {
+                const data = await error.json();
+                setError(data.message || 'An unexpected error occurred.');
+            } else {
+                setError('An unexpected error occurred.');
+            }
         }
     };
 
