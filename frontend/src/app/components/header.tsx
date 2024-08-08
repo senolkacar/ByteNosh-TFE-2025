@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Link from "next/link";
 import { LoginButton } from "@/components/auth/login-button";
 import { useSession } from "next-auth/react";
-import { LogOutButton } from "@/components/auth/logout-button";
+import LoginIcon from '@mui/icons-material/Login';
 import AccountMenu from "@/app/components/myaccount";
 
 export default function Header() {
@@ -38,8 +38,8 @@ export default function Header() {
                                     ) : status !== 'loading' && !session ? (
                                         <LoginButton>
                                             <span
-                                                className="py-3 px-6 rounded-md shadow-md font-bold text-center bg-yellow-400 focus:shadow-none block md:inline">
-                                                Sign In
+                                                className="py-2 px-3 rounded-md font-bold text-center text-fuchsia-700 bg-white focus:shadow-none block md:inline">
+                                                <LoginIcon/>
                                             </span>
                                         </LoginButton>
                                     ) : null}
@@ -60,10 +60,10 @@ export default function Header() {
                                 <AccountMenu />
                             ) : status !== 'loading' && !session ? (
                                 <LoginButton>
-                                    <span
-                                        className="py-3 px-6 rounded-md shadow-md font-bold text-center bg-yellow-400 focus:shadow-none block md:inline">
-                                        Sign In
-                                    </span>
+                                   <span
+                                       className="py-3 px-4 rounded-md font-bold text-center text-fuchsia-700 bg-white focus:shadow-none block md:inline">
+                                                <LoginIcon/> Sign In
+                                   </span>
                                 </LoginButton>
                             ) : null}
                         </div>
