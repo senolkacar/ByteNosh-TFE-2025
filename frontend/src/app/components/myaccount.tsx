@@ -12,6 +12,7 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { styled } from '@mui/material/styles';
 import {LogOutButton} from "@/components/auth/logout-button";
+import {useRouter} from "next/navigation";
 
 export default function AccountMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -21,6 +22,11 @@ export default function AccountMenu() {
     };
     const handleClose = () => {
         setAnchorEl(null);
+    };
+    const router = useRouter();
+    const handleMyAccountClick = () => {
+        handleClose();
+        router.push('/dashboard');
     };
     const PinkBorderAvatar = styled(Avatar)({
         border: '2px solid #9c27b0', // pink 900 color
@@ -76,7 +82,7 @@ export default function AccountMenu() {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem onClick={handleClose}>
+                <MenuItem onClick={handleMyAccountClick}>
                     <Avatar /> My account
                 </MenuItem>
                 <Divider />
