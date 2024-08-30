@@ -21,7 +21,7 @@ export default function Profile() {
                             {/* Avatar Section */}
                             <div className="flex items-center gap-4">
                                 <Avatar className="w-20 h-20">
-                                    <AvatarImage src="/avatars/01.png" alt="Avatar" />
+                                    <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
                                     <AvatarFallback>OM</AvatarFallback>
                                 </Avatar>
                                 <Button variant="outline">Change Avatar</Button>
