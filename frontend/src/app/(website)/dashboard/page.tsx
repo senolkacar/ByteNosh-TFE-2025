@@ -1,5 +1,4 @@
 "use client";
-
 import {DashboardScreen} from "@/app/components/dashboard";
 
 export default function Dashboard() {

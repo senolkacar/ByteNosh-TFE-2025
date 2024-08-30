@@ -1,22 +1,18 @@
-"use client";
-
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import {
-    Menu,
-    Package2,
-} from "lucide-react";
-
+import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {DashboardHome} from "@/app/components/dashboard-home";
+import { DashboardHome } from "@/app/components/dashboard-home";
 import Profile from "@/app/components/profile";
 import OrdersPage from "@/app/components/orders";
 import ReservationsPage from "@/app/components/reservation";
 import SettingsPage from "@/app/components/settings";
 
+
 export function DashboardScreen() {
     const [activeSection, setActiveSection] = useState("Dashboard");
+
 
     return (
         <div className="flex min-h-screen w-full flex-col">
@@ -117,31 +113,11 @@ export function DashboardScreen() {
                 </Sheet>
             </header>
             <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-                {activeSection === "Dashboard" && (
-                    <div>
-                        <DashboardHome/>
-                    </div>
-                )}
-                {activeSection === "Profile" && (
-                    <div>
-                        <Profile/>
-                    </div>
-                )}
-                {activeSection === "Orders" && (
-                    <div>
-                       <OrdersPage/>
-                    </div>
-                )}
-                {activeSection === "Reservations" && (
-                    <div>
-                      <ReservationsPage/>
-                    </div>
-                )}
-                {activeSection === "Settings" && (
-                    <div>
-                        <SettingsPage/>
-                    </div>
-                )}
+                {activeSection === "Dashboard" && <DashboardHome />}
+                {activeSection === "Profile" && <Profile />}
+                {activeSection === "Orders" && <OrdersPage />}
+                {activeSection === "Reservations" && <ReservationsPage />}
+                {activeSection === "Settings" && <SettingsPage />}
             </main>
         </div>
     );
