@@ -2,19 +2,27 @@ import * as React from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
-import { styled } from '@mui/material/styles';
 import { LogOutButton } from "@/components/auth/logout-button";
-
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+import { useRouter } from 'next/navigation';
+import { useActiveSection } from "@/app/context/activesectioncontext";
+import { usePathname } from 'next/navigation';
 
 export default function AccountMenu() {
+    const router = useRouter();
+    const { setActiveSection } = useActiveSection();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const pathname = usePathname();
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -25,16 +33,19 @@ export default function AccountMenu() {
     };
 
     const handleMyAccountClick = () => {
+        router.push('/dashboard');
+        setActiveSection("Dashboard");
         handleClose();
     };
 
     const handleSettingsClick = () => {
+
+        if(pathname !== '/dashboard') {
+            router.push('/dashboard');
+        }
+        setActiveSection("Settings");
         handleClose();
     };
-
-    const PinkBorderAvatar = styled(Avatar)({
-        border: '2px solid #9c27b0', // pink 900 color
-    });
 
     return (
         <React.Fragment>
@@ -47,7 +58,10 @@ export default function AccountMenu() {
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
                 >
-                    <PinkBorderAvatar sx={{ width: 32, height: 32 }}>M</PinkBorderAvatar>
+                    <Avatar className="hidden h-9 w-9 sm:flex">
+                        <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
+                        <AvatarFallback>SD</AvatarFallback>
+                    </Avatar>
                 </IconButton>
             </Tooltip>
             <Menu
@@ -58,7 +72,10 @@ export default function AccountMenu() {
                 onClick={handleClose}
             >
                 <MenuItem onClick={handleMyAccountClick}>
-                    <Avatar /> My account
+                    <Avatar className="hidden h-9 w-9 sm:flex">
+                        <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
+                        <AvatarFallback>SD</AvatarFallback>
+                    </Avatar> My account
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={handleSettingsClick}>

@@ -8,10 +8,11 @@ import Profile from "@/app/components/profile";
 import OrdersPage from "@/app/components/orders";
 import ReservationsPage from "@/app/components/reservation";
 import SettingsPage from "@/app/components/settings";
+import { useActiveSection } from "@/app/context/activesectioncontext";
 
 
 export function DashboardScreen() {
-    const [activeSection, setActiveSection] = useState("Dashboard");
+    const { activeSection, setActiveSection } = useActiveSection();
 
 
     return (

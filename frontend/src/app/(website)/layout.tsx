@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import "@/app/globals.css";
 import Header from "@/app/components/header";
 import AuthWrapper from "@/app/components/authwrapper";
+import {ActiveSectionProvider} from "@/app/context/activesectioncontext";
 
 const rubik = Rubik({ subsets: ["latin"] });
 
@@ -19,10 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={rubik.className}>
+      <ActiveSectionProvider>
       <AuthWrapper>
       <Header/>
       {children}
       </AuthWrapper>
+      </ActiveSectionProvider>
       </body>
     </html>
   );

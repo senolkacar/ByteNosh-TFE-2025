@@ -34,7 +34,6 @@ export default function Header() {
                             </div>
                         </div>
                     </div>
-                    {/* Other navigation items */}
                     <div className="hidden md:flex items-center">
                         {status !== 'loading' && session ? (
                             <AccountMenu />
