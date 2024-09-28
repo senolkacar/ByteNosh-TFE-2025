@@ -7,6 +7,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import Link from "next/link";
+import DownloadApp from "@/app/components/downloadapp";
+import Footer from "@/app/components/footer";
 
 export default function HomeMenu() {
     const responsive = {
@@ -77,6 +79,8 @@ export default function HomeMenu() {
                 </SwiperSlide>
 
             </Swiper>
+        <DownloadApp/>
+            <Footer/>
         </section>
     );
 }
