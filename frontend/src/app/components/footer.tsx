@@ -1,4 +1,8 @@
 "use client";
+import FacebookIcon from '@mui/icons-material/Facebook';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import XIcon from '@mui/icons-material/X';
 
 export default function Footer(){
     return (
@@ -14,16 +18,16 @@ export default function Footer(){
                     <div className="flex justify-center md:justify-start mt-4">
                         {/* Social icons */}
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <i className="fab fa-facebook-f"></i>
+                            <FacebookIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <i className="fab fa-linkedin"></i>
+                           <LinkedInIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <i className="fab fa-instagram"></i>
+                            <InstagramIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <i className="fab fa-twitter"></i>
+                            <XIcon/>
                         </a>
                     </div>
                 </div>
@@ -34,7 +38,6 @@ export default function Footer(){
                     <ul className="space-y-2">
                         <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
                         <li><a href="#" className="text-gray-400 hover:text-white">Menu</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Testimonial</a></li>
                         <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
                         <li><a href="#" className="text-gray-400 hover:text-white">Contact Us</a></li>
                     </ul>
@@ -44,11 +47,11 @@ export default function Footer(){
                 <div>
                     <h2 className="font-semibold text-lg mb-4">Our Menu</h2>
                     <ul className="space-y-2">
-                        <li><a href="#" className="text-gray-400 hover:text-white">Burger</a></li>
+                        <li><a href="#" className="text-gray-400 hover:text-white">Starters</a></li>
+                        <li><a href="#" className="text-gray-400 hover:text-white">Main Dishes</a></li>
                         <li><a href="#" className="text-gray-400 hover:text-white">Desserts</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Pizza</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Pasta</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Kabab</a></li>
+                        <li><a href="#" className="text-gray-400 hover:text-white">Drinks</a></li>
+                        <li><a href="#" className="text-gray-400 hover:text-white">Others</a></li>
                     </ul>
                 </div>
 

@@ -14,8 +14,8 @@ export default function Header() {
         { title: "Home", path: "/" },
         { title: "Menu", path: "/menu" },
         { title: "Blog", path: "" },
-        { title: "Contact", path: "" },
-        { title: "About", path: "" }];
+        { title: "Contact Us", path: "" },
+        { title: "About Us", path: "" }];
 
     return (
         <div className="py-8 fixed bg-white w-full z-10 border-b">
