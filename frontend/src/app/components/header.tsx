@@ -14,7 +14,7 @@ export default function Header() {
         { title: "Home", path: "/" },
         { title: "Menu", path: "/menu" },
         { title: "Blog", path: "" },
-        { title: "Contact Us", path: "" },
+        { title: "Contact Us", path: "/contactus" },
         { title: "About Us", path: "/aboutus" }];
 
     return (

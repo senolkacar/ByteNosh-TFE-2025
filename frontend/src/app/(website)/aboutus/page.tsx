@@ -13,7 +13,7 @@ export default function AboutUs() {
         <>
         <MainTitle title={"About Us"} description={"Learn more about us"} linkText={"Home"} linkUrl={"/"}/>
         <div className="container mt-6 p-8">
-            <div className="flex">
+            <div className="flex flex-col md:flex-row">
                 <div className="flex-1 p-3">
                     <img src="http://localhost:5000/images/waitress.jpg" alt="About us" className="w-3/4 mx-auto"/>
                 </div>
@@ -24,7 +24,7 @@ export default function AboutUs() {
                         Consectetur adipisicing elit. Cupiditate nesciunt amet facilis numquam, nam adipisci qui voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea laborum.</p>
                 </div>
             </div>
-            <div className="flex mt-20">
+            <div className="flex flex-col md:flex-row mt-20">
                 <div className="flex-1">
                     <h2 className="text-6xl font-semibold mb-3 ml-4">Restaurant is like a theater. <br/> Our task is to amaze
                         you!</h2>
@@ -32,7 +32,7 @@ export default function AboutUs() {
                         numquam, nam adipisci qui
                         voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea
                         laborum.</p>
-                    <button onClick={openModal} className="bg-yellow-400 font-bold px-4 py-2 mr-4 ml-4 mt-3"><PlayArrowIcon/> Promo video</button>
+                    <button onClick={openModal} className="bg-yellow-400 font-bold px-4 py-2 mr-4 ml-4 mt-3 mb-3"><PlayArrowIcon/> Promo video</button>
                 </div>
                 <div className="flex-1 relative">
                     <img src="http://localhost:5000/images/promovideo.jpg" alt="Promo video" className="w-3/4 mx-auto"/>

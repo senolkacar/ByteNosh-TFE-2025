@@ -5,7 +5,7 @@ import { body, validationResult } from 'express-validator';
 import User from './user';
 import dotenv from 'dotenv';
 
-dotenv.config({path: '../.env'});
+dotenv.config({path: './.env'});
 const router = express.Router();
 const JWT_SECRET = process.env.AUTH_SECRET
 if (!JWT_SECRET) {

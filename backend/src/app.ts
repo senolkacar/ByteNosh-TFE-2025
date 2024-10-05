@@ -11,6 +11,7 @@ import Category from "./category";
 
 const app = express();
 const path = require('path');
+const nodemailer = require('nodemailer');
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -68,6 +69,34 @@ app.get('/api/orders', async (req, res) => {
         res.json(orders);
     } catch (error) {
         res.status(500).json({message: "Error fetching orders"});
+    }
+});
+
+app.post("/api/send-email", async (req, res) => {
+    const { fullname, email, message } = req.body;
+
+    // Configure the email transporter
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    // Configure the email options
+    const mailOptions = {
+        from: email,
+        to: "recipient-email@example.com",
+        subject: `Message from ${fullname}`,
+        text: message
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.status(200).send("Email sent successfully");
+    } catch (error) {
+        res.status(500).send("Failed to send email");
     }
 });
 
