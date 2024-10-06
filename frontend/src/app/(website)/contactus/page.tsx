@@ -3,6 +3,10 @@
 import React, { useState } from "react";
 import SendIcon from '@mui/icons-material/Send';
 import MainTitle from "@/app/components/maintitle";
+import dynamic from 'next/dynamic';
+
+// Dynamically import the Map component
+const Map = dynamic(() => import('../../components/map'), { ssr: false });
 
 export default function ContactUs() {
     const [formData, setFormData] = useState({
@@ -34,7 +38,7 @@ export default function ContactUs() {
 
     return (
         <>
-        <MainTitle title={"Contact Us"} description={"Contact Us"} linkText={"Home"} linkUrl={"/"}/>
+            <MainTitle title={"Contact Us"} description={"Contact Us"} linkText={"Home"} linkUrl={"/"}/>
             <div className="container mt-6 p-8">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex-1 p-3">
@@ -77,14 +81,19 @@ export default function ContactUs() {
                                 type="submit"
                                 className="w-full text-center py-3 rounded bg-yellow-400 text-black hover:bg-yellow-500 focus:outline-none my-1"
                             >
-                                <SendIcon/> Send Message
+                                <SendIcon /> Send Message
                             </button>
                         </form>
                     </div>
                 </div>
-                <div className="flex-1 flex justify-center">
-                    <h2 className="text-6xl font-semibold mb-3 text-center">Our location</h2>
-
+                <div className="mt-10">
+                    <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
+                    <div className="flex justify-center">
+                        {/* Add the map component here */}
+                        <div className="w-full max-w-4xl h-[400px]">
+                            <Map />
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
