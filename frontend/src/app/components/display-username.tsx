@@ -8,7 +8,7 @@ export default function DisplayUsername() {
     return (
         <div>
             {status !== 'loading' && session ? (
-                <p className="font-light text-gray-500 ml-2">Welcome, <text className="font-semibold"> {session.user?.email}</text></p>
+                <p className="font-light text-gray-500 ml-2">Welcome, <span className="font-semibold"> {session.user?.email}</span></p>
             ) : null}
         </div>
     );

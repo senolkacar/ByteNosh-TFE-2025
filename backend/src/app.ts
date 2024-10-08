@@ -8,6 +8,7 @@ import User from "./user";
 import Order from "./order";
 import Auth from "./auth";
 import Category from "./category";
+import Post from "./post";
 
 const app = express();
 const path = require('path');
@@ -72,6 +73,14 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({message: "Error fetching posts"});
+    }
+});
 app.post("/api/send-email", async (req, res) => {
     const { fullname, email, message } = req.body;
 

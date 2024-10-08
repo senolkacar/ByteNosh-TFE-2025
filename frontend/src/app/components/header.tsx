@@ -14,12 +14,11 @@ export default function Header() {
     const navigation = [
         { title: "Home", path: "/" },
         { title: "Menu", path: "/menu" },
-        { title: "Blog", path: "" },
+        { title: "Blog", path: "/blog" },
         { title: "Contact Us", path: "/contactus" },
         { title: "About Us", path: "/aboutus" }];
 
     return (
-        console.log(session),
         <div className="py-8 fixed bg-white w-full z-10 border-b">
             <header>
                 <nav

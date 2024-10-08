@@ -4,6 +4,7 @@ import meal from '../src/meal';
 import table from '../src/table';
 import order from '../src/order';
 import category from '../src/category';
+import post from '../src/post';
 import * as bcrypt from 'bcrypt';
 
 const DB_URI = 'mongodb://localhost:27017/bytenosh';
@@ -105,6 +106,24 @@ async function main(): Promise<void> {
         for (let user of USERS) {
             user.password = await hashPassword(user.password);
         }
+
+        const POSTS = [
+            {
+                title: 'First Post',
+                body: 'This is the first post',
+                author: 'John Doe',
+            },
+            {
+                title: 'Second Post',
+                body: 'This is the second post',
+                author: 'John Doe',
+            },
+            {
+                title: 'Third Post',
+                body: 'This is the third post',
+                author: 'John Doe',
+            }
+        ]
 
         const MEALS = [
             {
@@ -246,6 +265,8 @@ async function main(): Promise<void> {
         console.log('Inserted meals');
         const users = await user.insertMany(USERS);
         console.log('Inserted users');
+        const posts = await post.insertMany(POSTS);
+        console.log('Inserted posts');
         const tables = await table.insertMany(TABLES);
         console.log('Inserted tables');
         const ORDERS = [
