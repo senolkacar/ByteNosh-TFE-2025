@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import LoginIcon from '@mui/icons-material/Login';
 import AccountMenu from "@/app/components/myaccount";
 import {useState} from "react";
+import DisplayUsername from "@/app/components/display-username";
 
 export default function Header() {
     const { data: session, status } = useSession();
@@ -18,6 +19,7 @@ export default function Header() {
         { title: "About Us", path: "/aboutus" }];
 
     return (
+        console.log(session),
         <div className="py-8 fixed bg-white w-full z-10 border-b">
             <header>
                 <nav
@@ -36,10 +38,10 @@ export default function Header() {
                                     <AccountMenu/>
                                 ) : status !== 'loading' && !session ? (
                                     <LoginButton>
-                                        <span
-                                            className="py-2 px-3 rounded-md font-bold text-center text-fuchsia-700 bg-white">
-                                            <LoginIcon/>
-                                        </span>
+                                    <span
+                                        className="py-2 px-3 rounded-md font-bold text-center text-fuchsia-700 bg-white">
+                                    <LoginIcon/>
+                                    </span>
                                     </LoginButton>
                                 ) : null}
                             </div>

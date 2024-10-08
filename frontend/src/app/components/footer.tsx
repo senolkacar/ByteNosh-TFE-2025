@@ -18,16 +18,16 @@ export default function Footer() {
                     <div className="mt-4 flex justify-center md:justify-start">
                         {/* Social icons */}
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <FacebookIcon />
+                            <FacebookIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <LinkedInIcon />
+                            <LinkedInIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <InstagramIcon />
+                            <InstagramIcon/>
                         </a>
                         <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <XIcon />
+                            <XIcon/>
                         </a>
                     </div>
                 </div>
@@ -53,6 +53,18 @@ export default function Footer() {
                         <li><a href="#" className="text-gray-400 hover:text-white">Drinks</a></li>
                         <li><a href="#" className="text-gray-400 hover:text-white">Others</a></li>
                     </ul>
+                </div>
+
+                <div className="flex-1 flex flex-col items-center">
+                    <h2 className="font-semibold text-lg mb-4">Make your reservation now</h2>
+                    <p className="font-semibold text-cyan-700">
+                        EPFC asbl
+                        <br/><br/>
+                        Avenue de l'Astronomie 19
+                        1210 Saint-Josse-ten-Noode
+                        <br/><br/>
+                        02 777 10 10
+                    </p>
                 </div>
             </div>
 

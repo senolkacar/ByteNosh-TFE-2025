@@ -5,7 +5,6 @@ import SendIcon from '@mui/icons-material/Send';
 import MainTitle from "@/app/components/maintitle";
 import dynamic from 'next/dynamic';
 
-// Dynamically import the Map component
 const Map = dynamic(() => import('../../components/map'), { ssr: false });
 
 export default function ContactUs() {
@@ -89,7 +88,6 @@ export default function ContactUs() {
                 <div className="mt-10">
                     <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
                     <div className="flex justify-center">
-                        {/* Add the map component here */}
                         <div className="w-full max-w-4xl h-[400px]">
                             <Map />
                         </div>

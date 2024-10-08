@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useActiveSection } from "@/app/context/activesectioncontext";
 import { usePathname } from 'next/navigation';
+import DisplayUsername from "@/app/components/display-username";
 
 export default function AccountMenu() {
     const router = useRouter();
@@ -62,6 +63,7 @@ export default function AccountMenu() {
                         <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
                         <AvatarFallback>SD</AvatarFallback>
                     </Avatar>
+                    <DisplayUsername/>
                 </IconButton>
             </Tooltip>
             <Menu
@@ -72,7 +74,7 @@ export default function AccountMenu() {
                 onClick={handleClose}
             >
                 <MenuItem onClick={handleMyAccountClick}>
-                    <Avatar className="hidden h-9 w-9 sm:flex">
+                    <Avatar className="hidden h-9 w-9 mr-2 sm:flex">
                         <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
                         <AvatarFallback>SD</AvatarFallback>
                     </Avatar> My account
