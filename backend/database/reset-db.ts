@@ -99,6 +99,8 @@ async function main(): Promise<void> {
         console.log('Deleted existing orders');
         await category.deleteMany({});
         console.log('Deleted existing categories');
+        await post.deleteMany({});
+        console.log('Deleted existing posts');
 
         const createdCategories = await category.insertMany(CATEGORIES);
         console.log('Inserted categories');

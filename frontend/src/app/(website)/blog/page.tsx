@@ -1,13 +1,15 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {Button} from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
+import MainTitle from "@/app/components/maintitle";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
 type Post = {
     _id: string;
     title: string;
     body: string;
     author: string;
+    date: string;
 };
 
 
@@ -25,24 +27,31 @@ export default function BlogPage() {
     }, []);
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-6">Latest Blog Posts</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {posts.map((post) => (
-                    <Card key={post._id} className="shadow-lg">
-                        <CardHeader>
-                            <CardTitle>{post.title}</CardTitle>
-                            <Badge className="ml-2" variant="outline">{post.author}</Badge>
-                        </CardHeader>
-                        <CardContent>
-                            <p>{post.body.substring(0, 150)}...</p>
-                        </CardContent>
-                        <CardFooter>
-                            <Button variant="link">Read More</Button>
-                        </CardFooter>
-                    </Card>
-                ))}
+        <>
+            <MainTitle title={"Blog"} description={"Latest Articles"} linkText={"Home"} linkUrl={"/"} />
+            <div className="container mx-auto mt-6 p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {posts.map((post) => (
+                        <Card key={post._id} className="shadow-md transition-transform transform hover:scale-105">
+                            <CardHeader className="p-0">
+                                <img
+                                    className="rounded-t-lg object-cover w-full h-64"
+                                    src="http://localhost:5000/images/food.png"
+                                    alt="food"
+                                />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-sm text-gray-500">{post.date} | {post.author}</p>
+                                    <Button variant="outline" className="text-xs">Read More</Button>
+                                </div>
+                                <CardTitle className="text-xl mt-2 font-semibold">{post.title}</CardTitle>
+                                <CardDescription className="mt-2 text-gray-700">{post.body}</CardDescription>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
