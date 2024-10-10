@@ -34,7 +34,6 @@ export default function ContactUs() {
             alert("Failed to send message.");
         }
     };
-
     return (
         <>
             <MainTitle title={"Contact Us"} description={"Contact Us"} linkText={"Home"} linkUrl={"/"}/>
@@ -87,6 +86,13 @@ export default function ContactUs() {
                 </div>
                 <div className="mt-10">
                     <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
+                    <div className="flex justify-center">
+                        <div>
+                        <p className="font-semibold text-center">Tel: 02 777 10 10</p>
+                        <p className="font-semibold text-center">Address: Avenue de l'Astronomie 19, 1210 Saint-Josse-ten-Noode</p>
+                        <p className="font-semibold text-center"> EPFC asbl</p>
+                        </div>
+                    </div>
                     <div className="flex justify-center">
                         <div className="w-full max-w-4xl h-[400px]">
                             <Map />

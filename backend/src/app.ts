@@ -81,6 +81,17 @@ app.get('/api/posts', async (req, res) => {
         res.status(500).json({message: "Error fetching posts"});
     }
 });
+
+app.get('/api/blog/:id', async (req, res) => {
+    try {
+        const postId = new mongoose.Types.ObjectId(req.params.id);
+        const post = await Post.findById(postId);
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({message: "Error fetching post"});
+    }
+});
+
 app.post("/api/send-email", async (req, res) => {
     const { fullname, email, message } = req.body;
 

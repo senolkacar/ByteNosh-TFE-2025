@@ -57,7 +57,7 @@ export default function Footer() {
 
                 <div className="flex-1 flex flex-col items-center">
                     <h2 className="font-semibold text-lg mb-4">Make your reservation now</h2>
-                    <p className="font-semibold text-cyan-700">
+                    <p className="font-semibold text-cyan-700 ml-4">
                         EPFC asbl
                         <br/><br/>
                         Avenue de l'Astronomie 19
