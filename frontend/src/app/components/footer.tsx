@@ -1,10 +1,19 @@
 "use client";
 import FacebookIcon from '@mui/icons-material/Facebook';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import XIcon from '@mui/icons-material/X';
+import {useEffect, useState} from "react";
+import Config from "@/app/models/config";
+import Link from "next/link";
 
 export default function Footer() {
+    const [config, setConfig] = useState<Config>();
+    useEffect(() => {
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(data => setConfig(data))
+            .catch(error => console.error('Error fetching config:', error));
+    }, []);
     return (
         <footer className="bg-black text-white py-5 rounded">
             <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
@@ -12,21 +21,17 @@ export default function Footer() {
                 <div className="flex-1 items-start">
                     <h2 className="font-semibold text-lg mb-4">About Restaurant</h2>
                     <p className="text-gray-400">
-                        Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or
-                        a typeface without relying on meaningful content.
+                        {config?.about}
                     </p>
                     <div className="mt-4 flex justify-center md:justify-start">
                         {/* Social icons */}
-                        <a href="#" className="text-gray-400 hover:text-white mx-2">
+                        <a href={config?.social.facebook} className="text-gray-400 hover:text-white mx-2">
                             <FacebookIcon/>
                         </a>
-                        <a href="#" className="text-gray-400 hover:text-white mx-2">
-                            <LinkedInIcon/>
-                        </a>
-                        <a href="#" className="text-gray-400 hover:text-white mx-2">
+                        <a href={config?.social.instagram} className="text-gray-400 hover:text-white mx-2">
                             <InstagramIcon/>
                         </a>
-                        <a href="#" className="text-gray-400 hover:text-white mx-2">
+                        <a href={config?.social.twitter} className="text-gray-400 hover:text-white mx-2">
                             <XIcon/>
                         </a>
                     </div>
@@ -36,34 +41,21 @@ export default function Footer() {
                 <div className="flex-1 flex flex-col items-center mx-auto">
                     <h2 className="font-semibold text-lg mb-4">Quick Links</h2>
                     <ul className="space-y-2">
-                        <li><a href="#" className="text-gray-400 hover:text-white">About Us</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Menu</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><Link href="/aboutus" className="text-gray-400 hover:text-white">About Us</Link></li>
+                        <li><Link href="/menu" className="text-gray-400 hover:text-white">Menu</Link></li>
+                        <li><Link href="/blog" className="text-gray-400 hover:text-white">Blog</Link></li>
+                        <li><Link href="/contactus" className="text-gray-400 hover:text-white">Contact Us</Link></li>
                     </ul>
                 </div>
 
-                {/* Our Menu Section */}
-                <div className="flex-1 flex flex-col items-center">
-                    <h2 className="font-semibold text-lg mb-4">Our Menu</h2>
-                    <ul className="space-y-2">
-                        <li><a href="#" className="text-gray-400 hover:text-white">Starters</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Main Dishes</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Desserts</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Drinks</a></li>
-                        <li><a href="#" className="text-gray-400 hover:text-white">Others</a></li>
-                    </ul>
-                </div>
-
-                <div className="flex-1 flex flex-col items-center">
+                <div className="flex-1 flex flex-col">
                     <h2 className="font-semibold text-lg mb-4">Make your reservation now</h2>
-                    <p className="font-semibold text-cyan-700 ml-4">
-                        EPFC asbl
+                    <p className="font-semibold text-cyan-700">
+                        {config?.name}
                         <br/><br/>
-                        Avenue de l'Astronomie 19
-                        1210 Saint-Josse-ten-Noode
+                        {config?.address}
                         <br/><br/>
-                        02 777 10 10
+                        {config?.telephone}
                     </p>
                 </div>
             </div>

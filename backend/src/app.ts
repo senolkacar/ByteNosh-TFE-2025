@@ -9,18 +9,20 @@ import Order from "./order";
 import Auth from "./auth";
 import Category from "./category";
 import Post from "./post";
+import SiteConfig from "./siteconfig";
 
 const app = express();
 const path = require('path');
 const nodemailer = require('nodemailer');
 const PORT = process.env.PORT || 5000;
+const DB_URI = process.env.MONGODB_URI;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/bytenosh');
+mongoose.connect(DB_URI as string);
 
 // Define routes and other backend logic...
 app.use('/api/auth', Auth);
@@ -89,6 +91,15 @@ app.get('/api/blog/:id', async (req, res) => {
         res.json(post);
     } catch (error) {
         res.status(500).json({message: "Error fetching post"});
+    }
+});
+
+app.get('/api/config', async (req, res) => {
+    try {
+        const config = await SiteConfig.findOne();
+        res.json(config);
+    } catch (error) {
+        res.status(500).json({message: "Error fetching site config"});
     }
 });
 

@@ -1,13 +1,9 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
+import Config from "@/app/models/config";
 
-// Replace with your restaurant's coordinates
-const restaurantCoords = {
-    lat: 50.851561,  // Example latitude (London)
-    lng: 4.369546,   // Example longitude (London)
-};
 
 // Fix default marker icon issue with Webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -18,6 +14,19 @@ L.Icon.Default.mergeOptions({
 });
 
 const Map: FC = () => {
+    const [coords, setCoords] = useState<Config>();
+    useEffect(() => {
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(data => setCoords(data))
+            .catch(error => console.error('Error fetching config:', error));
+    }, []);
+    if (!coords) return <p>Loading map...</p>;
+    const restaurantCoords = {
+        lat: coords.latitude,
+        lng: coords.longitude
+    };
+
     return (
         <MapContainer
             center={restaurantCoords}

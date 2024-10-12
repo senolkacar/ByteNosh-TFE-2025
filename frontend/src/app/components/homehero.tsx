@@ -1,10 +1,18 @@
 "use client";
 import Image from 'next/image';
-import Link from "next/link";
 import {useSession} from "next-auth/react";
 import {RegisterButton} from "@/components/auth/register-button";
+import Config from "@/app/models/config";
+import {useEffect, useState} from "react";
 
 export default function HomeHero() {
+    const [config, setConfig] = useState<Config>();
+    useEffect(() => {
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(data => setConfig(data))
+            .catch(error => console.error('Error fetching config:', error));
+    }, []);
     const {data: session,status} = useSession();
     return (
         <div className="bg-amber-50 px-4 py-24">
@@ -12,11 +20,10 @@ export default function HomeHero() {
             <div className="flex flex-col items-center md:grid grid-cols-2">
             <div className="py-12 col-span-1">
                 <h1 className="text-center text-6xl font-semibold md:text-left">
-                    Welcome to ByteNosh
+                    Welcome to {config?.name}
                 </h1>
                 <p className="text-lg mt-4 text-gray-500">
-                    A restaurant management system for small businesses.
-                    We help you manage your restaurant, so you can focus on your food.
+                    {config?.slogan}
                 </p>
                 <div className="flex items-center mt-6 md:mt-4">
                     <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>

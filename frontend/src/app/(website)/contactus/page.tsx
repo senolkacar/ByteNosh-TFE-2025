@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import SendIcon from '@mui/icons-material/Send';
 import MainTitle from "@/app/components/maintitle";
 import dynamic from 'next/dynamic';
+import Config from "@/app/models/config";
 
 const Map = dynamic(() => import('../../components/map'), { ssr: false });
 
 export default function ContactUs() {
+    const [config, setConfig] = useState<Config>();
+    useEffect(() => {
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(data => setConfig(data))
+            .catch(error => console.error('Error fetching config:', error));
+    }, []);
+
     const [formData, setFormData] = useState({
         fullname: "",
         email: "",
@@ -88,9 +97,9 @@ export default function ContactUs() {
                     <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
                     <div className="flex justify-center">
                         <div>
-                        <p className="font-semibold text-center">Tel: 02 777 10 10</p>
-                        <p className="font-semibold text-center">Address: Avenue de l'Astronomie 19, 1210 Saint-Josse-ten-Noode</p>
-                        <p className="font-semibold text-center"> EPFC asbl</p>
+                        <p className="font-semibold text-center">{config?.telephone}</p>
+                        <p className="font-semibold text-center">Address: {config?.address}</p>
+                        <p className="font-semibold text-center">{config?.name}</p>
                         </div>
                     </div>
                     <div className="flex justify-center">

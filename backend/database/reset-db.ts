@@ -5,9 +5,12 @@ import table from '../src/table';
 import order from '../src/order';
 import category from '../src/category';
 import post from '../src/post';
+import siteConfig from '../src/siteconfig';
 import * as bcrypt from 'bcrypt';
+import * as dotenv from "dotenv";
 
-const DB_URI = 'mongodb://localhost:27017/bytenosh';
+dotenv.config();
+const DB_URI = process.env.MONGODB_URI as string;
 const saltRounds = 10;
 
 const hashPassword = async (password: string): Promise<string> => {
@@ -101,6 +104,8 @@ async function main(): Promise<void> {
         console.log('Deleted existing categories');
         await post.deleteMany({});
         console.log('Deleted existing posts');
+        await siteConfig.deleteMany({});
+        console.log('Deleted existing site config');
 
         const createdCategories = await category.insertMany(CATEGORIES);
         console.log('Inserted categories');
@@ -126,6 +131,27 @@ async function main(): Promise<void> {
                 author: 'John Doe',
             }
         ]
+
+        const SITE_CONFIG = {
+            name: 'ByteNosh',
+            slogan: 'A restaurant management system for small businesses.\n' +
+                '                    We help you manage your restaurant, so you can focus on your food.',
+            about: 'Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or\n' +
+                '                        a typeface without relying on meaningful content.',
+            address: 'Avenue de l\'Astronomie 19\n' +
+                '                        1210 Saint-Josse-ten-Noode',
+            telephone: '02 777 10 10',
+            email: 'admin@test.com',
+            social: {
+                facebook: 'https://www.facebook.com/epfcofficiel/',
+                twitter: 'https://x.com/',
+                instagram: 'https://www.instagram.com/epfc.eu/',
+            },
+            googlePlay: 'https://play.google.com/store/apps?hl=fr&pli=1',
+            appStore: 'https://www.apple.com/befr/app-store/',
+            latitude: '50.851561',
+            longitude: '4.369546',
+        }
 
         const MEALS = [
             {
@@ -269,6 +295,8 @@ async function main(): Promise<void> {
         console.log('Inserted users');
         const posts = await post.insertMany(POSTS);
         console.log('Inserted posts');
+        const siteConfigs = await siteConfig.insertMany(SITE_CONFIG);
+        console.log('Inserted site config');
         const tables = await table.insertMany(TABLES);
         console.log('Inserted tables');
         const ORDERS = [
