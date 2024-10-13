@@ -138,19 +138,44 @@ async function main(): Promise<void> {
                 '                    We help you manage your restaurant, so you can focus on your food.',
             about: 'Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or\n' +
                 '                        a typeface without relying on meaningful content.',
-            address: 'Avenue de l\'Astronomie 19\n' +
-                '                        1210 Saint-Josse-ten-Noode',
-            telephone: '02 777 10 10',
-            email: 'admin@test.com',
             social: {
                 facebook: 'https://www.facebook.com/epfcofficiel/',
                 twitter: 'https://x.com/',
                 instagram: 'https://www.instagram.com/epfc.eu/',
             },
-            googlePlay: 'https://play.google.com/store/apps?hl=fr&pli=1',
-            appStore: 'https://www.apple.com/befr/app-store/',
-            latitude: '50.851561',
-            longitude: '4.369546',
+            popularDishes: {
+                title: 'Popular Dishes',
+                description: 'Discover our popular dishes',
+            },
+            mobile: {
+                title: 'Download the ByteNosh app',
+                description: 'Get the ByteNosh app on your phone and manage your restaurant on the go.',
+                googlePlay: 'https://play.google.com/store/apps?hl=fr&pli=1',
+                appStore: 'https://www.apple.com/befr/app-store/',
+            },
+            contact:{
+                title:'Contact your favorite restaurant',
+                description: 'Consectetur adipisicing elit. Cupiditate nesciunt amet facilis numquam, nam adipisci qui voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea laborum.',
+                latitude: '50.851561',
+                longitude: '4.369546',
+                address: 'Avenue de l\'Astronomie 19\n' +
+                    '                        1210 Saint-Josse-ten-Noode',
+                telephone: '02 777 10 10',
+                email: 'admin@test.com'
+            },
+            aboutUs:{
+                title1: 'We do not cook, we create your emotions!',
+                description1: 'Faudantium magnam error temporibus ipsam aliquid neque quibusdam dolorum, quia ea numquam assumenda mollitia dolorem impedit. Voluptate at quis exercitationem officia temporibus adipisci quae totam enim dolorum, assumenda. Sapiente soluta nostrum reprehenderit a velit obcaecati facilis vitae magnam tenetur neque vel itaque inventore eaque explicabo commodi maxime! Aliquam quasi, voluptates odio.\n' +
+                    '\n' +
+                    '                        Consectetur adipisicing elit. Cupiditate nesciunt amet facilis numquam, nam adipisci qui voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea laborum.',
+                title2: 'Restaurant is like a theater.\n Our task is to amaze you!',
+                description2: 'Consectetur adipisicing elit. Cupiditate nesciunt amet facilis\n' +
+                    '                        numquam, nam adipisci qui\n' +
+                    '                        voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea\n' +
+                    '                        laborum.',
+                video: 'https://www.youtube.com/embed/F3zw1Gvn4Mk',
+            }
+
         }
 
         const MEALS = [

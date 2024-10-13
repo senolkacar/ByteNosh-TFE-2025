@@ -23,8 +23,8 @@ const Map: FC = () => {
     }, []);
     if (!coords) return <p>Loading map...</p>;
     const restaurantCoords = {
-        lat: coords.latitude,
-        lng: coords.longitude
+        lat: coords.contact.latitude,
+        lng: coords.contact.longitude
     };
 
     return (

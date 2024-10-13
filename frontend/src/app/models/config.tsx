@@ -2,16 +2,32 @@ export default interface Config {
     name: string,
     slogan: string,
     about: string,
-    address: string,
-    telephone: string,
-    email: string,
     social: {
         facebook: string,
         twitter: string,
         instagram: string,
     },
-    googlePlay: string,
-    appStore: string,
-    latitude: number,
-    longitude: number,
+    mobile:{
+        title: String,
+        description: String,
+        googlePlay: String,
+        appStore: String,
+    },
+    contact:{
+        title: String,
+        description: String,
+        latitude: number,
+        longitude: number,
+        address: string,
+        telephone: string,
+        email: string,
+    },
+    aboutUs:{
+        title1: String,
+        description1: String,
+        title2: String,
+        description2: String,
+        video: String,
+    }
+
 }

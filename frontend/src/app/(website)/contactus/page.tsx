@@ -49,12 +49,9 @@ export default function ContactUs() {
             <div className="container mt-6 p-8">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex-1 p-3">
-                        <h2 className="text-6xl font-semibold mb-3 ml-4">Contact your favorite restaurant</h2>
+                        <h2 className="text-6xl font-semibold mb-3 ml-4">{config?.contact.title}</h2>
                         <p className="font-light ml-4">
-                            Consectetur adipisicing elit. Cupiditate nesciunt amet facilis numquam, nam adipisci qui
-                            voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem
-                            ea
-                            laborum.
+                            {config?.contact.description}
                         </p>
                     </div>
                     <div className="flex-1 m-3">
@@ -97,8 +94,8 @@ export default function ContactUs() {
                     <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
                     <div className="flex justify-center">
                         <div>
-                        <p className="font-semibold text-center">{config?.telephone}</p>
-                        <p className="font-semibold text-center">Address: {config?.address}</p>
+                        <p className="font-semibold text-center">{config?.contact.telephone}</p>
+                        <p className="font-semibold text-center">Address: {config?.contact.address}</p>
                         <p className="font-semibold text-center">{config?.name}</p>
                         </div>
                     </div>
