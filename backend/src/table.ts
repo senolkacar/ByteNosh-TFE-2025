@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
 const tableSchema = new mongoose.Schema({
+    section: { type: mongoose.Schema.Types.ObjectId, ref: 'Section' },
     number: Number,
     name: String,
     seats: Number,
-    available: Boolean,
+    isAvailable: Boolean,
 });
 
 export default mongoose.model('Table', tableSchema);

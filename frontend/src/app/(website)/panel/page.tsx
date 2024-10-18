@@ -1,25 +1,35 @@
 "use client";
 import Link from "next/link"
+import {useState} from "react";
+import SiteConfiguration from "@/app/components/site-configuration";
+import UsersAndRoles from "@/app/components/users-and-roles";
+import MenuManagement from "@/app/components/menu-management";
+import BlogPost from "@/app/components/blogpost";
+import ReservationSettings from "@/app/components/reservation";
 
-import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
 
-export const description =
-    "A settings page. The settings page has a sidebar navigation and a main content area. The main content area has a form to update the store name and a form to update the plugins directory. The sidebar navigation has links to general, security, integrations, support, organizations, and advanced settings."
 
 export default function Panel() {
+    const [selectedLink, setSelectedLink ] = useState("SiteConfiguration");
+    const renderContent = () => {
+        switch (selectedLink) {
+            case "SiteConfiguration":
+                return <SiteConfiguration />;
+            case "UsersAndRoles":
+                return <UsersAndRoles />;
+            case "MenuManagement":
+                return <MenuManagement />;
+            case "BlogPosts":
+                return <BlogPost />;
+            case "ReservationSettings":
+                return <ReservationSettings />;
+            default:
+                return <SiteConfiguration />;
+        }
+    };
     return (
-        <div className="flex min-h-screen w-full flex-col mt-6 p-8">
-            <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 mt-20 md:gap-8 md:p-10">
+        <div className="flex min-h-screen w-full flex-col">
+            <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 mt-32 md:gap-8 md:p-10">
                 <div className="mx-auto grid w-full max-w-6xl gap-2">
                     <h1 className="text-3xl font-semibold">Settings</h1>
                 </div>
@@ -27,61 +37,24 @@ export default function Panel() {
                     <nav
                         className="grid gap-4 text-sm text-muted-foreground" x-chunk="dashboard-04-chunk-0"
                     >
-                        <Link href="#" className="font-semibold text-primary">
-                            General
+                        <Link href="#" onClick={() => setSelectedLink("SiteConfiguration")} className={`${selectedLink === "SiteConfiguration" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Website Configuration
                         </Link>
-                        <Link href="#">Security</Link>
-                        <Link href="#">Integrations</Link>
-                        <Link href="#">Support</Link>
-                        <Link href="#">Organizations</Link>
-                        <Link href="#">Advanced</Link>
+                        <Link href="#" onClick={() => setSelectedLink("UsersAndRoles")} className={`${selectedLink === "UsersAndRoles" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Users & Roles
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("MenuManagement")} className={`${selectedLink === "MenuManagement" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Menu Management
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("BlogPosts")} className={`${selectedLink === "BlogPosts" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Blog & Posts
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("ReservationSettings")} className={`${selectedLink === "ReservationSettings" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Reservation Settings
+                        </Link>
                     </nav>
                     <div className="grid gap-6">
-                        <Card x-chunk="dashboard-04-chunk-1">
-                            <CardHeader>
-                                <CardTitle>Store Name</CardTitle>
-                                <CardDescription>
-                                    Used to identify your store in the marketplace.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <form>
-                                    <Input placeholder="Store Name" />
-                                </form>
-                            </CardContent>
-                            <CardFooter className="border-t px-6 py-4">
-                                <Button>Save</Button>
-                            </CardFooter>
-                        </Card>
-                        <Card x-chunk="dashboard-04-chunk-2">
-                            <CardHeader>
-                                <CardTitle>Plugins Directory</CardTitle>
-                                <CardDescription>
-                                    The directory within your project, in which your plugins are
-                                    located.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <form className="flex flex-col gap-4">
-                                    <Input
-                                        placeholder="Project Name"
-                                        defaultValue="/content/plugins"
-                                    />
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox id="include" defaultChecked />
-                                        <label
-                                            htmlFor="include"
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >
-                                            Allow administrators to change the directory.
-                                        </label>
-                                    </div>
-                                </form>
-                            </CardContent>
-                            <CardFooter className="border-t px-6 py-4">
-                                <Button>Save</Button>
-                            </CardFooter>
-                        </Card>
+                        {renderContent()}
                     </div>
                 </div>
             </main>

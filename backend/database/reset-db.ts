@@ -8,6 +8,7 @@ import post from '../src/post';
 import siteConfig from '../src/siteconfig';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from "dotenv";
+import section from "../src/section";
 
 dotenv.config();
 const DB_URI = process.env.MONGODB_URI as string;
@@ -59,32 +60,82 @@ const USERS = [
     }
 ];
 
+const SECTIONS: { _id: mongoose.Types.ObjectId, name: string, description: string, tables: mongoose.Types.ObjectId[] }[] = [
+    {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'Indoor',
+        description: 'Indoor section',
+        tables: [],
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'Second Floor',
+        description: 'Second floor section',
+        tables: [],
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'Balcony',
+        description: 'Balcony section',
+        tables: [],
+    }
+];
+
 const TABLES = [
     {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Indoor')!._id,
         number: 1,
         name: 'Table 1',
         seats: 4,
-        available: true,
+        isAvailable: true,
     },
     {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Indoor')!._id,
         number: 2,
         name: 'Table 2',
         seats: 4,
-        available: true,
+        isAvailable: true,
     },
     {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
         number: 3,
         name: 'Table 3',
         seats: 6,
-        available: true,
+        isAvailable: true,
     },
     {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
         number: 4,
         name: 'Table 4',
         seats: 6,
-        available: true,
+        isAvailable: true,
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 5,
+        name: 'Table 5',
+        seats: 2,
+        isAvailable: true,
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 6,
+        name: 'Table 6',
+        seats: 2,
+        isAvailable: true,
     }
 ];
+
+SECTIONS.forEach(section => {
+    section.tables = TABLES.filter(table => table.section.equals(section._id)).map(table => table._id);
+});
+
 
 async function main(): Promise<void> {
     try {
@@ -104,6 +155,8 @@ async function main(): Promise<void> {
         console.log('Deleted existing categories');
         await post.deleteMany({});
         console.log('Deleted existing posts');
+        await section.deleteMany({});
+        console.log('Deleted existing sections');
         await siteConfig.deleteMany({});
         console.log('Deleted existing site config');
 
@@ -324,6 +377,9 @@ async function main(): Promise<void> {
         console.log('Inserted site config');
         const tables = await table.insertMany(TABLES);
         console.log('Inserted tables');
+        const sections = await section.insertMany(SECTIONS);
+        console.log('Inserted sections');
+
         const ORDERS = [
             {
                 table: tables.find(t => t.name === 'Table 1')!._id,
