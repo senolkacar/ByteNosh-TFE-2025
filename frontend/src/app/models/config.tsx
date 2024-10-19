@@ -2,6 +2,10 @@ export default interface Config {
     name: string,
     slogan: string,
     about: string,
+    popularDishes:{
+        title: String,
+        description: String
+    },
     social: {
         facebook: string,
         twitter: string,

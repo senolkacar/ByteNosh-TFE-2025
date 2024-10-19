@@ -131,6 +131,26 @@ app.post("/api/send-email", async (req, res) => {
     }
 });
 
+app.post("/api/set-config", async (req, res) => {
+    const newConfig = req.body;
+    try {
+        const existingConfig = await SiteConfig.findOne();  // Assuming you have one config document
+
+        // If config exists, update it
+        if (existingConfig) {
+            await SiteConfig.updateOne({}, { $set: newConfig });
+            res.status(201).json({ message: "Site config updated successfully" });
+        } else {
+            // If no config exists, create a new one
+            await SiteConfig.create(newConfig);
+            res.status(201).json({ message: "Site config created successfully" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to set site config" });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
