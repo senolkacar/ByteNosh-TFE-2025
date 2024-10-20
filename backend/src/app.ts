@@ -103,6 +103,19 @@ app.get('/api/config', async (req, res) => {
     }
 });
 
+app.get('/api/user/:email', async (req, res) => {
+    try {
+        const email = req.params.email;
+        const user = await User.findOne({ email });
+        if(!user){
+            return res.status(400).json({ message: "User not found" });
+        }
+        res.json(user);
+    }catch (error) {
+        res.status(500).json({message: "Error fetching user"});
+    }
+});
+
 app.post("/api/send-email", async (req, res) => {
     const { fullname, email, message } = req.body;
 
@@ -134,7 +147,8 @@ app.post("/api/send-email", async (req, res) => {
 app.post("/api/set-config", async (req, res) => {
     const newConfig = req.body;
     try {
-        const existingConfig = await SiteConfig.findOne();  // Assuming you have one config document
+        // Get the existing site config
+        const existingConfig = await SiteConfig.findOne();
 
         // If config exists, update it
         if (existingConfig) {
@@ -148,6 +162,26 @@ app.post("/api/set-config", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Failed to set site config" });
+    }
+});
+
+app.post("/api/update-user", async (req, res) => {
+    const updatedUser = req.body;
+    try {
+        const user = await User.findOne({ email: updatedUser.email });
+        if (user) {
+            // Update only the specified fields (like role) in the user
+            await User.updateOne(
+                { email: updatedUser.email }, // filter by email
+                { $set: updatedUser }         // update with the new data
+            );
+            res.status(201).json({ message: "User updated successfully" });
+        } else {
+            await User.create(updatedUser);
+            res.status(201).json({ message: "User created successfully" });
+        }
+    } catch (e) {
+        res.status(500).json({ message: "Error updating user" });
     }
 });
 

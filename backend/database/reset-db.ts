@@ -44,16 +44,22 @@ const CATEGORIES = [
 
 const USERS = [
     {
+        fullName: 'Admin User',
+        phone:'123456789',
         email: 'admin@test.com',
         password: 'admin123',
         role: 'ADMIN',
     },
     {
+        fullName: 'Regular User',
+        phone:'123456789',
         email: 'user@test.com',
         password: 'user123',
         role: 'USER',
     },
     {
+        fullName: 'Employee User',
+        phone:'123456789',
         email: 'employee@test.com',
         password: 'employee123',
         role: 'EMPLOYEE'
