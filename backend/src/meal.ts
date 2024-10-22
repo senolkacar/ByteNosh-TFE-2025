@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const mealSchema = new mongoose.Schema({
+    id: String,
     name: String,
     description: String,
     price: Number,

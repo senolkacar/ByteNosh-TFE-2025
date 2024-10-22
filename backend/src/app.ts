@@ -1,6 +1,7 @@
 // server/src/app.ts
 import express from 'express';
 import mongoose from 'mongoose';
+import multer from 'multer';
 import cors from 'cors';
 import Meal from "./meal";
 import Table from "./table";
@@ -10,6 +11,7 @@ import Auth from "./auth";
 import Category from "./category";
 import Post from "./post";
 import SiteConfig from "./siteconfig";
+import meal from "./meal";
 
 const app = express();
 const path = require('path');
@@ -29,6 +31,26 @@ app.use('/api/auth', Auth);
 
 app.use('/images', express.static(path.join(__dirname, '..', 'images')));
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage });
+
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+    // Send the filename back as a response
+    res.json({ filename: req.file.filename });
+});
+
 app.get('/api/meals', async (req, res) => {
     try {
        const categoryName = req.query.categoryName;
@@ -39,12 +61,145 @@ app.get('/api/meals', async (req, res) => {
     }
 });
 
+app.get('/api/meals/:id', async (req, res) => {
+    try {
+        const mealId = new mongoose.Types.ObjectId(req.params.id);
+        const meal = await Meal.findById(mealId);
+        if (!meal) {
+            return res.status(400).json({ message: "Meal not found" });
+        }
+        res.json(meal);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching meal" });
+    }
+});
+
+app.delete('/api/meals/:id', async (req, res) => {
+    try{
+        const mealId = new mongoose.Types.ObjectId(req.params.id);
+        const meal = await Meal.findById(mealId);
+        if(!meal){
+            return res.status(400).json({message: "Meal not found"});
+        }
+        await Meal.deleteOne({_id: mealId});
+        res.json({message: "Meal deleted successfully"});
+    }catch (error){
+        res.status(500).json({message: "Error deleting meal"});
+    }
+});
+
+app.post('/api/meals', async (req, res) => {
+    const newMeal = req.body;
+    try {
+        await Meal.create(newMeal);
+        res.status(201).json(newMeal);
+    }catch(error){
+        res.status(500).json({message: "Error updating meal"});
+    }
+});
+app.put('/api/meals/:id', async (req, res) => {
+    const mealId = req.params.id; // Get category ID from URL
+    const updatedMeal = req.body; // Get updated category data from request body
+
+    try {
+        const meal = await Meal.findById(mealId); // Find category by ID
+        if (meal) {
+            // Update meal
+            await Meal.updateOne(
+                { _id: mealId },
+                { $set: updatedMeal }
+            );
+            res.status(200).json(meal);
+        } else {
+            // If no meal is found, return an error
+            res.status(404).json({ message: "Meal not found" });
+        }
+    } catch (error) {
+        // Handle any errors that occur
+        res.status(500).json({ message: "Error updating meal" });
+    }
+});
+
+app.delete('/api/category/:id', async (req, res) => {
+    try{
+        const categoryId = new mongoose.Types.ObjectId(req.params.id);
+        const category = await Category.findById(categoryId);
+        if(!category){
+            return res.status(400).json({message: "Category not found"});
+        }
+        await Category.deleteOne({_id: categoryId});
+        res.json({message: "Category deleted successfully"});
+    }catch (error){
+        res.status(500).json({message: "Error deleting category"});
+    }
+});
+
 app.get('/api/categories',async (req, res) => {
     try {
         const categories = await Category.find();
         res.json(categories);
     } catch (error) {
         res.status(500).json({message: "Error fetching categories"});
+    }
+});
+
+app.put('/api/category/:id', async (req, res) => {
+    const categoryId = req.params.id; // Get category ID from URL
+    const newCategory = req.body; // Get updated category data from request body
+
+    try {
+        const category = await Category.findById(categoryId); // Find category by ID
+        if (category) {
+            // Update category
+            await Category.updateOne(
+                { _id: categoryId },
+                { $set: newCategory }
+            );
+            const updatedCategory= await Category.findById(categoryId);
+            res.status(200).json(updatedCategory);
+        } else {
+            // If no category is found, return an error
+            res.status(404).json({ message: "Category not found" });
+        }
+    } catch (error) {
+        // Handle any errors that occur
+        res.status(500).json({ message: "Error updating category" });
+    }
+});
+app.post('/api/categories', async (req, res) => {
+    const newCategory = req.body;
+    try {
+        const category = await Category.findById(newCategory._id);
+        if (category) {
+            await Category.updateOne(
+                { _id: newCategory._id },
+                { $set: newCategory }
+            );
+            res.status(201).json(category);
+        } else {
+            const createdCategory = await Category.create(newCategory);
+            res.status(201).json(createdCategory);
+        }
+    }catch(error){
+        res.status(500).json({message: "Error updating category"});
+    }
+});
+app.put('/api/categories/:id', async (req, res) => {
+    const newCategory = req.body;
+    try {
+        const category = await Category.findById(newCategory._id);
+        if (category) {
+            await Category.updateOne(
+                { _id: newCategory._id },
+                { $set: newCategory }
+            );
+            res.status(201).json({ message: "Category updated successfully" });
+        } else {
+            await Category.create(newCategory);
+            res.status(201).json({ message: "Category created successfully" });
+        }
+    }catch(error){
+        res.status(500).json({message: "Error updating category"});
     }
 });
 
@@ -143,6 +298,8 @@ app.post("/api/send-email", async (req, res) => {
         res.status(500).send("Failed to send email");
     }
 });
+
+
 
 app.post("/api/set-config", async (req, res) => {
     const newConfig = req.body;
