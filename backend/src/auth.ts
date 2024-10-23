@@ -5,9 +5,9 @@ import { body, validationResult } from 'express-validator';
 import User from './user';
 import dotenv from 'dotenv';
 
-dotenv.config({path: './.env'});
+dotenv.config({ path: './.env' });
 const router = express.Router();
-const JWT_SECRET = process.env.AUTH_SECRET
+const JWT_SECRET = process.env.AUTH_SECRET;
 if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not defined');
 }
@@ -18,22 +18,25 @@ router.post(
     body('email').isEmail(),
     body('password').isLength({ min: 6 }),
     body('confirmPassword').isLength({ min: 6 }),
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            res.status(400).json({ errors: errors.array() });
+            return;
         }
 
         const { username, email, password, confirmPassword } = req.body;
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
+            res.status(400).json({ message: 'Passwords do not match' });
+            return;
         }
 
         try {
             const existingUser = await User.findOne({ email });
             if (existingUser) {
-                return res.status(400).json({ message: 'User already exists' });
+                res.status(400).json({ message: 'User already exists' });
+                return;
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,10 +55,11 @@ router.post(
     '/login',
     body('email').isEmail(),
     body('password').exists(),
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            res.status(400).json({ errors: errors.array() });
+            return;
         }
 
         const { email, password } = req.body;
@@ -63,12 +67,14 @@ router.post(
         try {
             const user = await User.findOne({ email });
             if (!user || !user.password) {
-                return res.status(400).json({ message: 'Invalid credentials' });
+                res.status(400).json({ message: 'Invalid credentials' });
+                return;
             }
 
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
             if (!isPasswordCorrect) {
-                return res.status(401).json({ message: 'Password is incorrect' });
+                res.status(400).json({ message: 'Invalid credentials' });
+                return;
             }
 
             const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
@@ -82,35 +88,36 @@ router.post(
 // Return the user with the provided mail else return null
 router.get(
     '/getUserByMail',
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response): Promise<void> => {
         const { email } = req.body;
 
         try {
             const user = await User.findOne({ email });
             if (!user) {
-                return res.status(400).json({ message: 'User not found' });
+                res.status(400).json({ message: 'User not found' });
+                return;
             }
-
             res.json(user);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching user' });
         }
     }
 );
+
 router.get(
-    'getUserById',
-    async (req: Request, res: Response) => {
+    '/getUserById',
+    async (req: Request, res: Response): Promise<void> => {
         const { id } = req.body;
 
         try {
-            const user = await User.findOne({ id });
+            const user = await User.findById(id);
             if (!user) {
-                return res.status(400).json({ message: 'User not found' });
+                res.status(400).json({ message: 'User not found' });
+                return;
             }
-
             res.json(user);
         } catch (error) {
-            res.status(500).json({message: 'Error fetching user'});
+            res.status(500).json({ message: 'Error fetching user' });
         }
     }
 );

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import MainTitle from "@/app/components/maintitle";
+import { use } from 'react';
 
 type Post = {
     _id: string;
@@ -11,13 +12,11 @@ type Post = {
 };
 
 interface BlogPostPageProps {
-    params: {
-        id: string;
-    };
+    params: Promise<{ id: string }>;
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
-    const { id } = params;  // Access the ID directly from params
+    const { id } = use(params);
     const [post, setPost] = useState<Post | null>(null);
 
     useEffect(() => {
