@@ -53,9 +53,9 @@ export default function Footer() {
                     <p className="font-semibold text-cyan-700">
                         {config?.name}
                         <br/><br/>
-                        {config?.address}
+                        {config?.contact.address}
                         <br/><br/>
-                        {config?.telephone}
+                        {config?.contact.telephone}
                     </p>
                 </div>
             </div>

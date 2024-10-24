@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link"
 import {useState} from "react";
-import SiteManagement from "@/app/components/site-management";
+import SiteConfiguration from "@/app/components/site-configuration";
 import UsersAndRoles from "@/app/components/users-and-roles";
 import MenuManagement from "@/app/components/menu-management";
 import BlogPost from "@/app/components/blogpost";
@@ -14,7 +14,7 @@ export default function Panel() {
     const renderContent = () => {
         switch (selectedLink) {
             case "SiteConfiguration":
-                return <SiteManagement />;
+                return <SiteConfiguration />;
             case "UsersAndRoles":
                 return <UsersAndRoles />;
             case "MenuManagement":
@@ -24,7 +24,7 @@ export default function Panel() {
             case "ReservationSettings":
                 return <ReservationSettings />;
             default:
-                return <SiteManagement />;
+                return <SiteConfiguration />;
         }
     };
     return (
