@@ -10,12 +10,15 @@ import Auth from './auth';
 import Category from './category';
 import Post from './post';
 import SiteConfig from './siteconfig';
+import bcrypt from 'bcrypt';
+import { sendEmail } from './mailer';
 
 const app = express();
 const path = require('path');
 const nodemailer = require('nodemailer');
 const PORT = process.env.PORT || 5000;
 const DB_URI = process.env.MONGODB_URI;
+
 
 app.use(cors());
 app.use(express.json());
@@ -248,7 +251,8 @@ app.get('/api/user/:email', async (req, res): Promise<void> => {
             res.status(400).json({ message: "User not found" });
             return;
         }
-        res.json(user);
+        const userWithoutPassword = { ...user.toObject(), password: undefined };
+        res.json(userWithoutPassword);
     } catch (error) {
         res.status(500).json({ message: "Error fetching user" });
     }
@@ -305,7 +309,20 @@ app.post("/api/update-user", async (req, res): Promise<void> => {
             await User.updateOne({ _id: user._id }, { $set: updatedUser });
             res.status(200).json({ message: "User updated successfully" });
         } else {
+            /*
+            * Math.random()                        // Generate random number, eg: 0.123456
+             .toString(36)           // Convert  to base-36 : "0.4fzyo82mvyr"
+                          .slice(-8);// Cut off last 8 characters : "yo82mvyr"
+                          * from https://stackoverflow.com/questions/9719570/generate-random-password-string-with-5-letters-and-3-numbers-in-javascript
+            * */
+            const tempPassword = Math.random().toString(36).slice(-8);
+            const hashedPassword = await bcrypt.hash(tempPassword, 10);
             await User.create(updatedUser);
+            await User.updateOne({ email: updatedUser.email }, { $set: { password: hashedPassword } });
+            const to = updatedUser.email;
+            const subject = "Your temporary password";
+            const text = `Your temporary password is: ${tempPassword}, please change it after login`;
+            await sendEmail(to, subject, text);
             res.status(201).json({ message: "User created successfully" });
         }
     } catch (error) {

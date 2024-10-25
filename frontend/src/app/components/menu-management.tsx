@@ -1,34 +1,5 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import toast,{Toaster} from "react-hot-toast";
-import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import {ChevronRight} from "lucide-react";
 import CategoryConfiguration from "@/app/components/category-configuration";
 import MealConfiguration from "@/app/components/meal-configuration";
 

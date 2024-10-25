@@ -63,6 +63,7 @@ export default function SiteConfiguration() {
     }, []);
 
     const form = useForm({
+        mode: "onChange",
         resolver: zodResolver(schema),
     });
 

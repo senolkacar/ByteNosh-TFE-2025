@@ -4,7 +4,8 @@ export const authRoutes = [
 ];
 
 export const publicRoutes = [
-    "/"
+    "/",
+    "/api/config",
 ];
 
 export const apiAuthPrefix = "/api/auth";

@@ -33,12 +33,15 @@ export default function CategoryConfiguration() {
     const [categories, setCategories] = useState<any[]>([]);
     const [editingCategory, setEditingCategory] = useState<any>(null);
 
+    const formDefaultValues = {
+        name: '',
+        description: '',
+    };
+
     const categoryForm = useForm({
+        mode: "onChange",
         resolver: zodResolver(categorySchema),
-        defaultValues: {
-            name: '',
-            description: '',
-        },
+        defaultValues: formDefaultValues,
     });
 
     useEffect(() => {
@@ -60,8 +63,11 @@ export default function CategoryConfiguration() {
             await fetch(`/api/category/${categoryId}`, {
                 method: "DELETE",
             });
+            if(editingCategory?._id === categoryId) {
+                handleReset()
+            }
             setCategories((prev) => prev.filter((cat) => cat._id !== categoryId));
-            categoryForm.reset(); // Clear the form
+            categoryForm.reset();
             toast.success("Category deleted successfully");
         } catch (error) {
             console.error("Failed to delete category", error);
@@ -74,6 +80,13 @@ export default function CategoryConfiguration() {
             name: category.name,
             description: category.description
         });
+    };
+
+    const handleReset = () => {
+        setEditingCategory(null);
+        categoryForm.reset(
+            formDefaultValues
+        );
     };
 
     // Handle Category Form Submission
@@ -91,8 +104,8 @@ export default function CategoryConfiguration() {
                         cat._id === editingCategory._id ? { ...cat, ...data } : cat
                     )
                 );
-                setEditingCategory(null); // Clear editing mode
-                categoryForm.reset(); // Clear the form
+                categoryForm.reset(data); // Clear the form
+                //handleReset()
                 toast("Category updated successfully");
             } catch (error) {
                 console.error("Failed to update category", error);
@@ -159,9 +172,14 @@ export default function CategoryConfiguration() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">{editingCategory ? "Update" : "Add"} Category</Button>
+                            <Button type="submit"
+                                    disabled={!categoryForm.formState.isDirty || !categoryForm.formState.isValid || categoryForm.formState.isSubmitting}
+                            >{editingCategory ? "Update" : "Add"} Category</Button>
                             {editingCategory && (
-                                <Button onClick={() => setEditingCategory(null)} variant="secondary">
+                                <Button onClick={() =>{
+                                    handleReset()
+                                    }
+                                } variant="secondary">
                                     Cancel Edit
                                 </Button>
                             )}
@@ -183,6 +201,7 @@ export default function CategoryConfiguration() {
                                                 Edit
                                             </Button>
                                             <Button
+                                                type="button"
                                                 onClick={() => handleDeleteCategory(category._id || category.id)}
                                                 variant="destructive"
                                             >
