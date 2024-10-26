@@ -22,11 +22,35 @@ import toast,{Toaster} from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import {ChevronRight} from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+
 
 
 export default function CategoryConfiguration() {
     const [categories, setCategories] = useState<any[]>([]);
     const [editingCategory, setEditingCategory] = useState<any>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 5;
+
 
     const formDefaultValues = {
         name: '',
@@ -138,6 +162,9 @@ export default function CategoryConfiguration() {
         }
     };
 
+    const totalPages = Math.ceil(categories.length / rowsPerPage);
+    const currentData = categories.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
     return (
         <div>
             {/* Category Form (for both add and edit) */}
@@ -194,31 +221,65 @@ export default function CategoryConfiguration() {
 
                             {/* List of Categories Section */}
                             <h2 className="font-semibold mt-4">Existing Categories</h2>
-                            <ul>
-                                {categories.map((category) => (
-                                    <li key={category._id || category.id} className="flex justify-between items-center">
-                                        <div>
-                                            <h3>{category.name}</h3>
-                                        </div>
-                                        <div>
-                                            <Button
-                                                className="mt-2 mr-1"
-                                                type="button"
-                                                onClick={() => handleEditCategory(category)}
+                            <Table>
+                                <TableCaption> A list of existing categories</TableCaption>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="flex-1">Category Name</TableHead>
+                                        <TableHead className="flex justify-center">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {currentData.map((category) => (
+                                        <TableRow key={category._id}>
+                                            <TableCell className="flex-1">{category.name}</TableCell>
+                                            <TableCell className="flex justify-center">
+                                                <Button
+                                                    className="mx-1"
+                                                    type="button"
+                                                    onClick={() => handleEditCategory(category)}
+                                                >
+                                                    Edit
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => handleDeleteCategory(category._id)}
+                                                    variant="destructive"
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            <Pagination>
+                                <PaginationContent>
+                                    <Button
+                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Previous
+                                    </Button>
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <PaginationItem key={index}>
+                                            <PaginationLink
+                                                href="#"
+                                                isActive={currentPage === index + 1}
+                                                onClick={() => setCurrentPage(index + 1)}
                                             >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                onClick={() => handleDeleteCategory(category._id || category.id)}
-                                                variant="destructive"
-                                            >
-                                                Delete
-                                            </Button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}
+                                    <Button
+                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Next
+                                    </Button>
+                                </PaginationContent>
+                            </Pagination>
                         </CollapsibleContent>
                     </Collapsible>
                     <Toaster/>

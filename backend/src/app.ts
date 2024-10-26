@@ -161,14 +161,16 @@ app.post('/api/categories', async (req, res): Promise<void> => {
     try {
         const category = await Category.findById(newCategory._id);
         if (category) {
-            if(newCategory.find((cat: any) => cat.name === newCategory.name && cat._id !== newCategory._id)) {
+            const existingCategory = await Category.findOne({ name: newCategory.name && newCategory._id !== category._id });
+            if (existingCategory) {
                 res.status(400).json({ message: "Category name must be unique" });
                 return;
             }
             await Category.updateOne({ _id: newCategory._id }, { $set: newCategory });
             res.status(201).json(category);
         } else {
-            if(newCategory.find((cat: any) => cat.name === newCategory.name)) {
+            const existingCategory = await Category.findOne({ name: newCategory.name });
+            if (existingCategory) {
                 res.status(400).json({ message: "Category name must be unique" });
                 return;
             }
