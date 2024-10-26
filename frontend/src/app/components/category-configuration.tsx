@@ -32,16 +32,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
+import PaginationComponent from "@/app/components/pagination";
 
 
 
@@ -253,33 +244,11 @@ export default function CategoryConfiguration() {
                                     ))}
                                 </TableBody>
                             </Table>
-                            <Pagination>
-                                <PaginationContent>
-                                    <Button
-                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                        disabled={currentPage === 1}
-                                    >
-                                        Previous
-                                    </Button>
-                                    {Array.from({ length: totalPages }, (_, index) => (
-                                        <PaginationItem key={index}>
-                                            <PaginationLink
-                                                href="#"
-                                                isActive={currentPage === index + 1}
-                                                onClick={() => setCurrentPage(index + 1)}
-                                            >
-                                                {index + 1}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    ))}
-                                    <Button
-                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                        disabled={currentPage === totalPages}
-                                    >
-                                        Next
-                                    </Button>
-                                </PaginationContent>
-                            </Pagination>
+                            <PaginationComponent
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
                         </CollapsibleContent>
                     </Collapsible>
                     <Toaster/>

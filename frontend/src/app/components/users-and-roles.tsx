@@ -33,6 +33,8 @@ export default function UsersAndRoles() {
     const [user, setUser] = useState<any>(null);
     const [showDialog, setShowDialog] = useState(false);
     const [formData, setFormData] = useState<any>(null);
+    const [showDeleteDialog, setDeleteShowDialog] = useState(false);
+    const [deleteEmail, setDeleteEmail] = useState<string | null>(null);
 
     const form = useForm({
         mode: "onChange",
@@ -75,6 +77,39 @@ export default function UsersAndRoles() {
             toast.success("User found, form filled with user details.");
         } else {
             toast.error("User not found.");
+        }
+    };
+
+    const handleDeleteUser = async (email: string) => {
+        setDeleteEmail(email);
+        setDeleteShowDialog(true);
+    };
+
+    const confirmDeleteUser = async () => {
+        if (deleteEmail) {
+            const url =`/api/delete-user/${deleteEmail}`;
+            try {
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: deleteEmail }),
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    toast.success(result.message);
+                    form.reset();
+                } else {
+                    toast.error(result.message);
+                }
+            } catch (error) {
+                toast.error('Error deleting user.');
+            } finally {
+                setDeleteShowDialog(false);
+                setDeleteEmail(null);
+                form.reset();
+            }
         }
     };
 
@@ -155,7 +190,7 @@ export default function UsersAndRoles() {
                                 <FormDescription>
                                     Enter the user's email to search for, or to add a new user.
                                     <br />
-                                    <span className="text-lg font-semibold text-red-600">Attention ! When creating a new user the password generated will be send to this email ensure that you provide a correct email address.</span>
+                                    <span className="text-md font-semibold text-red-900">Attention ! When creating a new user the password generated will be send to this email ensure that you provide a correct email address.</span>
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -207,12 +242,29 @@ export default function UsersAndRoles() {
                             </FormItem>
                         )}
                     />
+                    <div className="space-x-4">
                     <Button
                         type="submit"
                         disabled={!form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting}
                     >
                         Submit
                     </Button>
+                    <Button
+                        type="reset"
+                        onClick={() => form.reset()}
+                        disabled={!form.formState.isDirty}
+                    >
+                        Reset
+                    </Button>
+                        <Button
+                            type="button"
+                            onClick={() => handleDeleteUser(form.getValues('email'))}
+                            disabled={!form.formState.isDirty}
+                            variant="destructive"
+                        >
+                            Delete User
+                        </Button>
+                    </div>
                     <Toaster />
                 </form>
             </Form>
@@ -234,6 +286,20 @@ export default function UsersAndRoles() {
                         }}>
                             Confirm
                         </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={showDeleteDialog} onOpenChange={setDeleteShowDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete the user with email {deleteEmail}?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeleteShowDialog(false)}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDeleteUser}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

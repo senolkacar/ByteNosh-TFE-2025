@@ -29,6 +29,15 @@ import toast,{Toaster} from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import {ChevronRight} from "lucide-react";
+import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import PaginationComponent from "@/app/components/pagination";
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 
 
@@ -39,14 +48,18 @@ const mealSchema = z.object({
     image: z.string(),
     vegetarian: z.boolean(),
     vegan: z.boolean(),
-    category: z.string(),
+    category: z.string().min(1, "Please select a category"),
     categoryName: z.string(),
 });
 
 export default function MealConfiguration() {
     const [editingMeal, setEditingMeal] = useState<any>(null);
     const [meals, setMeals] = useState<any[]>([]);
+    const [showDeleteDialog, setDeleteShowDialog] = useState(false);
+    const [deleteMeal, setDeleteMeal] = useState<string | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 5;
     // Meal form setup
     const formDefaultValues = {
         name: '',
@@ -96,16 +109,28 @@ export default function MealConfiguration() {
         fetchMeals();
     }, []);
 
-
     const handleDeleteMeal = async (mealId: string) => {
-        try {
-            await fetch(`/api/meals/${mealId}`, {
-                method: "DELETE",
-            });
-            setMeals((prev) => prev.filter((meal) => meal._id !== mealId));
-            mealForm.reset(); // Clear the form
-        } catch (error) {
-            console.error("Failed to delete meal", error);
+        setDeleteMeal(mealId);
+        setDeleteShowDialog(true);
+    };
+
+    const confirmDeleteMeal = async () => {
+        if (deleteMeal) {
+            try {
+                await fetch(`/api/meals/${deleteMeal}`, {
+                    method: "DELETE",
+                });
+                if(editingMeal?._id === deleteMeal) {
+                    handleReset();
+                }
+                setMeals((prev) => prev.filter((meal) => meal._id !== deleteMeal));
+            } catch (error) {
+                console.error("Failed to delete meal", error);
+            } finally {
+                setDeleteShowDialog(false);
+                setDeleteMeal(null);
+                mealForm.reset();
+            }
         }
     };
 
@@ -129,11 +154,9 @@ export default function MealConfiguration() {
         );
         setEditingMeal(null);
     };
-    //TODO: FIX THE BUG OCCURING WITH THE IMAGE BEING UPLOADED AND NOT DISPLAYING, WHICH BROKE THE IMAGE FOR OTHERS AS WELL
 
     // Handle Meal Form Submission
     const handleMealSubmit = async (data: any) => {
-        console.log("CLICKED");
         if (editingMeal) {
             // If editing, send a PUT request to update the meal
             try {
@@ -198,6 +221,9 @@ export default function MealConfiguration() {
             console.error('Error uploading image:', error);
         }
     };
+
+    const totalPages = Math.ceil(meals.length / rowsPerPage);
+    const currentData = meals.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 return (
     <div>
         {/* Meal Form */}
@@ -404,35 +430,62 @@ return (
                         )}
                         {/* List of Meals Section */}
                         <h2 className="font-semibold mt-4">Existing Meals</h2>
-                        <ul>
-                            {meals.map((meal) => (
-                                <li key={meal._id} className="flex justify-between items-center">
-                                    <div>
-                                        <h3>{meal.name}</h3>
-                                    </div>
-                                    <div>
-                                        <Button
-                                            className="mt-2 mr-1"
-                                            type="button"
-                                            onClick={() => handleEditMeal(meal)}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            onClick={() => handleDeleteMeal(meal._id || meal.id)}
-                                            variant="destructive"
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                        <Table>
+                            <TableCaption> A list of existing meals</TableCaption>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="flex-1">Meal Name</TableHead>
+                                    <TableHead className="flex justify-center">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {currentData.map((meal) => (
+                                    <TableRow key={meal._id}>
+                                        <TableCell className="flex-1">{meal.name}</TableCell>
+                                        <TableCell className="flex justify-center">
+                                            <Button
+                                                className="mx-1"
+                                                type="button"
+                                                onClick={() => handleEditMeal(meal)}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                onClick={() => handleDeleteMeal(meal._id)}
+                                                variant="destructive"
+                                            >
+                                                Delete
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <PaginationComponent
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
                     </CollapsibleContent>
                 </Collapsible>
                 <Toaster/>
             </form>
         </Form>
+        <AlertDialog open={showDeleteDialog} onOpenChange={setDeleteShowDialog}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to delete the meal ?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDeleteShowDialog(false)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmDeleteMeal}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
 )
 }

@@ -78,6 +78,7 @@ export default function SiteConfiguration() {
             if (JSON.stringify(data[key]) !== JSON.stringify((initialConfig as any)?.[key])) {
                 (acc as any)[key] = data[key];
             }
+            form.reset(data);
             return acc;
         }, {} as Partial<Config>);
 
@@ -137,7 +138,7 @@ export default function SiteConfiguration() {
                     <FormFieldComponent control={form.control} name="aboutUs.description2" label="Description 2" placeholder="Enter the description 2" description="This is the description 2 of the about us section." type="textarea" />
                     <FormFieldComponent control={form.control} name="aboutUs.video" label="Promo Video" placeholder="Enter the promo video link" description="This is the promo video link." />
                 </CollapsibleSection>
-                <Button type="submit" disabled={!form.formState.isDirty || form.formState.isSubmitting}>Submit</Button>
+                <Button type="submit" disabled={!form.formState.isDirty || !form.formState.isValid || form.formState.isSubmitting}>Submit</Button>
                 <Toaster />
             </form>
         </Form>

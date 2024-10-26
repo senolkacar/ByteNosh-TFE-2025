@@ -1,4 +1,4 @@
-import express from 'express';
+import express,{ Request, Response } from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
 import cors from 'cors';
@@ -12,6 +12,8 @@ import Post from './post';
 import SiteConfig from './siteconfig';
 import bcrypt from 'bcrypt';
 import { sendEmail } from './mailer';
+import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
+
 
 const app = express();
 const path = require('path');
@@ -36,9 +38,19 @@ const storage = multer.diskStorage({
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
+
 });
 
-const upload = multer({ storage });
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.'));
+    }
+};
+
+const upload = multer({ storage,fileFilter });
 
 app.post('/api/upload', upload.single('image'), (req, res): void => {
     if (!req.file) {
@@ -58,21 +70,37 @@ app.get('/api/meals', async (req, res): Promise<void> => {
     }
 });
 
-app.get('/api/meals/:id', async (req, res): Promise<void> => {
-    try {
-        const mealId = new mongoose.Types.ObjectId(req.params.id);
-        const meal = await Meal.findById(mealId);
-        if (!meal) {
-            res.status(400).json({ message: "Meal not found" });
+app.get(
+    '/api/meals/:id',
+    param('id').escape().isMongoId().withMessage('Invalid meal ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
             return;
         }
-        res.json(meal);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching meal" });
-    }
+        try {
+            const mealId = new mongoose.Types.ObjectId(req.params.id);
+            const meal = await Meal.findById(mealId);
+            if (!meal) {
+                res.status(400).json({ message: "Meal not found" });
+                return;
+            }
+            res.json(meal);
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching meal" });
+        }
 });
 
-app.delete('/api/meals/:id', async (req, res): Promise<void> => {
+app.delete(
+    '/api/meals/:id',
+    param('id').escape().isMongoId().withMessage('Invalid meal ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     try {
         const mealId = new mongoose.Types.ObjectId(req.params.id);
         const meal = await Meal.findById(mealId);
@@ -87,7 +115,22 @@ app.delete('/api/meals/:id', async (req, res): Promise<void> => {
     }
 });
 
-app.post('/api/meals', async (req, res): Promise<void> => {
+app.post(
+    '/api/meals',
+    body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
+    body('price').trim().escape().isNumeric().withMessage('Price is required'),
+    body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
+    body('vegetarian').optional().trim().escape().isBoolean().withMessage('Invalid value for vegetarian'),
+    body('vegan').optional().trim().escape().isBoolean().withMessage('Invalid value for vegan'),
+    body('image').optional().trim().escape().isString().withMessage('Invalid value for image URL'),
+    body('category').trim().escape().isString().withMessage('Category is required'),
+    body('categoryName').optional().trim().escape().isString().withMessage('Category name is invalid'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     const newMeal = req.body;
     try {
         await Meal.create(newMeal);
@@ -97,8 +140,24 @@ app.post('/api/meals', async (req, res): Promise<void> => {
     }
 });
 
-app.put('/api/meals/:id', async (req, res): Promise<void> => {
-    const mealId = req.params.id;
+app.put(
+    '/api/meals',
+    body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
+    body('price').trim().escape().isNumeric().withMessage('Price is required'),
+    body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
+    body('vegetarian').optional().trim().escape().isBoolean().withMessage('Invalid value for vegetarian'),
+    body('vegan').optional().trim().escape().isBoolean().withMessage('Invalid value for vegan'),
+    body('image').optional().trim().escape().isString().withMessage('Invalid value for image URL'),
+    body('category').trim().escape().isString().withMessage('Category is required'),
+    body('categoryName').optional().trim().escape().isString().withMessage('Category name is invalid'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const mealId = req.params.id;
     const updatedMeal = req.body;
 
     try {
@@ -114,7 +173,15 @@ app.put('/api/meals/:id', async (req, res): Promise<void> => {
     }
 });
 
-app.delete('/api/category/:id', async (req, res): Promise<void> => {
+app.delete(
+    '/api/category/:id',
+    param('id').escape().isMongoId().withMessage('Invalid category ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     try {
         const categoryId = new mongoose.Types.ObjectId(req.params.id);
         const category = await Category.findById(categoryId);
@@ -138,7 +205,15 @@ app.get('/api/categories', async (req, res): Promise<void> => {
     }
 });
 
-app.put('/api/category/:id', async (req, res): Promise<void> => {
+app.put(
+    '/api/category/:id',
+    param('id').escape().isMongoId().withMessage('Invalid category ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     const categoryId = req.params.id;
     const newCategory = req.body;
 
@@ -156,8 +231,18 @@ app.put('/api/category/:id', async (req, res): Promise<void> => {
     }
 });
 
-app.post('/api/categories', async (req, res): Promise<void> => {
-    const newCategory = req.body;
+app.post(
+    '/api/categories',
+    body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
+    body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const newCategory = req.body;
     try {
         const category = await Category.findById(newCategory._id);
         if (category) {
@@ -182,7 +267,17 @@ app.post('/api/categories', async (req, res): Promise<void> => {
     }
 });
 
-app.put('/api/categories/:id', async (req, res): Promise<void> => {
+app.put(
+    '/api/categories/:id',
+    body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
+    body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
     const newCategory = req.body;
     try {
         const category = await Category.findById(newCategory._id);
@@ -243,7 +338,15 @@ app.get('/api/posts', async (req, res): Promise<void> => {
     }
 });
 
-app.get('/api/blog/:id', async (req, res): Promise<void> => {
+app.get(
+    '/api/blog/:id',
+    param('id').escape().isMongoId().withMessage('Invalid post ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     try {
         const postId = new mongoose.Types.ObjectId(req.params.id);
         const post = await Post.findById(postId);
@@ -262,7 +365,15 @@ app.get('/api/config', async (req, res): Promise<void> => {
     }
 });
 
-app.get('/api/user/:email', async (req, res): Promise<void> => {
+app.get(
+    '/api/user/:email',
+    param('email').escape().isEmail().withMessage('Invalid email'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     try {
         const email = req.params.email;
         const user = await User.findOne({ email });
@@ -303,7 +414,38 @@ app.post("/api/send-email", async (req, res): Promise<void> => {
     }
 });
 
-app.post("/api/set-config", async (req, res): Promise<void> => {
+app.post(
+    "/api/set-config",
+    body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
+    body('slogan').trim().escape().isString().isLength({ min: 1 }).withMessage('Slogan is required'),
+    body('about').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about'),
+    body('popularDishes.title').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for popular dishes title'),
+    body('popularDishes.description').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for popular dishes description'),
+    body('mobile.title').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for mobile title'),
+    body('mobile.description').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for mobile description'),
+    body('mobile.googlePlay').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for mobile google play'),
+    body('mobile.appStore').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for mobile app store'),
+    body('social.facebook').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for social facebook'),
+    body('social.twitter').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for social twitter'),
+    body('social.instagram').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for social instagram'),
+    body('contact.title').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact title'),
+    body('contact.description').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact description'),
+    body('contact.telephone').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact telephone'),
+    body('contact.email').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact email'),
+    body('contact.address').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact address'),
+    body('contact.latitude').optional().trim().escape().isNumeric().withMessage('Invalid value for contact latitude'),
+    body('contact.longitude').optional().trim().escape().isNumeric().withMessage('Invalid value for contact longitude'),
+    body('aboutUs.title1').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us title1'),
+    body('aboutUs.description1').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us description1'),
+    body('aboutUs.title2').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us title2'),
+    body('aboutUs.description2').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us description2'),
+
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     const newConfig = req.body;
     try {
         const existingConfig = await SiteConfig.findOne();
@@ -320,7 +462,40 @@ app.post("/api/set-config", async (req, res): Promise<void> => {
     }
 });
 
-app.post("/api/update-user", async (req, res): Promise<void> => {
+app.delete(
+    "/api/delete-user/:email",
+    param('email').escape().isEmail().withMessage('Invalid email'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+        const email = req.params.email;
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            await User.deleteOne({ email });
+        }else{
+            res.status(404).json({ message: "User not found" });
+        }
+    }catch (error) {
+        res.status(500).json({ message: "Error deleting user" });
+    }
+    });
+
+app.post(
+    "/api/update-user",
+    body('fullName').trim().escape().isString().isLength({ min: 3 }).withMessage('Full name is required'),
+    body('email').trim().escape().isEmail().withMessage('Invalid email'),
+    body('phone').optional().trim().escape().isString(),
+    body('role').trim().escape().isString().withMessage('Role is required'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
     const updatedUser = req.body;
     try {
         const user = await User.findOne({ email: updatedUser.email });
