@@ -24,11 +24,6 @@ import { useEffect, useState } from "react";
 import {ChevronRight} from "lucide-react";
 
 
-const categorySchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters"),
-    description: z.string().min(3, "Description must be at least 3 characters"),
-});
-
 export default function CategoryConfiguration() {
     const [categories, setCategories] = useState<any[]>([]);
     const [editingCategory, setEditingCategory] = useState<any>(null);
@@ -37,10 +32,23 @@ export default function CategoryConfiguration() {
         name: '',
         description: '',
     };
+    const uniqueCategoryName = (categories: any[]) => {
+        return z.string().min(3, "Name must be at least 3 characters").refine((name) => {
+            return !categories.some((category) => category.name === name && category._id !== editingCategory?._id);
+        }, {
+            message: "Category name must be unique",
+        });
+    };
+
+    const categorySchema = (categories: any[]) => z.object({
+        name: uniqueCategoryName(categories),
+        description: z.string().min(3, "Description must be at least 3 characters"),
+    });
+
 
     const categoryForm = useForm({
         mode: "onChange",
-        resolver: zodResolver(categorySchema),
+        resolver: zodResolver(categorySchema(categories)),
         defaultValues: formDefaultValues,
     });
 

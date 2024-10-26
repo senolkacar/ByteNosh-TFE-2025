@@ -161,9 +161,17 @@ app.post('/api/categories', async (req, res): Promise<void> => {
     try {
         const category = await Category.findById(newCategory._id);
         if (category) {
+            if(newCategory.find((cat: any) => cat.name === newCategory.name && cat._id !== newCategory._id)) {
+                res.status(400).json({ message: "Category name must be unique" });
+                return;
+            }
             await Category.updateOne({ _id: newCategory._id }, { $set: newCategory });
             res.status(201).json(category);
         } else {
+            if(newCategory.find((cat: any) => cat.name === newCategory.name)) {
+                res.status(400).json({ message: "Category name must be unique" });
+                return;
+            }
             const createdCategory = await Category.create(newCategory);
             res.status(201).json(createdCategory);
         }
@@ -177,9 +185,17 @@ app.put('/api/categories/:id', async (req, res): Promise<void> => {
     try {
         const category = await Category.findById(newCategory._id);
         if (category) {
+            if(newCategory.find((cat: any) => cat.name === newCategory.name && cat._id !== newCategory._id)) {
+                res.status(400).json({ message: "Category name must be unique" });
+                return;
+            }
             await Category.updateOne({ _id: newCategory._id }, { $set: newCategory });
             res.status(201).json({ message: "Category updated successfully" });
         } else {
+            if(newCategory.find((cat: any) => cat.name === newCategory.name)) {
+                res.status(400).json({ message: "Category name must be unique" });
+                return;
+            }
             await Category.create(newCategory);
             res.status(201).json({ message: "Category created successfully" });
         }
@@ -187,6 +203,7 @@ app.put('/api/categories/:id', async (req, res): Promise<void> => {
         res.status(500).json({ message: "Error updating category" });
     }
 });
+
 
 app.get('/api/tables', async (req, res): Promise<void> => {
     try {

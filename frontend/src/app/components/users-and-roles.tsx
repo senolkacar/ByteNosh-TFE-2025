@@ -102,6 +102,7 @@ export default function UsersAndRoles() {
             const result = await res.json();
             if (res.ok) {
                 toast.success(result.message);
+                form.reset();
             } else {
                 toast.error(result.message);
             }
@@ -229,6 +230,7 @@ export default function UsersAndRoles() {
                         <AlertDialogAction onClick={() => {
                             updateUser(formData);
                             setShowDialog(false);
+                            form.reset();
                         }}>
                             Confirm
                         </AlertDialogAction>
