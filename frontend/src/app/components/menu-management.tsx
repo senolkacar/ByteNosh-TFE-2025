@@ -12,8 +12,7 @@ const mealSchema = z.object({
     image: z.string(),
     vegetarian: z.boolean(),
     vegan: z.boolean(),
-    category: z.string(),
-    categoryName: z.string(),
+    category: z.string()
 });
 
 export default function MenuManagement() {

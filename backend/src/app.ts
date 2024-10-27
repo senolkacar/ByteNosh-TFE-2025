@@ -13,6 +13,7 @@ import SiteConfig from './siteconfig';
 import bcrypt from 'bcrypt';
 import { sendEmail } from './mailer';
 import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
+import category from "./category";
 
 
 const app = express();
@@ -62,8 +63,7 @@ app.post('/api/upload', upload.single('image'), (req, res): void => {
 
 app.get('/api/meals', async (req, res): Promise<void> => {
     try {
-        const categoryName = req.query.categoryName;
-        const meals = await Meal.find(categoryName ? { categoryName } : {});
+        const meals = await Meal.find().populate('category');
         res.json(meals);
     } catch (error) {
         res.status(500).json({ message: "Error fetching meals" });
@@ -124,7 +124,6 @@ app.post(
     body('vegan').optional().trim().escape().isBoolean().withMessage('Invalid value for vegan'),
     body('image').optional().trim().escape().isString().withMessage('Invalid value for image URL'),
     body('category').trim().escape().isString().withMessage('Category is required'),
-    body('categoryName').optional().trim().escape().isString().withMessage('Category name is invalid'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -149,7 +148,6 @@ app.put(
     body('vegan').optional().trim().escape().isBoolean().withMessage('Invalid value for vegan'),
     body('image').optional().trim().escape().isString().withMessage('Invalid value for image URL'),
     body('category').trim().escape().isString().withMessage('Category is required'),
-    body('categoryName').optional().trim().escape().isString().withMessage('Category name is invalid'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -463,19 +461,20 @@ app.post(
 });
 
 app.delete(
-    "/api/delete-user/:email",
-    param('email').escape().isEmail().withMessage('Invalid email'),
+    "/api/delete-user/:id",
+    param('id').escape().isMongoId().withMessage('Invalid user ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
             return;
         }
-        const email = req.params.email;
+        const userId = req.params.id;
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findById(userId);
         if (user) {
-            await User.deleteOne({ email });
+            await User.deleteOne({ _id: userId });
+            res.status(200).json({ message: "User deleted successfully" });
         }else{
             res.status(404).json({ message: "User not found" });
         }
@@ -498,10 +497,16 @@ app.post(
         }
     const updatedUser = req.body;
     try {
-        const user = await User.findOne({ email: updatedUser.email });
-        if (user) {
-            await User.updateOne({ _id: user._id }, { $set: updatedUser });
-            res.status(200).json({ message: "User updated successfully" });
+        const userId = new mongoose.Types.ObjectId(updatedUser.id);
+        const user = await User.findById(userId);
+        if(updatedUser.id && user){
+                const mailBelongsToAnotherUser = await User.findOne({ email: updatedUser.email, _id: { $ne: updatedUser.id } });
+                if (mailBelongsToAnotherUser) {
+                    res.status(400).json({ message: "Email already in use" });
+                    return;
+                }
+                await User.updateOne({ _id: user._id }, { $set: updatedUser });
+                res.status(200).json({ message: "User updated successfully" });
         } else {
             /*
             * Math.random()                        // Generate random number, eg: 0.123456

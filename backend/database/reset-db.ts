@@ -245,8 +245,7 @@ async function main(): Promise<void> {
                 image: 'pasta-carbonara.jpg',
                 vegetarian: false,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Main Dishes')?._id,
-                categoryName: 'Main Dishes'
+                category: createdCategories.find(c => c.name === 'Main Dishes')?._id
             },
             {
                 name: 'Margherita Pizza',
@@ -255,8 +254,7 @@ async function main(): Promise<void> {
                 image: 'margherita-pizza.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Main Dishes')?._id,
-                categoryName: 'Main Dishes'
+                category: createdCategories.find(c => c.name === 'Main Dishes')?._id
             },
             {
                 name: 'Manti',
@@ -265,8 +263,7 @@ async function main(): Promise<void> {
                 image: 'manti.jpg',
                 vegetarian: false,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Main Dishes')?._id,
-                categoryName: 'Main Dishes'
+                category: createdCategories.find(c => c.name === 'Main Dishes')?._id
             },
             {
                 name: 'Caesar Salad',
@@ -275,8 +272,7 @@ async function main(): Promise<void> {
                 image: 'caesar-salad.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Starters')?._id,
-                categoryName: 'Starters'
+                category: createdCategories.find(c => c.name === 'Starters')?._id
             },
             {
                 name: 'Bruschetta',
@@ -285,8 +281,7 @@ async function main(): Promise<void> {
                 image: 'bruschetta.jpg',
                 vegetarian: true,
                 vegan: true,
-                category: createdCategories.find(c => c.name === 'Starters')?._id,
-                categoryName: 'Starters'
+                category: createdCategories.find(c => c.name === 'Starters')?._id
             },
             {
                 name: 'Tiramisu',
@@ -295,8 +290,7 @@ async function main(): Promise<void> {
                 image: 'tiramisu.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Desserts')?._id,
-                categoryName: 'Desserts'
+                category: createdCategories.find(c => c.name === 'Desserts')?._id
             },
             {
                 name: 'Pastéis de Nata',
@@ -305,8 +299,7 @@ async function main(): Promise<void> {
                 image: 'pasteis-de-nata.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Desserts')?._id,
-                categoryName: 'Desserts'
+                category: createdCategories.find(c => c.name === 'Desserts')?._id
             },
             {
                 name: 'Baklava',
@@ -315,8 +308,7 @@ async function main(): Promise<void> {
                 image: 'baklava.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Desserts')?._id,
-                categoryName: 'Desserts'
+                category: createdCategories.find(c => c.name === 'Desserts')?._id
             },
             {
                 name: 'Coca-Cola',
@@ -325,8 +317,7 @@ async function main(): Promise<void> {
                 image: 'coca-cola.jpg',
                 vegetarian: true,
                 vegan: true,
-                category: createdCategories.find(c => c.name === 'Drinks')?._id,
-                categoryName: 'Drinks'
+                category: createdCategories.find(c => c.name === 'Drinks')?._id
             },
             {
                 name: 'Orange Juice',
@@ -335,8 +326,7 @@ async function main(): Promise<void> {
                 image: 'orange-juice.jpg',
                 vegetarian: true,
                 vegan: true,
-                category: createdCategories.find(c => c.name === 'Drinks')?._id,
-                categoryName: 'Drinks'
+                category: createdCategories.find(c => c.name === 'Drinks')?._id
             },
             {
                 name: 'Water',
@@ -345,8 +335,7 @@ async function main(): Promise<void> {
                 image: 'water.jpg',
                 vegetarian: true,
                 vegan: true,
-                category: createdCategories.find(c => c.name === 'Drinks')?._id,
-                categoryName: 'Drinks'
+                category: createdCategories.find(c => c.name === 'Drinks')?._id
             },
             {
                 name: 'Beer',
@@ -355,8 +344,7 @@ async function main(): Promise<void> {
                 image: 'beer.jpg',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Drinks')?._id,
-                categoryName: 'Drinks'
+                category: createdCategories.find(c => c.name === 'Drinks')?._id
             },
             {
                 name: 'Raki',
@@ -365,8 +353,7 @@ async function main(): Promise<void> {
                 image: 'raki.png',
                 vegetarian: true,
                 vegan: false,
-                category: createdCategories.find(c => c.name === 'Drinks')?._id,
-                categoryName: 'Drinks'
+                category: createdCategories.find(c => c.name === 'Drinks')?._id
             }
         ];
 

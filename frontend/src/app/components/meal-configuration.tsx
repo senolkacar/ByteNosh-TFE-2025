@@ -49,7 +49,6 @@ const mealSchema = z.object({
     vegetarian: z.boolean(),
     vegan: z.boolean(),
     category: z.string().min(1, "Please select a category"),
-    categoryName: z.string(),
 });
 
 export default function MealConfiguration() {
@@ -69,7 +68,6 @@ export default function MealConfiguration() {
         vegetarian: false,
         vegan: false,
         category: '',  // Will be linked to a selected category
-        categoryName: '',
     };
 
 
@@ -117,13 +115,19 @@ export default function MealConfiguration() {
     const confirmDeleteMeal = async () => {
         if (deleteMeal) {
             try {
-                await fetch(`/api/meals/${deleteMeal}`, {
+                const res = await fetch(`/api/meals/${deleteMeal}`, {
                     method: "DELETE",
                 });
                 if(editingMeal?._id === deleteMeal) {
                     handleReset();
                 }
                 setMeals((prev) => prev.filter((meal) => meal._id !== deleteMeal));
+                const result = await res.json();
+                if (res.ok) {
+                    toast.success(result.message);
+                } else {
+                    toast.error(result.message);
+                }
             } catch (error) {
                 console.error("Failed to delete meal", error);
             } finally {
@@ -143,8 +147,7 @@ export default function MealConfiguration() {
             image: meal.image,
             vegetarian: meal.vegetarian,
             vegan: meal.vegan,
-            category: meal.category,
-            categoryName : meal.categoryName
+            category: meal.category._id,
         });
     };
 

@@ -2,18 +2,7 @@
 'use client';
 import MainTitle from "@/app/components/maintitle";
 import {useEffect, useState} from "react";
-
-
-interface Meal {
-    _id: string;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    vegetarian: boolean;
-    vegan: boolean;
-    categoryName: string;
-}
+import Meal from "@/app/models/meal";
 
 export default function Menu(){
     const [meals, setMeals] = useState<Meal[]>([]);
@@ -22,7 +11,7 @@ export default function Menu(){
     useEffect(() => {
         fetch('/api/meals')
             .then(response => response.json())
-            .then((data: Meal[]) => setMeals(data)) // Use the Meal type for fetched data
+            .then((data: Meal[]) => setMeals(data))
             .catch(error => console.error('Error fetching meals:', error));
     }, []);
 
@@ -31,7 +20,7 @@ export default function Menu(){
     };
 
     const filteredMeals = meals.filter(meal =>
-        (selectedCategory === 'All dishes' || meal.categoryName === selectedCategory) &&
+        (selectedCategory === 'All dishes' || meal.category.name === selectedCategory) &&
         (meal.name.toLowerCase().includes(searchQuery) ||
             (meal.vegan && 'vegan'.includes(searchQuery)) ||
             (meal.vegetarian && 'vegetarian'.includes(searchQuery)))
@@ -51,7 +40,7 @@ export default function Menu(){
                             <button
                                 key={category}
                                 onClick={() => handleCategoryClick(category)}
-                                className={`w-full active:bg-yellow-400 font-bold bg-gray-200 opacity-30 px-12 py-3 md:px-6 md:py-3 
+                                className={`w-full active:bg-yellow-400 font-bold bg-gray-200 opacity-30 px-12 py-3 md:px-6 md:py-3
                                 ${selectedCategory === category ? 'bg-yellow-400 opacity-95' : ''}`}
                             >
                                 {category}

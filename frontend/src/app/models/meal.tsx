@@ -1,11 +1,12 @@
+import category from './category';
+
 export default interface Meal{
-    id: string;
+    _id: string;
     name: string;
     description: string;
     price: number;
     image: string;
     vegetarian: boolean;
     vegan: boolean;
-    category: string;
-    categoryName: string;
+    category: category;
 }

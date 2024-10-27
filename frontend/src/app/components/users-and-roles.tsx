@@ -34,7 +34,7 @@ export default function UsersAndRoles() {
     const [showDialog, setShowDialog] = useState(false);
     const [formData, setFormData] = useState<any>(null);
     const [showDeleteDialog, setDeleteShowDialog] = useState(false);
-    const [deleteEmail, setDeleteEmail] = useState<string | null>(null);
+    const [deleteUser, setDeleteUser] = useState<string | null>(null);
 
     const form = useForm({
         mode: "onChange",
@@ -68,6 +68,7 @@ export default function UsersAndRoles() {
 
     const handleSearchUser = async (email: string) => {
         const user = await searchUserByEmail(email);
+        console.log(user);
         if (user) {
             setUser(user);
             setValue('fullName', user.fullName);
@@ -80,21 +81,20 @@ export default function UsersAndRoles() {
         }
     };
 
-    const handleDeleteUser = async (email: string) => {
-        setDeleteEmail(email);
+    const handleDeleteUser = async () => {
+        setDeleteUser(user._id);
         setDeleteShowDialog(true);
     };
 
     const confirmDeleteUser = async () => {
-        if (deleteEmail) {
-            const url =`/api/delete-user/${deleteEmail}`;
+        console.log(deleteUser);
+        if (deleteUser) {
             try {
-                const res = await fetch(url, {
+                const res = await fetch(`/api/delete-user/${deleteUser}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email: deleteEmail }),
                 });
                 const result = await res.json();
                 if (res.ok) {
@@ -107,7 +107,7 @@ export default function UsersAndRoles() {
                 toast.error('Error deleting user.');
             } finally {
                 setDeleteShowDialog(false);
-                setDeleteEmail(null);
+                setDeleteUser(null);
                 form.reset();
             }
         }
@@ -132,7 +132,7 @@ export default function UsersAndRoles() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({...data, id: user?._id }),
             });
             const result = await res.json();
             if (res.ok) {
@@ -258,8 +258,8 @@ export default function UsersAndRoles() {
                     </Button>
                         <Button
                             type="button"
-                            onClick={() => handleDeleteUser(form.getValues('email'))}
-                            disabled={!form.formState.isDirty}
+                            onClick={() => handleDeleteUser()}
+                            disabled={!user || !form.formState.isDirty}
                             variant="destructive"
                         >
                             Delete User
@@ -274,7 +274,7 @@ export default function UsersAndRoles() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Confirm Update</AlertDialogTitle>
                         <AlertDialogDescription>
-                            User with email {formData?.email} already exists, do you want to update the user?
+                            User with email {formData?.email} already exists, if you want to update a user please use the search button.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -294,7 +294,7 @@ export default function UsersAndRoles() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete the user with email {deleteEmail}?
+                            Are you sure you want to delete the user with email {user?.email}?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
