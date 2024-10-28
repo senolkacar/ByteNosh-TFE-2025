@@ -59,6 +59,16 @@
   }
 }
 
+/* Ensure each font is applied correctly in Quill */
+.ql-font-arial { font-family: Arial, sans-serif; }
+.ql-font-courier { font-family: Courier, monospace; }
+.ql-font-georgia { font-family: Georgia, serif; }
+.ql-font-impact { font-family: Impact, sans-serif; }
+.ql-font-tahoma { font-family: Tahoma, sans-serif; }
+.ql-font-times-new-roman { font-family: "Times New Roman", serif; }
+.ql-font-verdana { font-family: Verdana, sans-serif; }
+
+
 @layer base {
   * {
     @apply border-border;

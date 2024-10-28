@@ -46,7 +46,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     <div className="flex-1 mx-auto mt-4">
                         <h1 className="text-3xl font-bold">{post.title}</h1>
                         <p className="text-gray-500">{formatDate} | {post.author}</p>
-                        <p className="mt-4">{post.body}</p>
+                        <p className="mt-4" dangerouslySetInnerHTML={{__html: post.body}}/>
                     </div>
                 </div>
             </div>

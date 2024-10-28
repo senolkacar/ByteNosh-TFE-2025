@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, {DefaultSession, Session, User} from "next-auth";
 import { NextAuthConfig } from "next-auth";
 
 import Credentials from "next-auth/providers/credentials";
@@ -8,6 +8,7 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import authConfig from "@/auth.config";
 import {signInSchema} from "@/lib/zod";
 import {ZodError} from "zod";
+import {JWT} from "@auth/core/jwt";
 
 
 const authOptions: NextAuthConfig = {
@@ -62,7 +63,32 @@ const authOptions: NextAuthConfig = {
     secret: process.env.AUTH_SECRET,
     pages:{
         signIn: "/auth/login",
-    }
+    },
+    callbacks: {
+        // Adding custom fields to the JWT token
+        jwt({ token, user }: { token: JWT; user?: any }) {
+            if (user) {
+                token.id = user.id;
+                token.fullName = user.fullName;
+                token.phone = user.phone;
+                token.role = user.role;
+            }
+            return token;
+        },
+        // Including custom fields in the session object
+        session({ session, token }: { session: any; token: JWT }) {
+            if (token) {
+                session.user = {
+                    ...session.user,
+                    id: token.id,
+                    fullName: token.fullName,
+                    phone: token.phone,
+                    role: token.role,
+                };
+            }
+            return session;
+        },
+    },
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);

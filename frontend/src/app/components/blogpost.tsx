@@ -2,6 +2,7 @@
 
 import Quill from "@/app/components/quill";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +17,10 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import Post from "@/app/models/post";
+import toast,{Toaster} from "react-hot-toast";
+
 
 // Define the schema with Zod
 const postSchema = z.object({
@@ -25,7 +29,9 @@ const postSchema = z.object({
 });
 
 export default function BlogPost() {
+    const { data: session, status } = useSession();
     const [posts, setPosts] = useState<Post[]>([]);
+    const [editingPost, setEditingPost] = useState<Post | null>(null);
 
     useEffect(() => {
         async function fetchPosts() {
@@ -50,24 +56,73 @@ export default function BlogPost() {
     });
 
     const onSubmit = async (data: { title: string; body: string }) => {
+        if(editingPost){
+            try {
+                const response = await fetch(`/api/posts/${editingPost._id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+                if (response.ok) {
+                    form.reset();
+                    setPosts((posts) =>
+                        posts.map((post) =>
+                            post._id === editingPost._id ? { ...post, ...data } : post
+                        )
+                    );
+                    setEditingPost(null);
+                    toast.success("Post updated successfully");
+                }
+            } catch (error) {
+                console.error("Failed to update post", error);
+                toast.error("Failed to update post");
+            }
+            return;
+        }else{
+            try {
+                const user = session?.user?.fullName;
+                const post = { ...data, author: user };
+                const response = await fetch("/api/posts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(post),
+                });
+                if (response.ok) {
+                    form.reset();
+                    setPosts([]); // Resetting posts
+                    toast.success("Post submitted successfully");
+                }
+            } catch (error) {
+                console.error("Failed to submit post", error);
+                toast.error("Failed to submit post");
+            }
+        }
+    };
+
+    const handleEditPost = (post: Post) => {
+        form.setValue("title", post.title);
+        form.setValue("body", post.body);
+        setEditingPost(post);
+    };
+
+    const handleDeletePost = async (id: string) => {
         try {
-            const response = await fetch("/api/posts", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+            const response = await fetch(`/api/posts/${id}`, {
+                method: "DELETE",
             });
             if (response.ok) {
-                form.reset();
-                setPosts([]); // Resetting posts
+                setPosts((posts) => posts.filter((post) => post._id !== id));
+                toast.success("Post deleted successfully");
             }
         } catch (error) {
-            console.error("Failed to submit post", error);
+            console.error("Failed to delete post", error);
+            toast.error("Failed to delete post");
         }
     };
 
     return (
         <div>
-            <h1>Blog Post</h1>
+            <h1>Manage your blog posts</h1>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     {/* Title Field */}
@@ -100,7 +155,10 @@ export default function BlogPost() {
                                         control={form.control}
                                         name="body"
                                         render={({ field }) => (
-                                           <Quill/>
+                                           <Quill
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                           />
                                         )}
                                     />
                                 </FormControl>
@@ -112,20 +170,48 @@ export default function BlogPost() {
                         )}
                     />
 
-                    <Button type="submit">Submit Post</Button>
+                    <Button type="submit"
+                            disabled={!form.formState.isDirty || !form.formState.isValid}
+                    >Submit Post</Button>
                 </form>
             </Form>
 
             {/* Displaying Existing Posts */}
-            <div>
-                <h2>Existing Posts</h2>
-                {posts.map((post) => (
-                    <div key={post._id}>
-                        <h3>{post.title}</h3>
-                        <div dangerouslySetInnerHTML={{ __html: post.body }} />
-                    </div>
-                ))}
-            </div>
+            <Table>
+                <TableCaption>Existing Posts</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Author</TableHead>
+                        <TableHead>Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {posts.map((post) => (
+                        <TableRow key={post._id}>
+                            <TableCell>{post.title}</TableCell>
+                            <TableCell>{post.author}</TableCell>
+                            <TableCell>
+                                <Button
+                                    className="mx-1"
+                                    type="button"
+                                    onClick={() => handleEditPost(post)}
+                                >
+                                    Edit
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={() => handleDeletePost(post._id)}
+                                    variant="destructive"
+                                >
+                                    Delete
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            <Toaster/>
         </div>
     );
 }

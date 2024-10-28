@@ -4,14 +4,7 @@ import MainTitle from "@/app/components/maintitle";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {useRouter} from "next/navigation";
-
-type Post = {
-    _id: string;
-    title: string;
-    body: string;
-    author: string;
-    date: string;
-};
+import  Post  from "@/app/models/post";
 
 export default function BlogPage() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -45,7 +38,7 @@ export default function BlogPage() {
                                         alt="food"
                                     />
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="h-64 overflow-hidden">
                                     <div className="flex justify-between items-center">
                                         <p className="text-sm text-gray-500">{formatDate} | {post.author}</p>
                                     </div>
@@ -53,7 +46,7 @@ export default function BlogPage() {
                                         <CardTitle className="text-xl mt-2 font-semibold">{post.title}</CardTitle>
                                         <Button onClick={()=> handleReadMore(post._id)} variant="outline" className="text-xs bg-amber-400">Read More</Button>
                                     </div>
-                                    <CardDescription className="mt-2 text-gray-700">{post.body}</CardDescription>
+                                    <CardDescription className="mt-2 text-gray-700" dangerouslySetInnerHTML={{ __html: post.body }} />
                                 </CardContent>
                             </Card>
                         );
