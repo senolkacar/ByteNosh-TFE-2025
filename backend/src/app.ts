@@ -61,6 +61,15 @@ app.post('/api/upload', upload.single('image'), (req, res): void => {
     res.json({ filename: req.file.filename });
 });
 
+app.get('/api/posts', async (req, res): Promise<void> => {
+    try {
+        const posts = await Post.find();
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching posts" });
+    }
+});
+
 app.get('/api/meals', async (req, res): Promise<void> => {
     try {
         const meals = await Meal.find().populate('category');
@@ -193,6 +202,7 @@ app.delete(
         res.status(500).json({ message: "Error deleting category" });
     }
 });
+
 
 app.get('/api/categories', async (req, res): Promise<void> => {
     try {
