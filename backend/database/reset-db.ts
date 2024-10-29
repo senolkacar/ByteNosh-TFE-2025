@@ -9,6 +9,8 @@ import siteConfig from '../src/siteconfig';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from "dotenv";
 import section from "../src/section";
+import timeslot from "../src/timeslot";
+import closure from "../src/closure";
 
 dotenv.config();
 const DB_URI = process.env.MONGODB_URI as string;
@@ -165,6 +167,10 @@ async function main(): Promise<void> {
         console.log('Deleted existing sections');
         await siteConfig.deleteMany({});
         console.log('Deleted existing site config');
+        await timeslot.deleteMany({});
+        console.log('Deleted existing opening hours');
+        await closure.deleteMany({});
+        console.log('Deleted existing closures');
 
         const createdCategories = await category.insertMany(CATEGORIES);
         console.log('Inserted categories');
@@ -357,6 +363,61 @@ async function main(): Promise<void> {
             }
         ];
 
+        const OPENING_HOURS = [
+            {
+                day: 'Monday',
+                openHour: new Date('2021-09-06T09:00:00'),
+                closeHour: new Date('2021-09-06T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Tuesday',
+                openHour: new Date('2021-09-07T09:00:00'),
+                closeHour: new Date('2021-09-07T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Wednesday',
+                openHour: new Date('2021-09-08T09:00:00'),
+                closeHour: new Date('2021-09-08T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Thursday',
+                openHour: new Date('2021-09-09T09:00:00'),
+                closeHour: new Date('2021-09-09T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Friday',
+                openHour: new Date('2021-09-10T09:00:00'),
+                closeHour: new Date('2021-09-10T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Saturday',
+                openHour: new Date('2021-09-11T09:00:00'),
+                closeHour: new Date('2021-09-11T17:00:00'),
+                isOpen: true,
+            },
+            {
+                day: 'Sunday',
+                openHour: new Date('2021-09-12T09:00:00'),
+                closeHour: new Date('2021-09-12T17:00:00'),
+                isOpen: true,
+            }
+        ];
+
+        const CLOSURES = [
+            {
+                date: new Date('2024-12-31'),
+                reason: 'Holiday'
+            },
+            {
+                date: new Date('2024-09-14'),
+                reason: 'Maintenance'
+            }
+        ];
 
 
 
@@ -372,6 +433,10 @@ async function main(): Promise<void> {
         console.log('Inserted tables');
         const sections = await section.insertMany(SECTIONS);
         console.log('Inserted sections');
+        const openingHours = await timeslot.insertMany(OPENING_HOURS);
+        console.log('Inserted opening hours');
+        const closures = await closure.insertMany(CLOSURES);
+        console.log('Inserted closures');
 
         const ORDERS = [
             {
