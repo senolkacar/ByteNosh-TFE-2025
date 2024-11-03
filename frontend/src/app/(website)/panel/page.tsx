@@ -7,6 +7,7 @@ import MenuManagement from "@/app/components/menu-management";
 import BlogPost from "@/app/components/blogpost";
 import ReservationSettings from "@/app/components/reservation";
 import OpeningHoursConfig from "@/app/components/oppening-hours";
+import SectionAndTables from "@/app/components/section-and-tables";
 
 
 
@@ -24,6 +25,8 @@ export default function Panel() {
                 return <BlogPost />;
             case "OpeningHours":
                 return <OpeningHoursConfig />;
+            case "SectionsAndTables":
+                return <SectionAndTables />;
             case "ReservationSettings":
                 return <ReservationSettings />;
             default:
@@ -54,6 +57,9 @@ export default function Panel() {
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("OpeningHours")} className={`${selectedLink === "OpeninHours" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Opening Hours
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("SectionsAndTables")} className={`${selectedLink === "SectionsAndTables" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Sections & Tables
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("ReservationSettings")} className={`${selectedLink === "ReservationSettings" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Reservation Settings

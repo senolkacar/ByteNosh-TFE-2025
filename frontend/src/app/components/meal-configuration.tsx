@@ -92,7 +92,6 @@ export default function MealConfiguration() {
         fetchCategories();
     }, []);
 
-    // Fetch meals and set to state (example API call)
     useEffect(() => {
         async function fetchMeals() {
             try {

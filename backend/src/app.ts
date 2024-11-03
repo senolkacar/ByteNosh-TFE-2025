@@ -16,6 +16,7 @@ import { sendEmail } from './mailer';
 import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
 import category from "./category";
 import Closure from "./closure";
+import Section from "./section";
 
 
 const app = express();
@@ -143,6 +144,75 @@ app.delete('/api/closures',
         res.status(400).json({message: "Date not found"});
     }
 });
+
+app.get('/api/sections',
+    async (req, res): Promise<void> => {
+    try {
+        const sections = await Section.find().populate('tables');
+        res.json(sections);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching sections" });
+    }
+});
+
+app.get(
+    '/api/sections/:name',
+    param('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
+    async (req, res): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+            const name = req.params?.name;
+            try {
+                const section = await Section.findOne({ name }).populate('tables');
+                if (!section) {
+                    res.status(404).json({ message: "Section not found" });
+                    return;
+                }
+                res.json(section);
+            } catch (error) {
+                res.status(500).json({ message: "Error fetching section" });
+            }
+        }
+)
+
+app.post(
+    '/api/sections',
+    body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
+    body('description').trim().escape().isString().isLength({ min: 1 }).withMessage('Description is required'),
+    body('tables').isArray().withMessage('Tables is required'),
+    async (req, res):Promise<void> => {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name, description, tables } = req.body;
+
+        try {
+            const section = new Section({ name, description });
+            const savedSection = await section.save();
+            const tablePromises = tables.map((table: any) =>
+                Table.create({
+                    ...table,
+                    section: savedSection._id,
+                })
+            );
+            const savedTables = await Promise.all(tablePromises);
+
+            savedSection.tables = savedTables.map((table) => table._id);
+            await savedSection.save();
+            res.status(201).json({ section: savedSection, tables: savedTables });
+        } catch (error) {
+            res.status(500).json({ message: 'Error creating section and tables'});
+        }
+    }
+);
+
 
 app.get('/api/posts', async (req, res): Promise<void> => {
     try {
