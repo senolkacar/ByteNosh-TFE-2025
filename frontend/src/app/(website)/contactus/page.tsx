@@ -5,16 +5,24 @@ import SendIcon from '@mui/icons-material/Send';
 import MainTitle from "@/app/components/maintitle";
 import dynamic from 'next/dynamic';
 import Config from "@/app/models/config";
+import TimeSlot from "@/app/models/timeslot";
 
 const Map = dynamic(() => import('../../components/map'), { ssr: false });
 
 export default function ContactUs() {
     const [config, setConfig] = useState<Config>();
+    const [openingHours, setOpeningHours] = useState<TimeSlot[]>([]);
     useEffect(() => {
         fetch('/api/config')
             .then(response => response.json())
             .then(data => setConfig(data))
             .catch(error => console.error('Error fetching config:', error));
+    }, []);
+    useEffect(() => {
+        fetch('/api/opening-hours')
+            .then(response => response.json())
+            .then(data => setOpeningHours(data))
+            .catch(error => console.error('Error fetching opening hours', error));
     }, []);
 
     const [formData, setFormData] = useState({
@@ -91,17 +99,35 @@ export default function ContactUs() {
                     </div>
                 </div>
                 <div className="mt-10">
+                    <h2 className="text-2xl font-semibold text-center">Opening Hours</h2>
+                    <div className="flex justify-center my-2">
+                        <div className="w-full max-w-4xl">
+                            <ul className="mx-auto">
+                                {openingHours?.map((day, index) => (
+                                    <li key={index} className="text-center">
+                                        {day.day}: {new Date(day.openHour).toLocaleTimeString("en-GB", {
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                    })} - {new Date(day.closeHour).toLocaleTimeString("en-GB", {
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                    })}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
                     <h2 className="text-4xl font-semibold mb-6 text-center">Our Location</h2>
                     <div className="flex justify-center">
                         <div>
-                        <p className="font-semibold text-center">{config?.contact.telephone}</p>
-                        <p className="font-semibold text-center">Address: {config?.contact.address}</p>
-                        <p className="font-semibold text-center">{config?.name}</p>
+                            <p className="font-semibold text-center">{config?.contact.telephone}</p>
+                            <p className="font-semibold text-center">Address: {config?.contact.address}</p>
+                            <p className="font-semibold text-center">{config?.name}</p>
                         </div>
                     </div>
                     <div className="flex justify-center">
                         <div className="w-full max-w-4xl h-[400px]">
-                            <Map />
+                            <Map/>
                         </div>
                     </div>
                 </div>
