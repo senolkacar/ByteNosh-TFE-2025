@@ -6,6 +6,16 @@ export const authRoutes = [
 export const publicRoutes = [
     "/",
     "/api/config",
+    "/api/meals",
+    "/menu",
+    "/blog",
+    /^\/blog(\/.*)?$/,
+    "/contactus",
+    "/aboutus",
+];
+
+export const adminRoutes = [
+    "/panel",
 ];
 
 export const apiAuthPrefix = "/api/auth";
