@@ -68,7 +68,6 @@ export default function UsersAndRoles() {
 
     const handleSearchUser = async (email: string) => {
         const user = await searchUserByEmail(email);
-        console.log(user);
         if (user) {
             setUser(user);
             setValue('fullName', user.fullName);

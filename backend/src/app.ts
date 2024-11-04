@@ -13,6 +13,7 @@ import SiteConfig from './siteconfig';
 import Timeslot from './timeslot';
 import bcrypt from 'bcrypt';
 import { sendEmail } from './mailer';
+import { validate as uuidValidate } from 'uuid';
 import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
 import category from "./category";
 import Closure from "./closure";
@@ -165,53 +166,90 @@ app.get(
             return;
         }
 
-            const name = req.params?.name;
-            try {
-                const section = await Section.findOne({ name }).populate('tables');
-                if (!section) {
-                    res.status(404).json({ message: "Section not found" });
-                    return;
-                }
-                res.json(section);
-            } catch (error) {
-                res.status(500).json({ message: "Error fetching section" });
+        const name = decodeURIComponent(req.params?.name);
+        try {
+            const section = await Section.findOne({ name }).populate('tables');
+            if (!section) {
+                res.status(404).json({ message: "Section not found" });
+                return;
             }
+            res.json(section);
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching section" });
         }
-)
+    }
+);
 
 app.post(
     '/api/sections',
     body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
     body('description').trim().escape().isString().isLength({ min: 1 }).withMessage('Description is required'),
     body('tables').isArray().withMessage('Tables is required'),
-    async (req, res):Promise<void> => {
-
+    async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
+            return;
         }
 
         const { name, description, tables } = req.body;
 
         try {
-            const section = new Section({ name, description });
-            const savedSection = await section.save();
-            const tablePromises = tables.map((table: any) =>
-                Table.create({
-                    ...table,
-                    section: savedSection._id,
-                })
-            );
-            const savedTables = await Promise.all(tablePromises);
+            let section = await Section.findOne({ name });
 
-            savedSection.tables = savedTables.map((table) => table._id);
-            await savedSection.save();
-            res.status(201).json({ section: savedSection, tables: savedTables });
+            if (section) {
+                // Update existing section
+                section.description = description;
+
+                const tablePromises = tables.map(async (table:any) => {
+                    if (!table._id || !mongoose.Types.ObjectId.isValid(table._id)) {
+                        // Create new table
+                        const newTable = new Table({ ...table, _id: new mongoose.Types.ObjectId(), section: section?._id });
+                        await newTable.save();
+                        return newTable;
+                    } else {
+                        // Update existing table
+                        await Table.updateOne({ _id: table._id }, { $set: table });
+                        return table;
+                    }
+                });
+
+                const savedTables = await Promise.all(tablePromises);
+
+                // Only add new table IDs to avoid duplicates
+                section.tables = savedTables.map((table) => table._id);
+
+                await section.save();
+                res.status(200).json({ section, tables: savedTables });
+            } else {
+                // Create new section
+                section = new Section({ name, description });
+                const savedSection = await section.save();
+
+                const tablePromises = tables.map(async (table:any) => {
+                    const newTable = new Table({
+                        ...table,
+                        _id: new mongoose.Types.ObjectId(),
+                        section: savedSection._id
+                    });
+                    await newTable.save();
+                    return newTable;
+                });
+
+                const savedTables = await Promise.all(tablePromises);
+
+                savedSection.tables = savedTables.map((table) => table._id);
+                await savedSection.save();
+                res.status(201).json({ section: savedSection, tables: savedTables });
+            }
         } catch (error) {
-            res.status(500).json({ message: 'Error creating section and tables'});
+            console.error('Error creating or updating section and tables:', error);
+            res.status(500).json({ message: 'Error creating or updating section and tables' });
         }
     }
 );
+
+
 
 
 app.get('/api/posts', async (req, res): Promise<void> => {
@@ -528,14 +566,77 @@ app.put(
     }
 });
 
+app.put('/api/tables/:id',
+    param('id').escape().isMongoId().withMessage('Invalid table ID'),
+    body('number').trim().escape().isNumeric().withMessage('Number is required'),
+    body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
+    body('seats').trim().escape().isNumeric().withMessage('Seats is required'),
+    body('isAvailable').trim().escape().isBoolean().withMessage('Is available is required'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
 
-app.get('/api/tables', async (req, res): Promise<void> => {
-    try {
-        const tables = await Table.find();
-        res.json(tables);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching tables" });
-    }
+            const tableId = req.params.id;
+            const updatedTable = req.body;
+            try {
+                const table = await Table.findById(tableId);
+                if (table) {
+                    await Table.updateOne({ _id: tableId }, { $set: updatedTable });
+                    res.status(200).json(updatedTable);
+                } else {
+                    res.status(404).json({ message: "Table not found" });
+                }
+            } catch (error) {
+                res.status(500).json({ message: "Error updating table" });
+            }
+});
+
+app.post('/api/tables',
+    body('section').trim().escape().isString().isLength({ min: 1 }).withMessage('Section is required'),
+    body('number').trim().escape().isNumeric().withMessage('Number is required'),
+    body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
+    body('seats').trim().escape().isNumeric().withMessage('Seats is required'),
+    body('isAvailable').trim().escape().isBoolean().withMessage('Is available is required'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+       const newTable = req.body;
+        try {
+            const table = await Table.create(newTable);
+                    res.status(201).json(table);
+        } catch (error) {
+                    res.status(500).json({ message: "Error creating table" });
+        }
+});
+
+app.delete('/api/tables/:id',
+    param('id').escape().isMongoId().withMessage('Invalid table ID'),
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const tableId = req.params.id;
+        try {
+            const table = await Table.findById(tableId);
+            if (!table) {
+                res.status(400).json({ message: "Table not found" });
+                return;
+            }
+            await Table.deleteOne({ _id: tableId });
+            res.json({ message: "Table deleted successfully" });
+        } catch (error) {
+            res.status(500).json({ message: "Error deleting table" });
+        }
 });
 
 app.get('/api/users', async (req, res): Promise<void> => {

@@ -1,70 +1,40 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Form,
-    FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
+    FormControl,
+    FormDescription,
     FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useFieldArray, useForm } from "react-hook-form";
+import AddTableForm, { TableFormValues } from "@/app/components/add-table-form";
+import EditTableModal from "@/app/components/edit-table-form";
+import TableModel from "@/app/models/table";
+import SectionModel from "@/app/models/section";
+import { toast, Toaster } from "react-hot-toast";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Toaster } from "react-hot-toast";
-import { toast } from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import PaginationComponent from "@/app/components/pagination";
+import { v4 as uuidv4 } from "uuid";
+
 
 const sectionSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
-    tables: z
-        .array(
-            z.object({
-                number: z.number().min(1, "Table number is required"),
-                name: z.string().min(1, "Table name is required"),
-                seats: z.number().min(1, "Number of seats is required"),
-                isAvailable: z.boolean(),
-            })
-        )
-        .min(1, "At least one table is required"),
 });
 
 export default function SectionAndTables() {
-    const [sections, setSections] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [tables, setTables] = useState([]);
-    const [editingTable, setEditingTable] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const rowsPerPage = 5;
-
-    useEffect(() => {
-        async function fetchSections() {
-            try {
-                const response = await fetch("/api/sections");
-                const sectionsData = await response.json();
-                setSections(sectionsData);
-            } catch (error) {
-                console.error("Failed to fetch sections", error);
-            }
-        }
-
-        fetchSections();
-    }, []);
+    const [sections, setSections] = useState<SectionModel[]>([]);
+    const [tables, setTables] = useState<TableModel[]>([]);
+    const [selectedSection, setSelectedSection] = useState<SectionModel>();
+    const [editingTable, setEditingTable] = useState<TableModel | null>(null);
+    const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
+    const [initialTables, setInitialTables] = useState<TableModel[]>([]);
+    const [tablesModified, setTablesModified] = useState(false);
 
     const form = useForm({
         mode: "onChange",
@@ -76,206 +46,222 @@ export default function SectionAndTables() {
         },
     });
 
-    const handleSectionSubmit = async (data:any) => {
+    const name = useWatch({ control: form.control, name: "name" });
+    const description = useWatch({ control: form.control, name: "description" });
+
+    const isSectionFilled = name && description;
+
+    useEffect(() => {
+        const hasChanges = JSON.stringify(tables) !== JSON.stringify(initialTables);
+        setTablesModified(hasChanges);
+    }, [tables, initialTables]);
+
+    let nextId = 0;
+
+    const handleAddTable = async (table: TableFormValues) => {
+        try {
+            setTables([...tables, { ...table,  _id: uuidv4(), section: selectedSection?._id }]);
+            toast.success("Table added successfully");
+            setTablesModified(true);
+        } catch (error) {
+            toast.error("Failed to add table");
+        }
+    };
+
+    const handleDeleteTable = async (table: TableModel) => {
+        if (!table._id) return;
+        try {
+            const response = await fetch(`/api/tables/${table._id}`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                setTables(tables.filter((t) => t._id !== table._id));
+                toast.success("Table deleted successfully");
+            }
+        } catch (error) {
+            console.error("Failed to delete table", error);
+            toast.error("Failed to delete table");
+        }
+    };
+
+    const handleSearchSection = async (name: string) => {
+        try {
+            const response = await fetch(`/api/sections/${encodeURIComponent(name)}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    toast.error("Section not found");
+                } else {
+                    toast.error("Failed to retrieve section");
+                }
+                return;
+            }
+            const section = await response.json();
+            form.setValue("name", section.name);
+            form.setValue("description", section.description);
+            setSelectedSection(section);
+            setTables(section.tables);
+            setInitialTables(section.tables);
+        } catch (error) {
+            console.error("Failed to search for section", error);
+            toast.error("Failed to retrieve section");
+        }
+    };
+
+    const handleSectionSubmit = async (data: any) => {
+        const sectionData = { name: data.name, description: data.description, tables: tables };
+        console.log("sectionData", sectionData);
         try {
             const response = await fetch("/api/sections", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(sectionData),
             });
-
             if (response.ok) {
-                toast.success("Section created successfully");
+                const section = await response.json();
+                setSections([...sections, section]);
+                toast.success("Section saved successfully");
                 form.reset();
-            } else {
-                toast.error("Failed to create section");
+                setTablesModified(false);
             }
         } catch (error) {
-            console.error("Error creating section:", error);
+            console.error("Failed to save section", error);
+            toast.error("Failed to save section");
         }
     };
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "tables",
-    });
-
-    const handleSearchSection = async (name:string) => {
+    const handleEditTable = async (table: TableModel) => {
         try {
-            const response = await fetch(`/api/sections/${name}`);
-            const section = await response.json();
-            if (section) {
-                form.setValue("name", section.name);
-                form.setValue("description", section.description);
-                setTables(section.tables);
+            const response = await fetch(`/api/tables/${table._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(table),
+            });
+            if (response.ok) {
+                const updatedTable = await response.json();
+                setTables(tables.map((t) => (t._id === updatedTable._id ? updatedTable : t)));
             }
         } catch (error) {
-            console.error("Failed to search for section", error);
+            console.error("Failed to update table", error);
+            toast.error("Failed to update table");
         }
     };
-
-    const handleEditTable = (table :any) => {
-        setEditingTable(table);
-        setIsEditing(true);
-        form.setValue("tables", [table]);
-    };
-
-    const handleAddTable = () => {
-        setEditingTable(null);
-        setIsEditing(true);
-        form.setValue("tables", [{ number: 0, name: "", seats: 1, isAvailable: true }]);
-    };
-
-    const currentData = tables.slice(
-        (currentPage - 1) * rowsPerPage,
-        currentPage * rowsPerPage
-    );
-    const totalPages = Math.ceil(tables.length / rowsPerPage);
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSectionSubmit)} className="space-y-4">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                                <div className="flex gap-2">
-                                    <Input placeholder="Section Name" {...field} />
-                                    <Button
-                                        type="button"
-                                        onClick={() => handleSearchSection(field.value)}
-                                    >
-                                        Get Section
-                                    </Button>
-                                </div>
-                            </FormControl>
-                            <FormDescription>Enter the section name.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
+        <div className="section-and-tables">
+            <h2>Manage Sections</h2>
+            <FormProvider {...form}>
+                <form onSubmit={form.handleSubmit(handleSectionSubmit)} className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <div className="flex gap-2">
+                                        <Input placeholder="Section Name" {...field} />
+                                        <Button
+                                            type="button"
+                                            onClick={() => handleSearchSection(field.value)}
+                                        >
+                                            Get Section
+                                        </Button>
+                                    </div>
+                                </FormControl>
+                                <FormDescription>Enter the section name.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Description" {...field} />
+                                </FormControl>
+                                <FormDescription>Enter the section description.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button
+                        type="submit"
+                        disabled={!form.formState.isDirty || !tablesModified}
+                    >
+                        Save
+                    </Button>
+                    {tablesModified && (
+                        <p className="text-red-500 italic">
+                            Warning: You have unsaved table changes. Please click "Save" to apply them.
+                        </p>
                     )}
-                />
+                    <Toaster />
+                </form>
 
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Description" {...field} />
-                            </FormControl>
-                            <FormDescription>Enter the section description.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
-                <Button type="submit" className="btn">
-                    Save
-                </Button>
-                <Toaster />
+            <h2 className="font-semibold mt-2">Add New Table</h2>
+            {!isSectionFilled && (
+                <p className="text-red-500 italic">
+                    Please fill in the section name and description to add tables.
+                </p>
+            )}
+            {(isSectionFilled || selectedSection) && (
+                <>
+                    <p className="font-light italic">Adding table to section {selectedSection?.name}</p>
+                    <AddTableForm onSubmit={handleAddTable} />
+                </>
+            )}
 
-                <h2 className="font-semibold mt-4">Tables for section </h2>
-                <Table>
-                    <TableCaption>List of tables for this section</TableCaption>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Number</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Seats</TableHead>
-                            <TableHead>Available</TableHead>
-                            <TableHead>Actions</TableHead>
+            <h2 className="font-semibold mt-4">Tables for section {selectedSection?.name}</h2>
+            <Table>
+                <TableCaption>List of tables for this section</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Table Name</TableHead>
+                        <TableHead>Seats</TableHead>
+                        <TableHead>Is Available</TableHead>
+                        <TableHead>Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {tables.map((table) => (
+                        <TableRow key={table._id}>
+                            <TableCell>{table.name}</TableCell>
+                            <TableCell>{table.seats}</TableCell>
+                            <TableCell>{table.isAvailable ? "Yes" : "No"}</TableCell>
+                            <TableCell>
+                                <Button type="button" variant="destructive" onClick={() => {
+                                    setTables(tables.filter((t) => t._id !== table._id));
+                                    handleDeleteTable(table);
+                                }}>Delete</Button>
+                                <Button type="button" className="mx-1" onClick={() => {
+                                    setEditingTable(table);
+                                    setIsEditingModalOpen(true);
+                                }}>Edit</Button>
+                            </TableCell>
                         </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {currentData.map((table, index) => (
-                            <TableRow key={table._id || index}>
-                                <TableCell>{table.number}</TableCell>
-                                <TableCell>{table.name}</TableCell>
-                                <TableCell>{table.seats}</TableCell>
-                                <TableCell>{table.isAvailable ? "Yes" : "No"}</TableCell>
-                                <TableCell>
-                                    <Button type="button" onClick={() => handleEditTable(table)}>
-                                        Edit
-                                    </Button>
-                                    <Button type="button" onClick={() => remove(index)} variant="destructive">
-                                        Delete
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <PaginationComponent
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
-                    <div>
-                        <h3 className="text-lg font-semibold">Tables</h3>
-                        {fields.map((item, index) => (
-                            <div key={item.id} className="flex space-x-4">
-                                <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.number`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Number</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="Table Number" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.name`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Name</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Table Name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.seats`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Seats</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="Number of Seats" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.isAvailable`}
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col items-center space-y-6">
-                                            <FormLabel className="mt-1.5">Available</FormLabel>
-                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        ))}
-                        <Button className="my-2" type="button" onClick={handleAddTable}>
-                           {isEditing ? "Save" : "Add Table"}
-                        </Button>
-                    </div>
-            </form>
-        </Form>
+                    ))}
+                </TableBody>
+            </Table>
+
+            <EditTableModal
+                isOpen={isEditingModalOpen}
+                table={editingTable}
+                onClose={() => setIsEditingModalOpen(false)}
+                onSave={(updatedTable: TableModel) => {
+                    setTables(tables.map((table) => (table._id === updatedTable._id ? updatedTable : table)));
+                    handleEditTable(updatedTable);
+                    setIsEditingModalOpen(false);
+                }}
+            />
+            </FormProvider>
+        </div>
     );
 }
