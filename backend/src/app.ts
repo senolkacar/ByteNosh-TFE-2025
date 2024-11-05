@@ -749,6 +749,31 @@ app.put('/api/users/:id',
     }
 });
 
+app.put('/api/users/:id/password',
+param('id').escape().isMongoId().withMessage('Invalid user ID'),
+body('password').trim().escape().isString().isLength({ min: 6 }).withMessage('Password is required'),
+async (req :Request, res:Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+    }
+    const userId = req.params.id;
+    const newPassword = req.body.password;
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await User.updateOne({ _id: userId }, { $set: { password: hashedPassword } });
+            res.status(200).json({ message: "Password updated successfully" });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error updating password" });
+    }
+});
+
 app.post("/api/send-email", async (req, res): Promise<void> => {
     const { fullname, email, message } = req.body;
 

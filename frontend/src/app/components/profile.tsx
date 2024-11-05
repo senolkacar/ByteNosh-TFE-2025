@@ -52,7 +52,6 @@ export default function Profile() {
     }, []);
 
     const onSubmit = async (data: any) => {
-        console.log(userID);
         try {
             const response = await fetch(`/api/users/${userID}`, {
                 method: 'PUT',
