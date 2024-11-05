@@ -17,6 +17,9 @@ import { useRouter } from 'next/navigation';
 import { useActiveSection } from "@/app/context/activesectioncontext";
 import { usePathname } from 'next/navigation';
 import DisplayUsername from "@/app/components/display-username";
+import {useEffect, useState} from "react";
+import User from "@/app/models/user";
+import {useSession} from "next-auth/react";
 
 export default function AccountMenu() {
     const router = useRouter();
@@ -24,6 +27,21 @@ export default function AccountMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const pathname = usePathname();
+    const [user, setUser] = useState<User>()
+    const email = useSession().data?.user?.email;
+
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const response = await fetch(`/api/user/${email}`);
+                const data = await response.json();
+                setUser(data);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
+        fetchUser();
+    }, []);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -44,7 +62,7 @@ export default function AccountMenu() {
         if(pathname !== '/dashboard') {
             router.push('/dashboard');
         }
-        setActiveSection("Settings");
+        setActiveSection("Profile");
         handleClose();
     };
 
@@ -60,8 +78,8 @@ export default function AccountMenu() {
                     aria-expanded={open ? 'true' : undefined}
                 >
                     <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
-                        <AvatarFallback>SD</AvatarFallback>
+                        <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
+                        <AvatarFallback>{user ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar>
                     <DisplayUsername/>
                 </IconButton>
