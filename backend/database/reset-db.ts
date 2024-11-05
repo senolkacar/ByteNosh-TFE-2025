@@ -48,6 +48,7 @@ const USERS = [
     {
         fullName: 'Admin User',
         phone:'123456789',
+        avatar: 'avatar.jpg',
         email: 'admin@test.com',
         password: 'admin123',
         role: 'ADMIN',
@@ -55,6 +56,7 @@ const USERS = [
     {
         fullName: 'Regular User',
         phone:'123456789',
+        avatar: 'avatar.jpg',
         email: 'user@test.com',
         password: 'user123',
         role: 'USER',
@@ -62,6 +64,7 @@ const USERS = [
     {
         fullName: 'Employee User',
         phone:'123456789',
+        avatar: 'avatar.jpg',
         email: 'employee@test.com',
         password: 'employee123',
         role: 'EMPLOYEE'

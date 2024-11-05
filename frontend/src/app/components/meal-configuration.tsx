@@ -83,7 +83,7 @@ export default function MealConfiguration() {
             try {
                 const response = await fetch("/api/categories");
                 const categories = await response.json();
-                setCategories(categories); // Example: categories could be an array
+                setCategories(categories);
             } catch (error) {
                 console.error("Failed to fetch categories", error);
             }
@@ -97,7 +97,7 @@ export default function MealConfiguration() {
             try {
                 const response = await fetch("/api/meals");
                 const meals = await response.json();
-                setMeals(meals);  // Example: meals could be an array
+                setMeals(meals);
             } catch (error) {
                 console.error("Failed to fetch meals", error);
             }

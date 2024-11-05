@@ -716,6 +716,39 @@ app.get(
     }
 });
 
+app.put('/api/users/:id',
+    param('id').escape().isMongoId().withMessage('Invalid user ID'),
+    body('fullName').trim().escape().isString().isLength({ min: 1 }).withMessage('Full name is required'),
+    body('email').trim().escape().isEmail().withMessage('Invalid email'),
+    body('phone').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid phone number'),
+    body('avatar').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid avatar URL'),
+
+    async (req :Request, res:Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+    const userId = req.params.id;
+    const updatedUser = req.body;
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            if(updatedUser.email !== user.email) {
+                const existingUser = await User.findOne({ email: updatedUser.email });
+                if (existingUser) {
+                    res.status(400).json({ message: "This email is already taken." });
+                    return;
+                }
+            }
+        }
+        await User.updateOne({ _id: userId }, { $set: updatedUser });
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: "Error updating user" });
+    }
+});
+
 app.post("/api/send-email", async (req, res): Promise<void> => {
     const { fullname, email, message } = req.body;
 

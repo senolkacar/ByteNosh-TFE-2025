@@ -46,8 +46,7 @@ const authOptions: NextAuthConfig = {
                     if (!user || !token) {
                         return null;
                     }
-
-                    return { ...user, token };
+                    return { ...user,id:user._id, token };
                 } catch (error) {
                     if (error instanceof ZodError) {
                         return null;
