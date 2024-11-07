@@ -6,7 +6,10 @@ const tableSchema = new mongoose.Schema({
     number: Number,
     name: String,
     seats: Number,
-    isAvailable: Boolean,
+    status: {
+        type: String,
+        enum: ['AVAILABLE', 'RESERVED', 'OCCUPIED']
+    }
 });
 
 export default mongoose.model('Table', tableSchema);

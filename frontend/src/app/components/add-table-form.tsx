@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 const tableSchema = z.object({
     number: z.coerce.number().min(1, "Table number is required"),
     name: z.string().min(1, "Table name is required"),
     seats: z.coerce.number().min(1, "Number of seats is required"),
-    isAvailable: z.boolean(),
+    status: z.enum(["AVAILABLE", "RESERVED", "OCCUPIED"]),
 });
 
 export type TableFormValues = z.infer<typeof tableSchema>;
@@ -24,7 +25,7 @@ export default function AddTableForm({ onSubmit }: AddTableFormProps) {
     const form = useForm<TableFormValues>({
         mode: "onChange",
         resolver: zodResolver(tableSchema),
-        defaultValues: {number: 1, name: "", seats: 1, isAvailable: true},
+        defaultValues: {number: 1, name: "", seats: 1, status: "AVAILABLE"},
     });
 
     const handleSubmit = async (data: TableFormValues) => {
@@ -65,15 +66,26 @@ export default function AddTableForm({ onSubmit }: AddTableFormProps) {
                             <FormMessage/>
                         </FormItem>
 
-                        <FormItem className="flex flex-col items-center space-y-6">
-                            <FormLabel className="mt-1.5">Is Available?</FormLabel>
+                        <FormItem>
+                            <FormLabel>Status</FormLabel>
                             <FormControl>
-                                <Checkbox
-                                    checked={!!form.watch("isAvailable")}
-                                    onCheckedChange={(checked) => form.setValue("isAvailable", !!checked)}
-                                />
+                                <Select
+                                    onValueChange={(value: "AVAILABLE" | "RESERVED" | "OCCUPIED") => form.setValue("status", value)}
+                                    defaultValue={form.watch("status")}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select status">
+                                            {form.watch("status") || "AVAILABLE"}
+                                        </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="AVAILABLE">Available</SelectItem>
+                                        <SelectItem value="RESERVED">Reserved</SelectItem>
+                                        <SelectItem value="OCCUPIED">Occupied</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
-                            <FormMessage/>
+                            <FormMessage />
                         </FormItem>
                     </div>
 

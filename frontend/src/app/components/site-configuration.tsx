@@ -35,9 +35,15 @@ const schema = z.object({
         description: z.string().optional(),
         telephone: z.string().optional(),
         email: z.string().optional(),
-        address: z.string().optional(),
-        latitude: z.number().optional(),
-        longitude: z.number().optional(),
+        address: z.string().optional()
+            .refine(async (address) => {
+                if (!address) return true; // Skip validation if the field is empty
+                const response = await fetch(`https://photon.komoot.io/api/?q=${address}&lang=fr`);
+                const data = await response.json();
+                return data.features && data.features.length > 0;
+            }, {
+                message: "Invalid address, please enter a valid address.",
+            }),
     }),
     aboutUs: z.object({
         title1: z.string().min(1),
@@ -63,7 +69,7 @@ export default function SiteConfiguration() {
     }, []);
 
     const form = useForm({
-        mode: "onChange",
+        mode: "onBlur",
         resolver: zodResolver(schema),
     });
 
@@ -81,6 +87,9 @@ export default function SiteConfiguration() {
             form.reset(data);
             return acc;
         }, {} as Partial<Config>);
+
+        if (!updatedFields.name) updatedFields.name = initialConfig?.name;
+        if (!updatedFields.slogan) updatedFields.slogan = initialConfig?.slogan;
 
         fetch('/api/set-config', {
             method: 'POST',
@@ -128,8 +137,6 @@ export default function SiteConfiguration() {
                     <FormFieldComponent control={form.control} name="contact.telephone" label="Telephone" placeholder="Enter the telephone number" description="This is the telephone number." />
                     <FormFieldComponent control={form.control} name="contact.email" label="Email" placeholder="Enter the email address" description="This is the email address." />
                     <FormFieldComponent control={form.control} name="contact.address" label="Address" placeholder="Enter the address" description="This is the address." />
-                    <FormFieldComponent control={form.control} name="contact.latitude" label="Latitude" placeholder="Enter the latitude" description="This is the latitude." />
-                    <FormFieldComponent control={form.control} name="contact.longitude" label="Longitude" placeholder="Enter the longitude" description="This is the longitude." />
                 </CollapsibleSection>
                 <CollapsibleSection title="About Us Page">
                     <FormFieldComponent control={form.control} name="aboutUs.title1" label="Title 1" placeholder="Enter the title 1" description="This is the title 1 of the about us section." />

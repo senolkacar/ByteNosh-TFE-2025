@@ -11,6 +11,7 @@ import * as dotenv from "dotenv";
 import section from "../src/section";
 import timeslot from "../src/timeslot";
 import closure from "../src/closure";
+import reservation from "../src/reservation";
 
 dotenv.config();
 const DB_URI = process.env.MONGODB_URI as string;
@@ -99,7 +100,7 @@ const TABLES = [
         number: 1,
         name: 'Table 1',
         seats: 4,
-        isAvailable: true,
+        status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -108,6 +109,7 @@ const TABLES = [
         name: 'Table 2',
         seats: 4,
         isAvailable: true,
+        status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -115,7 +117,7 @@ const TABLES = [
         number: 3,
         name: 'Table 3',
         seats: 6,
-        isAvailable: true,
+        status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -123,7 +125,7 @@ const TABLES = [
         number: 4,
         name: 'Table 4',
         seats: 6,
-        isAvailable: true,
+        status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -131,7 +133,7 @@ const TABLES = [
         number: 5,
         name: 'Table 5',
         seats: 2,
-        isAvailable: true,
+        status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -139,7 +141,8 @@ const TABLES = [
         number: 6,
         name: 'Table 6',
         seats: 2,
-        isAvailable: true,
+        status: 'AVAILABLE',
+
     }
 ];
 
@@ -226,8 +229,7 @@ async function main(): Promise<void> {
                 description: 'Consectetur adipisicing elit. Cupiditate nesciunt amet facilis numquam, nam adipisci qui voluptate voluptas enim obcaecati veritatis animi nulla, mollitia commodi quaerat ex, autem ea laborum.',
                 latitude: '50.851561',
                 longitude: '4.369546',
-                address: 'Avenue de l\'Astronomie 19\n' +
-                    '                        1210 Saint-Josse-ten-Noode',
+                address: 'Avenue de l\'Astronomie 19 1210 Saint-Josse-ten-Noode',
                 telephone: '02 777 10 10',
                 email: 'admin@test.com'
             },
@@ -441,28 +443,62 @@ async function main(): Promise<void> {
         const closures = await closure.insertMany(CLOSURES);
         console.log('Inserted closures');
 
-        const ORDERS = [
+        const reservationsData = [
+            {
+                user: users.find(u => u.email === 'user@test.com')!._id,
+                table: tables.find(t => t.name === 'Table 1')!._id,
+                reservationTime: new Date(),
+                status: 'CONFIRMED',
+                orders: []
+            },
+            {
+                user: users.find(u => u.email === 'user@test.com')!._id,
+                table: tables.find(t => t.name === 'Table 2')!._id,
+                reservationTime: new Date(),
+                status: 'COMPLETED',
+                orders: []
+            }
+        ];
+        const reservations = await reservation.insertMany(reservationsData);
+        console.log('Inserted reservations');
+
+        const ordersData = [
+            // Orders linked to reservation
             {
                 table: tables.find(t => t.name === 'Table 1')!._id,
-                meals: meals.filter(m => m.name && ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => m._id),
+                meals: meals.filter(m => ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => m._id),
                 date: new Date(),
-                status: 'pending'
+                status: 'IN_PROGRESS',
+                reservation: reservations[0]._id
             },
             {
                 table: tables.find(t => t.name === 'Table 2')!._id,
-                meals: meals.filter(m => m.name && ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => m._id),
+                meals: meals.filter(m => ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => m._id),
                 date: new Date(),
-                status: 'completed'
+                status: 'SERVED',
+                reservation: reservations[1]._id
             },
+            // Walk-in order (no reservation)
             {
                 table: tables.find(t => t.name === 'Table 3')!._id,
-                meals: meals.filter(m => m.name && ['Tiramisu', 'Pastéis de Nata', 'Baklava'].includes(m.name)).map(m => m._id),
+                meals: meals.filter(m => ['Tiramisu', 'Pastéis de Nata'].includes(m.name)).map(m => m._id),
                 date: new Date(),
-                status: 'pending'
+                status: 'PENDING'
+                // No reservation field for walk-in
             }
         ];
-        const orders = await order.insertMany(ORDERS);
+        const orders = await order.insertMany(ordersData);
         console.log('Inserted orders');
+
+        // Update reservations to link to their respective orders
+        await reservation.updateOne(
+            { _id: reservations[0]._id },
+            { $push: { orders: orders[0]._id } }
+        );
+        await reservation.updateOne(
+            { _id: reservations[1]._id },
+            { $push: { orders: orders[1]._id } }
+        );
 
         console.log('Database reset successfully');
     } catch (error) {

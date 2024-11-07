@@ -20,6 +20,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
+import {Badge} from "@/components/ui/badge";
 
 
 const sectionSchema = z.object({
@@ -42,7 +43,7 @@ export default function SectionAndTables() {
         defaultValues: {
             name: "",
             description: "",
-            tables: [{ number: 1, name: "", seats: 1, isAvailable: true }],
+            tables: [{ number: 1, name: "", seats: 1, status: "AVAILABLE" }],
         },
     });
 
@@ -226,7 +227,7 @@ export default function SectionAndTables() {
                     <TableRow>
                         <TableHead>Table Name</TableHead>
                         <TableHead>Seats</TableHead>
-                        <TableHead>Is Available</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -235,7 +236,7 @@ export default function SectionAndTables() {
                         <TableRow key={table._id}>
                             <TableCell>{table.name}</TableCell>
                             <TableCell>{table.seats}</TableCell>
-                            <TableCell>{table.isAvailable ? "Yes" : "No"}</TableCell>
+                            <TableCell><Badge variant="outline"> {table.status}</Badge></TableCell>
                             <TableCell>
                                 <Button type="button" variant="destructive" onClick={() => {
                                     setTables(tables.filter((t) => t._id !== table._id));

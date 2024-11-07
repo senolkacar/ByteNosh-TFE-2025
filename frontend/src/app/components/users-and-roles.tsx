@@ -25,7 +25,7 @@ const schema = z.object({
     fullName: z.string().min(3, "Name must be at least 3 characters"),
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
-    role: z.string()
+    role: z.enum(["ADMIN", "USER", "EMPLOYEE"]),
 });
 
 

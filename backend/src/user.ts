@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         enum: ['ADMIN', 'USER', 'EMPLOYEE'],
         default: 'USER'
     },
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+    reservations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reservation' }],
 });
 
 export default mongoose.model('User', userSchema);

@@ -4,17 +4,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "react-hot-toast";
-import { Dialog } from "@/components/ui/dialog"; // Adjust the import path for your Dialog component
+import { Dialog } from "@/components/ui/dialog";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 const tableSchema = z.object({
     _id: z.string().optional(),
     number: z.coerce.number().min(1, "Table number is required"),
     name: z.string().min(1, "Table name is required"),
     seats: z.coerce.number().min(1, "Number of seats is required"),
-    isAvailable: z.boolean(),
+    status: z.enum(["AVAILABLE", "RESERVED", "OCCUPIED"]),
 });
 
 export type TableFormValues = z.infer<typeof tableSchema>;
@@ -29,7 +29,7 @@ interface EditTableModalProps {
 export default function EditTableModal({ isOpen, table, onClose, onSave }: EditTableModalProps) {
     const form = useForm<TableFormValues>({
         resolver: zodResolver(tableSchema),
-        defaultValues: { number: 1, name: "", seats: 1, isAvailable: true },
+        defaultValues: { number: 1, name: "", seats: 1, status: "AVAILABLE" }, // Table status is set to AVAILABLE by default, can be RESERVED or OCCUPIED
     });
 
     useEffect(() => {
@@ -82,12 +82,23 @@ export default function EditTableModal({ isOpen, table, onClose, onSave }: EditT
                             </FormItem>
 
                             <FormItem>
-                                <FormLabel>Is Available?</FormLabel>
+                                <FormLabel>Status</FormLabel>
                                 <FormControl>
-                                    <Checkbox
-                                        checked={!!form.watch("isAvailable")}
-                                        onCheckedChange={(checked: boolean) => form.setValue("isAvailable", checked)}
-                                    />
+                                    <Select
+                                        onValueChange={(value: "AVAILABLE" | "RESERVED" | "OCCUPIED") => form.setValue("status", value)}
+                                        defaultValue={form.watch("status")}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select status">
+                                                {form.watch("status") || "AVAILABLE"}
+                                            </SelectValue>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="AVAILABLE">Available</SelectItem>
+                                            <SelectItem value="RESERVED">Reserved</SelectItem>
+                                            <SelectItem value="OCCUPIED">Occupied</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

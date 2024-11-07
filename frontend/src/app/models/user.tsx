@@ -5,6 +5,6 @@ export default interface User {
     phone: string,
     avatar: string,
     password: string,
-    role: string,
+    role: "ADMIN" | "USER" | "EMPLOYEE",
     orders: string[],
 }

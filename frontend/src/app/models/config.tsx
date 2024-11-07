@@ -20,8 +20,6 @@ export default interface Config {
     contact:{
         title: String,
         description: String,
-        latitude: number,
-        longitude: number,
         address: string,
         telephone: string,
         email: string,

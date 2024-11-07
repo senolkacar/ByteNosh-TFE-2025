@@ -3,6 +3,6 @@ export default interface TableModel {
     number: number;
     name: string;
     seats: number;
-    isAvailable: boolean;
+    status: "AVAILABLE" | "RESERVED" | "OCCUPIED";
     section?: string;
 }

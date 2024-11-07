@@ -13,9 +13,7 @@ import SiteConfig from './siteconfig';
 import Timeslot from './timeslot';
 import bcrypt from 'bcrypt';
 import { sendEmail } from './mailer';
-import { validate as uuidValidate } from 'uuid';
 import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
-import category from "./category";
 import Closure from "./closure";
 import Section from "./section";
 
@@ -819,8 +817,6 @@ app.post(
     body('contact.telephone').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact telephone'),
     body('contact.email').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact email'),
     body('contact.address').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for contact address'),
-    body('contact.latitude').optional().trim().escape().isNumeric().withMessage('Invalid value for contact latitude'),
-    body('contact.longitude').optional().trim().escape().isNumeric().withMessage('Invalid value for contact longitude'),
     body('aboutUs.title1').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us title1'),
     body('aboutUs.description1').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us description1'),
     body('aboutUs.title2').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about us title2'),
@@ -833,7 +829,27 @@ app.post(
             return;
         }
     const newConfig = req.body;
-    try {
+        if (newConfig.contact?.address) {
+            try {
+                const address = newConfig.contact.address;
+                const response = await fetch(`https://photon.komoot.io/api/?q=${address}`);
+                const data = await response.json();
+
+                if (data.features && data.features.length > 0) {
+                    const coordinates = data.features[0].geometry.coordinates;
+                    newConfig.contact.latitude = coordinates[1];  // Latitude
+                    newConfig.contact.longitude = coordinates[0];  // Longitude
+                } else {
+                    res.status(400).json({ message: "Invalid address: could not retrieve coordinates" });
+                    return;
+                }
+            } catch (error) {
+                res.status(500).json({ message: "Failed to validate address" });
+                return;
+            }
+        }
+
+        try {
         const existingConfig = await SiteConfig.findOne();
 
         if (existingConfig) {
