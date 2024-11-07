@@ -21,11 +21,13 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import {Badge} from "@/components/ui/badge";
+import {Checkbox} from "@/components/ui/checkbox";
 
 
 const sectionSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
+    isIndoor: z.boolean(),
 });
 
 export default function SectionAndTables() {
@@ -43,6 +45,7 @@ export default function SectionAndTables() {
         defaultValues: {
             name: "",
             description: "",
+            isIndoor: false,
             tables: [{ number: 1, name: "", seats: 1, status: "AVAILABLE" }],
         },
     });
@@ -99,6 +102,7 @@ export default function SectionAndTables() {
             const section = await response.json();
             form.setValue("name", section.name);
             form.setValue("description", section.description);
+            form.setValue("isIndoor", section.isIndoor);
             setSelectedSection(section);
             setTables(section.tables);
             setInitialTables(section.tables);
@@ -109,8 +113,7 @@ export default function SectionAndTables() {
     };
 
     const handleSectionSubmit = async (data: any) => {
-        const sectionData = { name: data.name, description: data.description, tables: tables };
-        console.log("sectionData", sectionData);
+        const sectionData = { name: data.name, description: data.description, isIndoor: data.isIndoor, tables: tables };
         try {
             const response = await fetch("/api/sections", {
                 method: "POST",
@@ -192,11 +195,31 @@ export default function SectionAndTables() {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="isIndoor"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex items-center gap-2">
+                                    <FormLabel>Indoor</FormLabel>
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={(checked) => field.onChange(checked)}
+                                        />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>Check if the section is indoors.</FormDescription>
+                                <FormMessage/>
+                            </FormItem>
+
+                        )}
+                    />
                     <Button
                         type="submit"
                         disabled={!form.formState.isDirty || !tablesModified}
                     >
-                        Save
+                    Save
                     </Button>
                     {tablesModified && (
                         <p className="text-red-500 italic">

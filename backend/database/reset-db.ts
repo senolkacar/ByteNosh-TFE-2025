@@ -72,23 +72,26 @@ const USERS = [
     }
 ];
 
-const SECTIONS: { _id: mongoose.Types.ObjectId, name: string, description: string, tables: mongoose.Types.ObjectId[] }[] = [
+const SECTIONS: { _id: mongoose.Types.ObjectId, name: string, description: string, isIndoor: boolean, tables: mongoose.Types.ObjectId[] }[] = [
     {
         _id: new mongoose.Types.ObjectId(),
-        name: 'Indoor',
-        description: 'Indoor section',
+        name: 'First Floor',
+        description: 'First floor section',
+        isIndoor: true,
         tables: [],
     },
     {
         _id: new mongoose.Types.ObjectId(),
         name: 'Second Floor',
         description: 'Second floor section',
+        isIndoor: true,
         tables: [],
     },
     {
         _id: new mongoose.Types.ObjectId(),
         name: 'Balcony',
         description: 'Balcony section',
+        isIndoor: false,
         tables: [],
     }
 ];
@@ -96,7 +99,7 @@ const SECTIONS: { _id: mongoose.Types.ObjectId, name: string, description: strin
 const TABLES = [
     {
         _id: new mongoose.Types.ObjectId(),
-        section: SECTIONS.find(s => s.name === 'Indoor')!._id,
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
         number: 1,
         name: 'Table 1',
         seats: 4,
@@ -104,7 +107,7 @@ const TABLES = [
     },
     {
         _id: new mongoose.Types.ObjectId(),
-        section: SECTIONS.find(s => s.name === 'Indoor')!._id,
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
         number: 2,
         name: 'Table 2',
         seats: 4,
