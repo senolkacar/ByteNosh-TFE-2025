@@ -1,5 +1,5 @@
 'use client';
-import MenuItem from "@/app/components/menuitem";
+import MenuItem from "@/app/components/home/menuitem";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { Swiper, SwiperSlide} from "swiper/react";
 import { Navigation,Pagination } from 'swiper/modules';
@@ -7,8 +7,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import Link from "next/link";
-import DownloadApp from "@/app/components/downloadapp";
-import Footer from "@/app/components/footer";
+import DownloadApp from "@/app/components/home/downloadapp";
+import Footer from "@/app/components/home/footer";
 
 export default function HomeMenu() {
     const responsive = {

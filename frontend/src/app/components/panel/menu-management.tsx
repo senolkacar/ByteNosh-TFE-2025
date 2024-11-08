@@ -1,7 +1,7 @@
 "use client";
 import { z } from "zod";
-import CategoryConfiguration from "@/app/components/category-configuration";
-import MealConfiguration from "@/app/components/meal-configuration";
+import CategoryConfiguration from "@/app/components/panel/category-configuration";
+import MealConfiguration from "@/app/components/panel/meal-configuration";
 
 
 

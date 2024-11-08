@@ -12,8 +12,8 @@ import {
     FormDescription,
     FormMessage,
 } from "@/components/ui/form";
-import AddTableForm, { TableFormValues } from "@/app/components/add-table-form";
-import EditTableModal from "@/app/components/edit-table-form";
+import AddTableForm, { TableFormValues } from "@/app/components/panel/add-table-form";
+import EditTableModal from "@/app/components/panel/edit-table-form";
 import TableModel from "@/app/models/table";
 import SectionModel from "@/app/models/section";
 import { toast, Toaster } from "react-hot-toast";

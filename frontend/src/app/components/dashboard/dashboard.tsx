@@ -3,11 +3,11 @@ import Link from "next/link";
 import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {Sheet, SheetContent, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
-import { DashboardHome } from "@/app/components/dashboard-home";
-import Profile from "@/app/components/profile";
-import OrdersPage from "@/app/components/orders";
-import ReservationsPage from "@/app/components/reservation";
-import SettingsPage from "@/app/components/settings";
+import { DashboardHome } from "@/app/components/dashboard/dashboard-home";
+import Profile from "@/app/components/dashboard/profile";
+import OrdersPage from "@/app/components/dashboard/orders";
+import ReservationsPage from "@/app/components/panel/reservation";
+import SettingsPage from "@/app/components/dashboard/settings";
 import { useActiveSection } from "@/app/context/activesectioncontext";
 
 

@@ -1,6 +1,6 @@
 "use client";
 
-import MainTitle from "@/app/components/maintitle";
+import MainTitle from "@/app/components/home/maintitle";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CloseIcon from '@mui/icons-material/Close';
 import {useEffect, useState} from "react";

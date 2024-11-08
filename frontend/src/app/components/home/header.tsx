@@ -4,9 +4,8 @@ import Link from "next/link";
 import { LoginButton } from "@/components/auth/login-button";
 import { useSession } from "next-auth/react";
 import LoginIcon from '@mui/icons-material/Login';
-import AccountMenu from "@/app/components/myaccount";
+import AccountMenu from "@/app/components/home/myaccount";
 import {useState} from "react";
-import DisplayUsername from "@/app/components/display-username";
 
 export default function Header() {
     const { data: session, status } = useSession();

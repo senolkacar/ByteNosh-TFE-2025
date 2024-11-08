@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link"
 import {useState} from "react";
-import SiteConfiguration from "@/app/components/site-configuration";
-import UsersAndRoles from "@/app/components/users-and-roles";
-import MenuManagement from "@/app/components/menu-management";
-import BlogPost from "@/app/components/blogpost";
-import ReservationSettings from "@/app/components/reservation";
-import OpeningHoursConfig from "@/app/components/oppening-hours";
-import SectionAndTables from "@/app/components/section-and-tables";
+import SiteConfiguration from "@/app/components/panel/site-configuration";
+import UsersAndRoles from "@/app/components/panel/users-and-roles";
+import MenuManagement from "@/app/components/panel/menu-management";
+import BlogPost from "@/app/components/panel/blogpost";
+import ReservationSettings from "@/app/components/panel/reservation";
+import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
+import SectionAndTables from "@/app/components/panel/section-and-tables";
 
 
 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import MainTitle from "@/app/components/maintitle";
+import MainTitle from "@/app/components/home/maintitle";
 import { use } from 'react';
 
 type Post = {

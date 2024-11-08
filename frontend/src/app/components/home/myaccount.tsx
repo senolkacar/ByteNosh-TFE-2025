@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useActiveSection } from "@/app/context/activesectioncontext";
 import { usePathname } from 'next/navigation';
-import DisplayUsername from "@/app/components/display-username";
+import DisplayUsername from "@/app/components/home/display-username";
 import {useEffect, useState} from "react";
 import User from "@/app/models/user";
 import {useSession} from "next-auth/react";

@@ -2,17 +2,8 @@ import express,{ Request, Response } from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
 import cors from 'cors';
-import Meal from './models/meal';
-import Table from './models/table';
-import Order from './models/order';
 import Auth from './auth';
-import Category from './models/category';
-import Post from './models/post';
-import SiteConfig from './models/siteconfig';
-import Timeslot from './models/timeslot';
-import {query, validationResult, matchedData, Result, param, body} from 'express-validator';
-import Closure from "./models/closure";
-import Section from "./models/section";
+
 
 
 const app = express();

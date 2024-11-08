@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import Config from "@/app/models/config";
-import { FormFieldComponent } from "@/app/components/form-field";
-import { CollapsibleSection } from "@/app/components/collapsible-section";
+import { FormFieldComponent } from "@/app/components/panel/form-field";
+import { CollapsibleSection } from "@/app/components/panel/collapsible-section";
 import { Form } from "@/components/ui/form";
 
 const schema = z.object({

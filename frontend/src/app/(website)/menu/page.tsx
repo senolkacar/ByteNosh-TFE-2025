@@ -1,6 +1,5 @@
-// Menu Page
 'use client';
-import MainTitle from "@/app/components/maintitle";
+import MainTitle from "@/app/components/home/maintitle";
 import {useEffect, useState} from "react";
 import Meal from "@/app/models/meal";
 

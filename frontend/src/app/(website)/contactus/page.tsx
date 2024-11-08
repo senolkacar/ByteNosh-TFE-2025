@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from "react";
 import SendIcon from '@mui/icons-material/Send';
-import MainTitle from "@/app/components/maintitle";
+import MainTitle from "@/app/components/home/maintitle";
 import dynamic from 'next/dynamic';
 import Config from "@/app/models/config";
 import TimeSlot from "@/app/models/timeslot";

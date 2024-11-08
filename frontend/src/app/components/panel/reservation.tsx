@@ -1,5 +1,5 @@
 "use client";
-import OpeningHoursConfig from "@/app/components/oppening-hours";
+import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
 
 
 export default function ReservationsPage() {

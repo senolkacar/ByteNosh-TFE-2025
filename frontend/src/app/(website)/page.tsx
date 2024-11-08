@@ -1,5 +1,5 @@
-import HomeHero from '@/app/components/homehero'
-import HomeMenu from "@/app/components/homemenu";
+import HomeHero from '@/app/components/home/homehero'
+import HomeMenu from "@/app/components/home/homemenu";
 export default function Home() {
   return (
     <>

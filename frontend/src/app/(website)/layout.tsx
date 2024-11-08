@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import "@/app/globals.css";
-import Header from "@/app/components/header";
+import Header from "@/app/components/home/header";
 import AuthWrapper from "@/app/components/authwrapper";
 import {ActiveSectionProvider} from "@/app/context/activesectioncontext";
 
