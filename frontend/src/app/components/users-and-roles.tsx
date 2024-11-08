@@ -55,7 +55,7 @@ export default function UsersAndRoles() {
 
     const searchUserByEmail = async (email: string) => {
         try {
-            const res = await fetch(`/api/user/${email}`);
+            const res = await fetch(`/api/users/${email}`);
             if (res.ok) {
                 return await res.json();
             } else {
@@ -86,10 +86,9 @@ export default function UsersAndRoles() {
     };
 
     const confirmDeleteUser = async () => {
-        console.log(deleteUser);
         if (deleteUser) {
             try {
-                const res = await fetch(`/api/delete-user/${deleteUser}`, {
+                const res = await fetch(`/api/users/${deleteUser}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -124,7 +123,7 @@ export default function UsersAndRoles() {
     };
 
     const updateUser = async (data: any) => {
-        const url = '/api/update-user';
+        const url = '/api/users';
         try {
             const res = await fetch(url, {
                 method: 'POST',

@@ -33,7 +33,7 @@ export default function AccountMenu() {
     useEffect(() => {
         async function fetchUser() {
             try {
-                const response = await fetch(`/api/user/${email}`);
+                const response = await fetch(`/api/users/${email}`);
                 const data = await response.json();
                 setUser(data);
             } catch (error) {

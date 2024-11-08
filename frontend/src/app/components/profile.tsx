@@ -40,7 +40,7 @@ export default function Profile() {
     useEffect(() => {
         async function fetchUser() {
             try {
-                const response = await fetch(`/api/user/${email}`);
+                const response = await fetch(`/api/users/${email}`);
                 const data = await response.json();
                 setUser(data);
                 form.reset(data);

@@ -3,8 +3,8 @@ export default interface Config {
     slogan: string,
     about: string,
     popularDishes:{
-        title: String,
-        description: String
+        title: string,
+        description: string
     },
     social: {
         facebook: string,
@@ -12,24 +12,26 @@ export default interface Config {
         instagram: string,
     },
     mobile:{
-        title: String,
-        description: String,
-        googlePlay: String,
-        appStore: String,
+        title: string,
+        description: string,
+        googlePlay: string,
+        appStore: string,
     },
     contact:{
-        title: String,
-        description: String,
+        title: string,
+        description: string,
         address: string,
         telephone: string,
         email: string,
+        latitude: number,
+        longitude: number,
     },
     aboutUs:{
-        title1: String,
-        description1: String,
-        title2: String,
-        description2: String,
-        video: String,
+        title1: string,
+        description1: string,
+        title2: string,
+        description2: string,
+        video: string,
     }
 
 }

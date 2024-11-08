@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {Sheet, SheetContent, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
 import { DashboardHome } from "@/app/components/dashboard-home";
 import Profile from "@/app/components/profile";
 import OrdersPage from "@/app/components/orders";
@@ -70,6 +70,7 @@ export function DashboardScreen() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left">
+                        <SheetTitle>Menu</SheetTitle>
                         <nav className="grid gap-6 text-lg font-medium">
                             <Link
                                 href="#"

@@ -1,17 +1,17 @@
 import mongoose from 'mongoose';
-import user from '../src/user';
-import meal from '../src/meal';
-import table from '../src/table';
-import order from '../src/order';
-import category from '../src/category';
-import post from '../src/post';
-import siteConfig from '../src/siteconfig';
+import user from '../src/models/user';
+import meal from '../src/models/meal';
+import table from '../src/models/table';
+import order from '../src/models//order';
+import category from '../src/models/category';
+import post from '../src/models/post';
+import siteConfig from '../src/models/siteconfig';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from "dotenv";
-import section from "../src/section";
-import timeslot from "../src/timeslot";
-import closure from "../src/closure";
-import reservation from "../src/reservation";
+import section from "../src/models/section";
+import timeslot from "../src/models/timeslot";
+import closure from "../src/models/closure";
+import reservation from "../src/models/reservation";
 
 dotenv.config();
 const DB_URI = process.env.MONGODB_URI as string;

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
-import User from './user';
+import User from './models/user';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: './.env' });
