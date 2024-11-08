@@ -9,7 +9,10 @@ const reservationSchema = new mongoose.Schema({
         enum: ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'],
         default: 'PENDING'
     },
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    notes: String
 });
 
 export default mongoose.model('Reservation', reservationSchema);

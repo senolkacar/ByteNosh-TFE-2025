@@ -10,6 +10,8 @@ const orderSchema = new mongoose.Schema({
         default: 'PENDING'
     },
     reservation: { type: mongoose.Schema.Types.ObjectId, ref: 'Reservation', default: null },
+    createdAt: { type: Date, default: Date.now },
+    notes: String
 });
 
 export default mongoose.model('Order', orderSchema);
