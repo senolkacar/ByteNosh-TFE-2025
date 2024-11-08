@@ -83,7 +83,7 @@ export default function CategoryConfiguration() {
 
     const handleDeleteCategory = async (categoryId: string) => {
         try {
-            await fetch(`/api/category/${categoryId}`, {
+            await fetch(`/api/categories/${categoryId}`, {
                 method: "DELETE",
             });
             if(editingCategory?._id === categoryId) {
@@ -117,7 +117,7 @@ export default function CategoryConfiguration() {
         if (editingCategory) {
             // If editing, send a PUT request to update the category
             try {
-                await fetch(`/api/category/${editingCategory._id}`, {
+                await fetch(`/api/categories/${editingCategory._id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),

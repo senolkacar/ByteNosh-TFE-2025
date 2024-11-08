@@ -91,7 +91,7 @@ export default function SiteConfiguration() {
         if (!updatedFields.name) updatedFields.name = initialConfig?.name;
         if (!updatedFields.slogan) updatedFields.slogan = initialConfig?.slogan;
 
-        fetch('/api/set-config', {
+        fetch('/api/config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
