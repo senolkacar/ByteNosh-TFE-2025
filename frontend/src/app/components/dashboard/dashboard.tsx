@@ -6,7 +6,7 @@ import {Sheet, SheetContent, SheetTitle, SheetTrigger} from "@/components/ui/she
 import { DashboardHome } from "@/app/components/dashboard/dashboard-home";
 import Profile from "@/app/components/dashboard/profile";
 import OrdersPage from "@/app/components/dashboard/orders";
-import ReservationsPage from "@/app/components/panel/reservation";
+import ReservationsPage from "@/app/components/panel/reservation-settings";
 import SettingsPage from "@/app/components/dashboard/settings";
 import { useActiveSection } from "@/app/context/activesectioncontext";
 

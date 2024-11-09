@@ -5,7 +5,7 @@ import SiteConfiguration from "@/app/components/panel/site-configuration";
 import UsersAndRoles from "@/app/components/panel/users-and-roles";
 import MenuManagement from "@/app/components/panel/menu-management";
 import BlogPost from "@/app/components/panel/blogpost";
-import ReservationSettings from "@/app/components/panel/reservation";
+import ReservationSettings from "@/app/components/panel/reservation-settings";
 import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
 import SectionAndTables from "@/app/components/panel/section-and-tables";
 
