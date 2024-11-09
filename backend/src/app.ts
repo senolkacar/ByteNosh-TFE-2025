@@ -22,6 +22,7 @@ import tablesRoutes from './routes/tables';
 import ordersRoutes from './routes/orders';
 import blogRoutes from './routes/blog';
 import configRoutes from './routes/config';
+import weatherRoutes from './routes/weather';
 
 app.use(cors());
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use('/api/tables', tablesRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/weather', weatherRoutes);
 
 mongoose.connect(DB_URI as string);
 

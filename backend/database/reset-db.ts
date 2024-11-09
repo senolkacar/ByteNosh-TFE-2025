@@ -412,7 +412,7 @@ async function main(): Promise<void> {
                 day: 'Sunday',
                 openHour: new Date('2021-09-12T09:00:00'),
                 closeHour: new Date('2021-09-12T17:00:00'),
-                isOpen: true,
+                isOpen: false,
             }
         ];
 
