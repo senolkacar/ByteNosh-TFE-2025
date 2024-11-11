@@ -1,6 +1,6 @@
-import express from "express";
+import express, { Request, Response } from "express";
+import { param, query, body, validationResult } from "express-validator";
 import Section from "../models/section";
-import {body, param, validationResult} from "express-validator";
 import mongoose from "mongoose";
 import Table from "../models/table";
 
@@ -58,7 +58,7 @@ router.post("/",
                 // Update existing section
                 section.description = description;
 
-                const tablePromises = tables.map(async (table:any) => {
+                const tablePromises = tables.map(async (table: any) => {
                     if (!table._id || !mongoose.Types.ObjectId.isValid(table._id)) {
                         // Create new table
                         const newTable = new Table({ ...table, _id: new mongoose.Types.ObjectId(), section: section?._id });
@@ -83,7 +83,7 @@ router.post("/",
                 section = new Section({ name, description });
                 const savedSection = await section.save();
 
-                const tablePromises = tables.map(async (table:any) => {
+                const tablePromises = tables.map(async (table: any) => {
                     const newTable = new Table({
                         ...table,
                         _id: new mongoose.Types.ObjectId(),
@@ -102,6 +102,57 @@ router.post("/",
         } catch (error) {
             console.error('Error creating or updating section and tables:', error);
             res.status(500).json({ message: 'Error creating or updating section and tables' });
+        }
+    }
+);
+
+router.get("/:sectionId/tables",
+    param('sectionId').isMongoId().withMessage('Invalid section ID'),
+    query('reservationDate').isISO8601().withMessage('Invalid date format'),
+    query('timeSlot').isString().withMessage('Time slot is required'),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { sectionId } = req.params as { sectionId: string };
+        const { reservationDate, timeSlot } = req.query as { reservationDate: string, timeSlot: string };
+
+        try {
+            // Convert reservationDate to a Date object for comparison
+            const reservationDateObj = new Date(reservationDate);
+
+            // Step 1: Find all tables in the specified section
+            const tables = await Table.find({ section: sectionId }).lean();
+
+            // Step 2: Find reservations for the specified date and time slot
+            const reservations = await mongoose.model('Reservation').find({
+                reservationTime: {
+                    $gte: reservationDateObj,
+                    $lt: new Date(reservationDateObj.getTime() + 24 * 60 * 60 * 1000), // End of the day
+                },
+                status: { $in: ['PENDING', 'CONFIRMED'] },
+            }).lean();
+
+            // Step 3: Map reservations to table statuses
+            const tableStatusMap: Record<string, string> = {};
+            reservations.forEach(reservation => {
+                if (reservation.table) {
+                    tableStatusMap[reservation.table.toString()] = 'RESERVED';
+                }
+            });
+
+            // Step 4: Attach status to each table
+            const tablesWithStatus = tables.map(table => ({
+                ...table,
+                status: table?._id ? tableStatusMap[table._id.toString()] || 'AVAILABLE' : 'AVAILABLE',
+            }));
+
+            res.status(200).json(tablesWithStatus);
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching tables", error });
         }
     }
 );
