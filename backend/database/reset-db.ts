@@ -55,7 +55,7 @@ const USERS = [
         role: 'ADMIN',
     },
     {
-        fullName: 'Regular User',
+        fullName: 'François RegularUser',
         phone:'123456789',
         avatar: 'avatar.jpg',
         email: 'user@test.com',
@@ -63,7 +63,7 @@ const USERS = [
         role: 'USER',
     },
     {
-        fullName: 'Employee User',
+        fullName: 'Patrick Employe',
         phone:'123456789',
         avatar: 'avatar.jpg',
         email: 'employee@test.com',
@@ -116,34 +116,118 @@ const TABLES = [
     },
     {
         _id: new mongoose.Types.ObjectId(),
-        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
         number: 3,
         name: 'Table 3',
+        seats: 2,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
+        number: 4,
+        name: 'Table 4',
+        seats: 2,
+        isAvailable: true,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
+        number: 5,
+        name: 'Table 5',
+        seats: 4,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'First Floor')!._id,
+        number: 6,
+        name: 'Table 6',
+        seats: 6,
+        isAvailable: true,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
+        number: 7,
+        name: 'Table 7',
         seats: 6,
         status: 'AVAILABLE',
     },
     {
         _id: new mongoose.Types.ObjectId(),
         section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
-        number: 4,
-        name: 'Table 4',
+        number: 8,
+        name: 'Table 8',
+        seats: 4,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
+        number: 9,
+        name: 'Table 9',
+        seats: 4,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
+        number: 10,
+        name: 'Table 10',
+        seats: 2,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Second Floor')!._id,
+        number: 11,
+        name: 'Table 11',
+        seats: 2,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 12,
+        name: 'Table 12',
+        seats: 2,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 13,
+        name: 'Table 13',
+        seats: 2,
+        status: 'AVAILABLE',
+
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 14,
+        name: 'Table 14',
+        seats: 4,
+        status: 'AVAILABLE',
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 15,
+        name: 'Table 15',
+        seats: 4,
+        status: 'AVAILABLE',
+
+    },
+    {
+        _id: new mongoose.Types.ObjectId(),
+        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
+        number: 16,
+        name: 'Table 16',
         seats: 6,
-        status: 'AVAILABLE',
-    },
-    {
-        _id: new mongoose.Types.ObjectId(),
-        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
-        number: 5,
-        name: 'Table 5',
-        seats: 2,
-        status: 'AVAILABLE',
-    },
-    {
-        _id: new mongoose.Types.ObjectId(),
-        section: SECTIONS.find(s => s.name === 'Balcony')!._id,
-        number: 6,
-        name: 'Table 6',
-        seats: 2,
         status: 'AVAILABLE',
 
     }
@@ -180,6 +264,8 @@ async function main(): Promise<void> {
         console.log('Deleted existing opening hours');
         await closure.deleteMany({});
         console.log('Deleted existing closures');
+        await reservation.deleteMany({});
+        console.log('Deleted existing reservations');
 
         const createdCategories = await category.insertMany(CATEGORIES);
         console.log('Inserted categories');
@@ -452,13 +538,20 @@ async function main(): Promise<void> {
                 table: tables.find(t => t.name === 'Table 1')!._id,
                 reservationTime: new Date(),
                 status: 'CONFIRMED',
+                section: sections.find(s => s.name === 'First Floor')!._id,
+                guests: 4,
+                timeSlot: '12:00-13:00',
                 orders: []
+
             },
             {
                 user: users.find(u => u.email === 'user@test.com')!._id,
                 table: tables.find(t => t.name === 'Table 2')!._id,
                 reservationTime: new Date(),
                 status: 'COMPLETED',
+                section: sections.find(s => s.name === 'First Floor')!._id,
+                guests: 4,
+                timeSlot: '11:00-12:00',
                 orders: []
             }
         ];

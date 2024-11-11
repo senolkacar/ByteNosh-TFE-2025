@@ -8,7 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import Table from "@/app/components/reservation/table";
-import Section from "@/app/models/section";
+import TableModel from "@/app/models/table";
+import { z } from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useSession} from "next-auth/react";
+import { CircularProgress } from "@mui/material";
+import ReservationModel from "@/app/models/reservation";
+
+const schema = z.object({
+    section: z.string().min(1, { message: "Please select a section" }),
+    guests: z.number().min(1).max(6, { message: "Please enter a number between 1 and 6" }),
+});
 
 export default function TableDisplay({ date, timeSlot, onBack }: any) {
     const [sections, setSections] = useState<any[]>([]);
@@ -16,14 +26,19 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
     const [guests, setGuests] = useState<number | null>(null);
     const [tablesData, setTablesData] = useState<any[]>([]);
     const [weatherMessage, setWeatherMessage] = useState<string | null>(null);
-    const [selectedTable, setSelectedTable] = useState<string | null>(null);
+    const [selectedTable, setSelectedTable] = useState<TableModel | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [reservation, setReservation] = useState<ReservationModel | null>(null);
+    const [reservationConfirmed, setReservationConfirmed] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+    const session = useSession();
+
 
     const handleSelect = (table: any) => {
-        setSelectedTable(table.name);
-        console.log("TABLE CLICKED", table);
+        setSelectedTable(table);
     };
+
 
     // Fetch sections and weather information when the component mounts
     useEffect(() => {
@@ -32,7 +47,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                 const response = await fetch("/api/sections");
                 const sections = await response.json();
                 setSections(sections);
-            } catch (error) {
+            } catch (error:any) {
                 console.error("Failed to fetch sections", error);
             }
         }
@@ -41,10 +56,16 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
             if (!date) return;
             try {
                 const response = await fetch(`/api/weather?date=${date.toISOString()}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setWeatherMessage(errorData.error || "Failed to fetch weather data");
+                    return;
+                }
                 const weatherData = await response.json();
                 setWeatherMessage(weatherData.message);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to fetch weather recommendation", error);
+                setWeatherMessage(error.message || "Failed to fetch weather data");
             }
         }
 
@@ -66,9 +87,6 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
             const response = await fetch(
                 `/api/sections/${selectedSection._id}/tables?reservationDate=${date.toISOString()}&timeSlot=${timeSlot}`
             );
-            console.log("Selected section", selectedSection);
-            console.log("Selected date", date.toISOString());
-            console.log("Selected time slot", timeSlot);
             if (!response.ok) {
                 throw new Error("Failed to fetch tables");
             }
@@ -100,6 +118,8 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
     };
 
     const form = useForm({
+        mode: "onChange",
+        resolver: zodResolver(schema),
         defaultValues: {
             section: "",
             guests: 0,
@@ -110,12 +130,56 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
         console.log(data);
     };
 
+    const handleReservation = async () => {
+        try {
+            const response = await fetch("/api/reservations", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    tableId: selectedTable?._id,
+                    sectionId: selectedSection._id,
+                    guests,
+                    reservationDate: date,
+                    timeSlot,
+                    userId: session.data?.user?.id,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save reservation");
+            }
+
+            const confirmedReservation = await response.json();
+            setQrCodeUrl(confirmedReservation.qrCodeUrl);
+            setReservationConfirmed(true);
+            console.log("Reservation confirmed:", confirmedReservation);
+            setReservation(confirmedReservation.reservation);
+
+            // Optionally, show a success message or navigate to a confirmation page
+        } catch (error:any) {
+            console.error("Error saving reservation:", error);
+            setError(error.message || "Failed to save reservation");
+        }finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGuestsChange = (value: number) => {
+        if(value>0 && value<=6){
+            setGuests(value);
+        }else{
+            return;
+        }
+    };
+
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity: 0}}
+            transition={{duration: 0.5}}
             className="flex justify-center items-center h-screen bg-gray-100"
         >
             <Card>
@@ -128,18 +192,35 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                     </h2>
                     <p className="text-sm mb-4 mt-2">
                         <span className="font-semibold text-blue-600 bg-blue-300 rounded py-2 px-2">
-                            <ThermostatIcon /> {weatherMessage}
+                            <ThermostatIcon/> {weatherMessage}
                         </span>
                     </p>
                 </CardHeader>
                 <CardContent>
+                    {loading ? (
+                        <div className="flex justify-center">
+                            <CircularProgress />
+                        </div>
+                    ) : reservationConfirmed ? (
+                        <div className="text-center">
+                            <h3 className="text-lg font-semibold text-green-600 mb-4">
+                                Reservation Confirmed!
+                            </h3>
+                            {qrCodeUrl && <img src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4"/>}
+                            <p>Thank you for your reservation, <span className="font-semibold">{session.data?.user?.fullName}</span></p>
+                            <p>Your reservation has been confirmed for <span className="font-semibold">{reservation?.reservationTime?.toLocaleString()}</span> at <span className="font-semibold">{reservation?.timeSlot}</span> </p>
+                            <p>You can find the QR code in your account under reservations and on your mobile app.</p>
+                            <p>This QR code will provide you easy access to your reservation.</p>
+                        </div>
+                    ) : (
+                        <>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             <div className="flex space-x-4">
                                 <FormField
                                     control={form.control}
                                     name="section"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Section</FormLabel>
                                             <FormControl>
@@ -166,34 +247,36 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                                 </Select>
                                             </FormControl>
                                             <FormDescription>Please select a section.</FormDescription>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
                                 <FormField
                                     control={form.control}
                                     name="guests"
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <FormItem>
                                             <FormLabel>Guests number</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="number"
+                                                    min={1}
                                                     placeholder="Please enter the number of guests"
                                                     {...field}
                                                     onChange={(e) => {
-                                                        const guestCount = Number(e.target.value);
-                                                        field.onChange(guestCount);
-                                                        setGuests(guestCount);
+                                                        const value = e.target.value === "" ? "" : parseInt(e.target.value);
+                                                        field.onChange(value);
+                                                        handleGuestsChange(value === "" ? 0 : value);
                                                     }}
                                                 />
                                             </FormControl>
                                             <FormDescription>Enter the number of guests.</FormDescription>
-                                            <FormMessage />
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="button" onClick={handleTableSearch} className="mt-8">
+                                <Button disabled={!form.formState.isValid || !form.formState.isDirty} type="button"
+                                        onClick={handleTableSearch} className="mt-8">
                                     Search for Tables
                                 </Button>
                             </div>
@@ -213,12 +296,30 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                     seats={table.seats}
                                     name={table.name}
                                     isReserved={table.status === "RESERVED"}
-                                    isSelected={selectedTable === table.name}
+                                    isSelected={selectedTable?.name === table.name}
                                     isDisabled={isTableDisabled(table) || table.status === "RESERVED"}
                                     onSelect={() => !isTableDisabled(table) && handleSelect(table)}
                                 />
                             ))}
                         </div>
+                    )}
+                    <div className="flex space-x-4 mt-4 justify-end">
+                        {/* Available Table */}
+                        <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-blue-400 rounded"></div>
+                            <span className="text-gray-600">Available</span>
+                        </div>
+
+                        {/* Not Available Table */}
+                        <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-gray-200 rounded"></div>
+                            <span className="text-gray-600">Not Available</span>
+                        </div>
+                    </div>
+                    <Button className="mt-8 mx-auto block w-1/3" onClick={() => handleReservation()}>
+                        Confirm Reservation
+                    </Button>
+                    </>
                     )}
                 </CardContent>
             </Card>

@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 import cors from 'cors';
 import Auth from './auth';
+import admin from 'firebase-admin';
+import serviceAccount from "../firebase/bytenosh-d27b2-firebase-adminsdk-02pq6-c1f0941ea8.json";
 
 
 
@@ -23,6 +25,7 @@ import ordersRoutes from './routes/orders';
 import blogRoutes from './routes/blog';
 import configRoutes from './routes/config';
 import weatherRoutes from './routes/weather';
+import reservationRoutes from './routes/reservations';
 
 app.use(cors());
 app.use(express.json());
@@ -38,11 +41,17 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/reservations', reservationRoutes);
 
 mongoose.connect(DB_URI as string);
 
 app.use('/api/auth', Auth);
 app.use('/images', express.static(path.join(__dirname, '..', 'images')));
+
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
+});
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {

@@ -3,6 +3,7 @@ import { param, query, body, validationResult } from "express-validator";
 import Section from "../models/section";
 import mongoose from "mongoose";
 import Table from "../models/table";
+import Reservation from "../models/reservation";
 
 const router = express.Router();
 
@@ -107,9 +108,11 @@ router.post("/",
 );
 
 router.get("/:sectionId/tables",
-    param('sectionId').isMongoId().withMessage('Invalid section ID'),
-    query('reservationDate').isISO8601().withMessage('Invalid date format'),
-    query('timeSlot').isString().withMessage('Time slot is required'),
+    [
+        param("sectionId").isMongoId().withMessage("Invalid section ID"),
+        query("reservationDate").isISO8601().withMessage("Invalid date format"),
+        query("timeSlot").isString().withMessage("Time slot is required"),
+    ],
     async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -121,38 +124,40 @@ router.get("/:sectionId/tables",
         const { reservationDate, timeSlot } = req.query as { reservationDate: string, timeSlot: string };
 
         try {
-            // Convert reservationDate to a Date object for comparison
             const reservationDateObj = new Date(reservationDate);
 
             // Step 1: Find all tables in the specified section
             const tables = await Table.find({ section: sectionId }).lean();
 
             // Step 2: Find reservations for the specified date and time slot
-            const reservations = await mongoose.model('Reservation').find({
+            const reservations = await Reservation.find({
+                table: { $in: tables.map(table => table._id) },
                 reservationTime: {
                     $gte: reservationDateObj,
                     $lt: new Date(reservationDateObj.getTime() + 24 * 60 * 60 * 1000), // End of the day
                 },
-                status: { $in: ['PENDING', 'CONFIRMED'] },
+                timeSlot,  // Ensure we filter by timeSlot as well
+                status: { $in: ["PENDING", "CONFIRMED"] },
             }).lean();
 
             // Step 3: Map reservations to table statuses
             const tableStatusMap: Record<string, string> = {};
             reservations.forEach(reservation => {
                 if (reservation.table) {
-                    tableStatusMap[reservation.table.toString()] = 'RESERVED';
+                    tableStatusMap[reservation.table.toString()] = "RESERVED";
                 }
             });
 
             // Step 4: Attach status to each table
             const tablesWithStatus = tables.map(table => ({
                 ...table,
-                status: table?._id ? tableStatusMap[table._id.toString()] || 'AVAILABLE' : 'AVAILABLE',
+                status: table._id ? tableStatusMap[table._id.toString()] || 'AVAILABLE' : 'UNKNOWN',
             }));
 
             res.status(200).json(tablesWithStatus);
         } catch (error) {
-            res.status(500).json({ message: "Error fetching tables", error });
+            console.error("Error fetching tables:", error as any); // Log full error details
+            res.status(500).json({ message: "Error fetching tables", error: (error as any).message });
         }
     }
 );

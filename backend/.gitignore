@@ -17,7 +17,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
-.env
+
 
 npm-debug.log*
 yarn-debug.log*
@@ -59,4 +59,7 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# Firebase directory
+/backend/firebase/*.json
 
