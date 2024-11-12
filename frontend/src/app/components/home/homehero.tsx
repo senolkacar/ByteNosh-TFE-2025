@@ -4,6 +4,7 @@ import {useSession} from "next-auth/react";
 import {RegisterButton} from "@/components/auth/register-button";
 import Config from "@/app/models/config";
 import {useEffect, useState} from "react";
+import Link from "next/link";
 
 export default function HomeHero() {
     const [config, setConfig] = useState<Config>();
@@ -26,7 +27,7 @@ export default function HomeHero() {
                     {config?.slogan}
                 </p>
                 <div className="flex items-center mt-6 md:mt-4">
-                    <button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button>
+                    <Link href="/reservation"><button className="bg-yellow-400 font-bold px-6 py-4 rounded-full">Reservation</button></Link>
                     {!session && status !== 'loading' ? (
                         <RegisterButton>
                             <button className="bg-white ml-4 font-bold px-6 py-4 rounded-full border hover:text-indigo-600">Sign Up</button>

@@ -4,6 +4,8 @@ import Reservation from "../models/reservation";
 import admin from "firebase-admin";
 import QRCode from "qrcode";
 import encryptData  from "../utils/qr-code";
+import { sendEmail } from "../utils/mailer";
+import User from "../models/user";
 
 const router = express.Router();
 
@@ -90,6 +92,37 @@ router.post(
             await savedReservation.save();
             await saveReservationToFirestore(savedReservation);
 
+            const reservationDateObj = new Date(reservationDate);
+
+            const emailSubject = "Your Reservation Confirmation";
+            const emailText = `Your reservation is confirmed for ${timeSlot} on ${reservationDateObj.toLocaleDateString("en-GB")}. Please find the QR code below.`;
+            const emailHtml = `
+            <h3>Your Reservation Confirmation</h3>
+            <p>Dear Customer,</p>
+            <p>Your reservation is confirmed for <strong>${timeSlot}</strong> on <strong>${reservationDateObj.toLocaleDateString("en-GB")}</strong>.</p>
+            <p>Below is your reservation QR code:</p>
+            <img src="cid:qrcode" alt="QR Code" />
+            <p>Thank you for choosing our service!</p>
+        `;
+
+
+            const user = await User.findById(userId);
+            if (!user?.email) {
+                throw new Error("User email is not defined");
+            }
+            await sendEmail(
+                user?.email,
+                emailSubject,
+                emailText,
+                emailHtml,
+                [
+                    {
+                        filename: 'qrcode.png',
+                        path: qrCodeUrl,
+                        cid: 'qrcode'
+                    }
+                ]
+            );
 
             const message = {
                 notification: {

@@ -62,7 +62,7 @@ export default function Footer() {
                     <ul className="space-y-2">
                         {openingHours?.map((day, index) => (
                             <li key={index} className="text-gray-400">
-                                {day.day}: {new Date(day.openHour).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} - {new Date(day.closeHour).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                                {day.day}: {day.isOpen ? `${new Date(day.openHour).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} - ${new Date(day.closeHour).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : 'CLOSED'}
                             </li>
                         ))}
                     </ul>

@@ -26,6 +26,7 @@ import blogRoutes from './routes/blog';
 import configRoutes from './routes/config';
 import weatherRoutes from './routes/weather';
 import reservationRoutes from './routes/reservations';
+import contactRoutes from './routes/contact';
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +43,7 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/contact', contactRoutes);
 
 mongoose.connect(DB_URI as string);
 
@@ -82,33 +84,6 @@ app.post('/api/upload', upload.single('image'), (req, res): void => {
     }
     res.json({ filename: req.file.filename });
 });
-
-app.post("/api/send-email", async (req, res): Promise<void> => {
-    const { fullname, email, message } = req.body;
-
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    const mailOptions = {
-        from: email,
-        to: "recipient-email@example.com",
-        subject: `Message from ${fullname}`,
-        text: message
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.status(200).send("Email sent successfully");
-    } catch (error) {
-        res.status(500).send("Failed to send email");
-    }
-});
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

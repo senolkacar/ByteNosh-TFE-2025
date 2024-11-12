@@ -3,7 +3,7 @@ import {body, param, validationResult} from 'express-validator';
 import User from '../models/user';
 import bcrypt from 'bcrypt';
 import mongoose from "mongoose";
-import {sendEmail} from "../models/mailer";
+import {sendEmail} from "../utils/mailer";
 
 const router = express.Router();
 
@@ -154,7 +154,8 @@ router.post('/',
                 const to = updatedUser.email;
                 const subject = "Your temporary password";
                 const text = `Your temporary password is: ${tempPassword}, please change it after login`;
-                await sendEmail(to, subject, text);
+                const html = `<p>Your temporary password is: <strong>${tempPassword}</strong>, please change it after login</p>`;
+                await sendEmail(to, subject, text, html);
                 res.status(201).json({ message: "User created successfully" });
             }
         } catch (error) {

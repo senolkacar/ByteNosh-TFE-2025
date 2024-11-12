@@ -50,7 +50,7 @@ const USERS = [
         fullName: 'Admin User',
         phone:'123456789',
         avatar: 'avatar.jpg',
-        email: 'admin@test.com',
+        email: 'kacar.senol@gmail.com',
         password: 'admin123',
         role: 'ADMIN',
     },

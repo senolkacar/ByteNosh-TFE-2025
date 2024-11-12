@@ -6,8 +6,30 @@ import MainTitle from "@/app/components/home/maintitle";
 import dynamic from 'next/dynamic';
 import Config from "@/app/models/config";
 import TimeSlot from "@/app/models/timeslot";
+import { CircularProgress } from "@mui/material";
+import toast,{Toaster} from "react-hot-toast";
+import {z} from "zod";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {Input} from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea";
 
 const Map = dynamic(() => import('../../components/map'), { ssr: false });
+
+const schema = z.object({
+    fullname: z.string().min(3, { message: "Please enter your name" }),
+    email: z.string().email({ message: "Please enter a valid email address" }),
+    message: z.string().min(10, { message: "Message must be at least 10 characters" })
+});
 
 export default function ContactUs() {
     const [config, setConfig] = useState<Config>();
@@ -25,35 +47,37 @@ export default function ContactUs() {
             .catch(error => console.error('Error fetching opening hours', error));
     }, []);
 
-    const [formData, setFormData] = useState({
-        fullname: "",
-        email: "",
-        message: ""
+
+    const form = useForm({
+        mode: "onChange",
+        resolver: zodResolver(schema),
+        defaultValues: {
+            fullname: "",
+            email: "",
+            message: ""
+        }
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+    const handleContactSubmit = async (data: any) => {
+        try {
+            await fetch('/api/contact?fullname=' + data.fullname + '&email=' + data.email + '&message=' + data.message, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            toast.success("Message sent successfully");
+            form.reset();
+        } catch (error) {
+            toast.error("Error sending message");
+    }
+};
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const response = await fetch("/api/send-email", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        });
-        if (response.ok) {
-            alert("Message sent successfully!");
-        } else {
-            alert("Failed to send message.");
-        }
-    };
     return (
         <>
-            <MainTitle title={"Contact Us"} description={"Contact Us"} linkText={"Home"} linkUrl={"/"}/>
+            <MainTitle title={"Contact Us"} description={"Contact Us"} linkText={"Home"}
+            linkUrl={"/"}/>
             <div className="container mt-6 p-8">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex-1 p-3">
@@ -63,39 +87,66 @@ export default function ContactUs() {
                         </p>
                     </div>
                     <div className="flex-1 m-3">
-                        <form onSubmit={handleSubmit}
-                              className="bg-white px-6 py-8 rounded shadow-md text-black w-full">
-                            <h1 className="mb-8 text-3xl text-center">Send Message</h1>
-                            <input
-                                type="text"
-                                className="block border border-grey-light w-full p-3 rounded mb-4"
-                                name="fullname"
-                                placeholder="Full Name"
-                                value={formData.fullname}
-                                onChange={handleChange}
-                            />
-                            <input
-                                type="email"
-                                className="block border border-grey-light w-full p-3 rounded mb-4"
-                                name="email"
-                                placeholder="Email"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                            <textarea
-                                className="block border border-grey-light w-full p-3 rounded mb-4"
-                                name="message"
-                                placeholder="Message"
-                                value={formData.message}
-                                onChange={handleChange}
-                            />
-                            <button
-                                type="submit"
-                                className="w-full text-center py-3 rounded bg-yellow-400 text-black hover:bg-yellow-500 focus:outline-none my-1"
-                            >
-                                <SendIcon /> Send Message
-                            </button>
-                        </form>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleContactSubmit)} className="space-y-4">
+                                <h2 className="text-4xl font-semibold text-center">Contact Us</h2>
+                                <FormField
+                                    control={form.control}
+                                    name="fullname"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Full Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Full Name" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter the your full name.
+                                            </FormDescription>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Enter your email" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter the your email.
+                                            </FormDescription>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="message"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Message</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Enter your message here..." {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter your message here please.
+                                            </FormDescription>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
+                                    <button
+                                        type="submit"
+                                        className="w-full text-center py-3 rounded bg-yellow-400 text-black hover:bg-yellow-500 focus:outline-none my-1"
+                                    >
+                                        <SendIcon/> Send Message
+                                        <Toaster/>
+                                    </button>
+                                </form>
+                        </Form>
                     </div>
                 </div>
                 <div className="mt-10">
@@ -133,5 +184,5 @@ export default function ContactUs() {
                 </div>
             </div>
         </>
-    );
+);
 }

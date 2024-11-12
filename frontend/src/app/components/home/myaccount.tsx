@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
+import KeyIcon from '@mui/icons-material/Key';
 import { LogOutButton } from "@/components/auth/logout-button";
 import {
     Avatar,
@@ -66,6 +67,12 @@ export default function AccountMenu() {
         handleClose();
     };
 
+    const handleAdminPanelClick = () => {
+        router.push('/admin');
+        setActiveSection("Admin Panel");
+        handleClose();
+    };
+
     return (
         <React.Fragment>
             <Tooltip title="Account settings">
@@ -93,11 +100,19 @@ export default function AccountMenu() {
             >
                 <MenuItem onClick={handleMyAccountClick}>
                     <Avatar className="hidden h-9 w-9 mr-2 sm:flex">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />
-                        <AvatarFallback>SD</AvatarFallback>
+                        <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
+                        <AvatarFallback>{user ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar> My account
                 </MenuItem>
                 <Divider />
+                {user?.role === 'ADMIN' &&(
+                <MenuItem onClick={handleAdminPanelClick}>
+                    <ListItemIcon>
+                        <KeyIcon/>
+                    </ListItemIcon>
+                    Admin Panel
+                </MenuItem>
+                )}
                 <MenuItem onClick={handleSettingsClick}>
                     <ListItemIcon>
                         <Settings fontSize="small" />

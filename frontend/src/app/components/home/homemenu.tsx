@@ -1,5 +1,4 @@
 'use client';
-import MenuItem from "@/app/components/home/menuitem";
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { Swiper, SwiperSlide} from "swiper/react";
 import { Navigation,Pagination } from 'swiper/modules';
@@ -9,8 +8,10 @@ import 'swiper/css/pagination';
 import Link from "next/link";
 import DownloadApp from "@/app/components/home/downloadapp";
 import Footer from "@/app/components/home/footer";
+import {useEffect, useState} from "react";
 
 export default function HomeMenu() {
+    const [items,setItems] = useState<any[]>([]);
     const responsive = {
         desktop: {
             breakpoint: { max: 3000, min: 1024 },
@@ -28,6 +29,13 @@ export default function HomeMenu() {
             slidesToSlide: 1 // optional, default to 1.
         }
     };
+
+    useEffect(() => {
+        fetch('/api/orders/most-ordered')
+            .then(response => response.json())
+            .then(data => setItems(data))
+            .catch(error => console.error('Error fetching config:', error));
+    }, []);
     return (
         <section className="m-4 mx-auto max-w-screen-xl ">
             <div className="mt-10 pl-4">
@@ -61,26 +69,27 @@ export default function HomeMenu() {
 
                 }}
                 >
+                {items.map((item, idx) => (
+                    <SwiperSlide key={idx}>
+                        <div
+                            className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">
+                            <div className="flex justify-center">
+                                <img className="object-scale-down h-20" src={`http://localhost:5000/images/${item.image}`}  alt="meal"/>
+                            </div>
+                            <h4 className="text-xl font-semibold my-3">{item.name}</h4>
+                            <p className="text-gray-500">Description of the food</p>
 
-                <SwiperSlide>
-                    <MenuItem/>
-                </SwiperSlide>
-                <SwiperSlide>
-                    <MenuItem/>
-                </SwiperSlide>
-                <SwiperSlide>
-                    <MenuItem/>
-                </SwiperSlide>
-                <SwiperSlide>
-                    <MenuItem/>
-                </SwiperSlide>
-                <SwiperSlide>
-                    <MenuItem/>
-                </SwiperSlide>
+                            <div className="flex justify-center items-center gap-12 mt-4">
+                                <p className="font-semibold text-2xl">{item.price}€</p>
+                                <Link href="/menu"><button className="bg-yellow-400 font-bold px-6 py-2">More</button></Link>
+                            </div>
+                        </div>
+                    </SwiperSlide>
+                ))}
 
             </Swiper>
-        <DownloadApp/>
+            <DownloadApp/>
             <Footer/>
         </section>
-    );
+);
 }

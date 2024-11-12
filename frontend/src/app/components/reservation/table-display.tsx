@@ -131,6 +131,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
     };
 
     const handleReservation = async () => {
+        setLoading(true);
         try {
             const response = await fetch("/api/reservations", {
                 method: "POST",
@@ -198,7 +199,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                 </CardHeader>
                 <CardContent>
                     {loading ? (
-                        <div className="flex justify-center">
+                        <div className="flex justify-center my-2">
                             <CircularProgress />
                         </div>
                     ) : reservationConfirmed ? (
@@ -207,17 +208,21 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                 Reservation Confirmed!
                             </h3>
                             {qrCodeUrl && <img src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4"/>}
-                            <p>Thank you for your reservation, <span className="font-semibold">{session.data?.user?.fullName}</span></p>
-                            <p>Your reservation has been confirmed for <span className="font-semibold">{reservation?.reservationTime?.toLocaleString()}</span> at <span className="font-semibold">{reservation?.timeSlot}</span> </p>
+                            <p>Thank you for your reservation, <span
+                                className="font-semibold">{session.data?.user?.fullName}</span></p>
+                            <p>Your reservation has been confirmed for
+                                <span className="font-semibold"> {reservation?.reservationTime ? new Date(reservation.reservationTime).toLocaleDateString("en-GB") : ''}
+                              </span> at
+                                <span className="font-semibold"> {reservation?.timeSlot} </span></p>
                             <p>You can find the QR code in your account under reservations and on your mobile app.</p>
                             <p>This QR code will provide you easy access to your reservation.</p>
                         </div>
                     ) : (
                         <>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <div className="flex space-x-4">
-                                <FormField
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                                    <div className="flex space-x-4">
+                                    <FormField
                                     control={form.control}
                                     name="section"
                                     render={({field}) => (
@@ -275,7 +280,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                         </FormItem>
                                     )}
                                 />
-                                <Button disabled={!form.formState.isValid || !form.formState.isDirty} type="button"
+                                <Button disabled={!form.formState.isValid} type="button"
                                         onClick={handleTableSearch} className="mt-8">
                                     Search for Tables
                                 </Button>
