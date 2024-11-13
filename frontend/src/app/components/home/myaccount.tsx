@@ -68,7 +68,7 @@ export default function AccountMenu() {
     };
 
     const handleAdminPanelClick = () => {
-        router.push('/admin');
+        router.push('/panel');
         setActiveSection("Admin Panel");
         handleClose();
     };

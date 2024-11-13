@@ -8,6 +8,7 @@ import BlogPost from "@/app/components/panel/blogpost";
 import ReservationSettings from "@/app/components/panel/reservation-settings";
 import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
 import SectionAndTables from "@/app/components/panel/section-and-tables";
+import Reservations from "@/app/components/panel/reservations";
 
 
 
@@ -29,6 +30,8 @@ export default function Panel() {
                 return <SectionAndTables />;
             case "ReservationSettings":
                 return <ReservationSettings />;
+            case "Reservations":
+                return <Reservations />;
             default:
                 return <SiteConfiguration />;
         }
@@ -63,6 +66,9 @@ export default function Panel() {
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("ReservationSettings")} className={`${selectedLink === "ReservationSettings" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Reservation Settings
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("Reservations")} className={`${selectedLink === "Reservations" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Reservations
                         </Link>
                     </nav>
                     <div className="grid gap-6">

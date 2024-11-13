@@ -1,13 +1,15 @@
 import express, { Request, Response } from "express";
-import { body, validationResult } from "express-validator";
+import {body, param, validationResult} from "express-validator";
 import Reservation from "../models/reservation";
 import admin from "firebase-admin";
 import QRCode from "qrcode";
-import encryptData  from "../utils/qr-code";
+import encryptData from "../utils/qr-code";
 import { sendEmail } from "../utils/mailer";
 import User from "../models/user";
 
 const router = express.Router();
+
+
 
 async function generateEncryptedQRCode(reservation: any) {
     const data = {
@@ -16,7 +18,7 @@ async function generateEncryptedQRCode(reservation: any) {
         reservationTime: reservation.reservationTime,
     };
     const encryptionKey = process.env.QR_ENCRYPTION_KEY;
-    if(!encryptionKey) {
+    if (!encryptionKey) {
         throw new Error("QR_ENCRYPTION_KEY is not defined");
     }
     const encryptedData = encryptData(data, encryptionKey);
@@ -105,7 +107,6 @@ router.post(
             <p>Thank you for choosing our service!</p>
         `;
 
-
             const user = await User.findById(userId);
             if (!user?.email) {
                 throw new Error("User email is not defined");
@@ -141,5 +142,96 @@ router.post(
         }
     }
 );
+
+router.get("/:id",
+    param("id").isMongoId().withMessage("Invalid reservation ID"),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { id } = req.params;
+
+        try {
+            const reservation = await Reservation.findById(id);
+            if (!reservation) {
+                res.status(404).json({ message: "Reservation not found" });
+                return;
+            }
+            await reservation.populate("user", "fullName");
+            await reservation.populate("table", "name");
+            await reservation.populate("section", "name");
+            res.json({ reservation });
+        } catch (error) {
+            console.error("Error fetching reservation:", error);
+            res.status(500).json({ message: "Error fetching reservation" });
+        }
+    }
+);
+
+
+router.put("/:id/cancel",
+    param("id").isMongoId().withMessage("Invalid reservation ID"),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { id } = req.params;
+
+        try {
+            const reservation = await Reservation.findById(id);
+            if (!reservation) {
+                res.status(404).json({ message: "Reservation not found" });
+                return;
+            }
+
+            reservation.status = "CANCELLED";
+            await reservation.save();
+
+            const firestore = admin.firestore();
+            const firestoreRef = firestore.collection('reservations').doc(id);
+            await firestoreRef.update({ status: "CANCELLED" });
+
+
+            const reservationDateObj = new Date(reservation.reservationTime as unknown as string);
+
+            const emailSubject = "Your Reservation Has Been Cancelled";
+            const emailText = `Dear User,\n\nYour reservation for ${reservation.timeSlot} on ${reservationDateObj.toLocaleDateString("en-GB")} has been cancelled.\n\nThank you!`;
+            const emailHtml = `<p>Dear User,</p><p>Your reservation for <strong>${reservation.timeSlot}</strong> on <strong>${reservationDateObj.toLocaleDateString("en-GB")}</strong> </p> has been cancelled.</p><p>Thank you!</p>`;
+
+            const user = await User.findById(reservation.user);
+            if (!user?.email) {
+                throw new Error("User email is not defined");
+            }
+            await sendEmail(
+                user.email,
+                emailSubject,
+                emailText,
+                emailHtml,
+            );
+            const message = {
+                notification: {
+                    title: "Reservation Cancelled",
+                    body: `Reservation for ${reservation.timeSlot} has been cancelled.`,
+                },
+                topic: "reservations",
+            };
+
+            await admin.messaging().send(message);
+
+            res.json({ reservation });
+        } catch (error) {
+            console.error("Error cancelling reservation:", error);
+            res.status(500).json({ message: "Error cancelling reservation" });
+        }
+    }
+);
+
+
 
 export default router;
