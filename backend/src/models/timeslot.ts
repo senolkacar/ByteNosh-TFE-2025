@@ -6,8 +6,8 @@ const timeslotSchema = new mongoose.Schema({
         enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         required: true
     },
-    openHour: Date,
-    closeHour: Date,
+    openHour: String,
+    closeHour: String,
     isOpen: Boolean,
 });
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -9,12 +9,15 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 
-export default function ReservationSettings({ onCheckAvailability }:any) {
+export default function ReservationSettings({ onCheckAvailability }: any) {
     const [closureDays, setClosureDays] = useState<Date[]>([]);
     const [date, setDate] = useState<Date | null>(null);
     const [timeSlots, setTimeSlots] = useState<string[]>([]);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
     const [disabledDays, setDisabledDays] = useState<string[]>([]);
+    const [lastActivityTime, setLastActivityTime] = useState<Date>(new Date());
+    const inactivityTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [isTimeSlotEmpty, setIsTimeSlotEmpty] = useState(false);
 
     useEffect(() => {
         async function fetchClosureDays() {
@@ -42,49 +45,88 @@ export default function ReservationSettings({ onCheckAvailability }:any) {
                 console.error("Failed to fetch opening hours", error);
             }
         }
-
         fetchOpeningHours();
     }, []);
 
     useEffect(() => {
-        async function fetchOpeningHoursForDate() {
-            if (!date) return;
-            try {
-                const response = await fetch(`/api/opening-hours?date=${date.toISOString()}`);
-                const { openHour, closeHour } = await response.json();
-                generateTimeSlots(openHour, closeHour);
-            } catch (error) {
-                console.error("Failed to fetch opening hours", error);
-            }
+        if (date) {
+            fetchOpeningHoursForDate(date);
         }
-        fetchOpeningHoursForDate();
     }, [date]);
 
-    const generateTimeSlots = (start: string, end: string) => {
-        const slots = [];
-        let current = new Date(start);
-        const endDateTime = new Date(end);
+    useEffect(() => {
+        const checkInactivity = () => {
+            const now = new Date();
+            if (now.getTime() - lastActivityTime.getTime() > 5 * 60 * 1000) { // 5 minutes
+                if (date) {
+                    fetchOpeningHoursForDate(date);
+                }
+            }
+        };
 
+        inactivityTimeout.current = setInterval(checkInactivity, 60 * 1000); // Check every minute
+
+        return () => {
+            if (inactivityTimeout.current) {
+                clearInterval(inactivityTimeout.current);
+            }
+        };
+    }, [lastActivityTime, date]);
+
+    const fetchOpeningHoursForDate = async (selectedDate: Date) => {
+        try {
+            const response = await fetch(`/api/opening-hours?date=${selectedDate.toISOString()}`);
+            const { openHour, closeHour } = await response.json();
+            generateTimeSlots(selectedDate, openHour, closeHour);
+        } catch (error) {
+            console.error("Failed to fetch opening hours", error);
+        }
+    };
+
+    const generateTimeSlots = (date: Date, openHour: string, closeHour: string) => {
+        const slots = [];
+        let allSlotsPassed = true;
+
+        // Parse `openHour` and `closeHour` into `Date` objects based on the selected `date`
+        const startDateTime = new Date(date);
+        const [openHourHours, openHourMinutes] = openHour.split(':').map(Number);
+        startDateTime.setHours(openHourHours, openHourMinutes, 0, 0);
+
+        const endDateTime = new Date(date);
+        const [closeHourHours, closeHourMinutes] = closeHour.split(':').map(Number);
+        endDateTime.setHours(closeHourHours, closeHourMinutes, 0, 0);
+
+        let current = startDateTime;
+
+        // Generate slots from `current` to `endDateTime`
         while (current < endDateTime) {
             const next = new Date(current);
             next.setHours(current.getHours() + 1);
             slots.push(`${format(current, "HH:mm")} - ${format(next, "HH:mm")}`);
+
+            // Check if the current slot is in the future
+            if (new Date(`${date.toDateString()} ${current.toTimeString().split(' ')[0]}`) >= new Date()) {
+                allSlotsPassed = false;
+            }
+
             current = next;
         }
+
         setTimeSlots(slots);
+        setIsTimeSlotEmpty(allSlotsPassed);
     };
 
     const handleTimeSlotSelect = (slot: string) => {
         setSelectedTimeSlot(slot);
+        setLastActivityTime(new Date());
     };
 
-    const handleDateSelect = (date: Date | undefined) => {
-        if (!date) return;
-        setDate(date);
+    const handleDateSelect = (selectedDate: Date | undefined) => {
+        if (!selectedDate) return;
+        setDate(selectedDate);
         setSelectedTimeSlot(null);
+        setLastActivityTime(new Date());
     };
-
-
 
     return (
         <motion.div
@@ -115,10 +157,11 @@ export default function ReservationSettings({ onCheckAvailability }:any) {
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
                                 <Calendar
-                                    disabled={date =>
-                                        date < new Date() ||
-                                        closureDays.some(closure => closure.toDateString() === date.toDateString()) ||
-                                        disabledDays.includes(date.toLocaleDateString('en-US', { weekday: 'long' }))
+                                    disabled={(selectedDate) =>
+                                        selectedDate < new Date(new Date().setHours(0, 0, 0, 0)) || // Convert timestamp to Date
+                                        closureDays.some(closure => closure.toDateString() === selectedDate.toDateString()) ||
+                                        disabledDays.includes(selectedDate.toLocaleDateString('en-US', { weekday: 'long' })) ||
+                                        (selectedDate.toDateString() === date?.toDateString() && isTimeSlotEmpty)  // Disable if all slots are in the past
                                     }
                                     mode="single"
                                     selected={date || undefined}
@@ -129,13 +172,21 @@ export default function ReservationSettings({ onCheckAvailability }:any) {
                             </PopoverContent>
                         </Popover>
                         <div>
-                            <p className={"font-semibold text-sm"}>Available Time Slots</p>
+                            <p className="font-semibold text-sm">Available Time Slots</p>
                             <div className="grid grid-cols-3 gap-2 mt-2">
                                 {timeSlots.map((slot) => (
                                     <Badge
                                         key={slot}
-                                        className={`py-1 px-2 text-xs font-semibold hover:bg-green500 hover:cursor-pointer  ${selectedTimeSlot === slot ? 'bg-green-500 text-white' : ''}`}
-                                        onClick={() => handleTimeSlotSelect(slot)}
+                                        className={`py-1 px-2 text-xs font-semibold ${
+                                            selectedTimeSlot === slot ? 'bg-green-500 text-white' : ''
+                                        } ${
+                                            new Date(`${date?.toDateString()} ${slot.split(" - ")[0]}`) < new Date() ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'hover:bg-green-500 hover:cursor-pointer'
+                                        }`}
+                                        onClick={() => {
+                                            if (new Date(`${date?.toDateString()} ${slot.split(" - ")[0]}`) >= new Date()) {
+                                                handleTimeSlotSelect(slot);
+                                            }
+                                        }}
                                     >
                                         {slot}
                                     </Badge>

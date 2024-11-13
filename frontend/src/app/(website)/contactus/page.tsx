@@ -155,13 +155,7 @@ export default function ContactUs() {
                             <ul className="mx-auto">
                                 {openingHours?.map((day, index) => (
                                     <li key={index} className="text-center">
-                                        {day.day}: {new Date(day.openHour).toLocaleTimeString("en-GB", {
-                                        hour: "2-digit",
-                                        minute: "2-digit"
-                                    })} - {new Date(day.closeHour).toLocaleTimeString("en-GB", {
-                                        hour: "2-digit",
-                                        minute: "2-digit"
-                                    })}
+                                        {day.day}: {day.isOpen ? `${day.openHour} - ${day.closeHour}` : 'Closed'}
                                     </li>
                                 ))}
                             </ul>

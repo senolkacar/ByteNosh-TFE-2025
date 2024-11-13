@@ -460,47 +460,48 @@ async function main(): Promise<void> {
         const OPENING_HOURS = [
             {
                 day: 'Monday',
-                openHour: new Date('2021-09-06T09:00:00'),
-                closeHour: new Date('2021-09-06T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: true,
             },
             {
                 day: 'Tuesday',
-                openHour: new Date('2021-09-07T09:00:00'),
-                closeHour: new Date('2021-09-07T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: true,
             },
             {
                 day: 'Wednesday',
-                openHour: new Date('2021-09-08T09:00:00'),
-                closeHour: new Date('2021-09-08T17:00:00'),
+                openHour: '09:00',
+                closeHour: '23:00',
                 isOpen: true,
             },
             {
                 day: 'Thursday',
-                openHour: new Date('2021-09-09T09:00:00'),
-                closeHour: new Date('2021-09-09T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: true,
             },
             {
                 day: 'Friday',
-                openHour: new Date('2021-09-10T09:00:00'),
-                closeHour: new Date('2021-09-10T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: true,
             },
             {
                 day: 'Saturday',
-                openHour: new Date('2021-09-11T09:00:00'),
-                closeHour: new Date('2021-09-11T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: true,
             },
             {
                 day: 'Sunday',
-                openHour: new Date('2021-09-12T09:00:00'),
-                closeHour: new Date('2021-09-12T17:00:00'),
+                openHour: '09:00',
+                closeHour: '17:00',
                 isOpen: false,
             }
         ];
+
 
         const CLOSURES = [
             {

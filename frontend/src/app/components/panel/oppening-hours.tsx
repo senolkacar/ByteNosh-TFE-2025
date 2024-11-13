@@ -20,7 +20,6 @@ import {
 import {Separator} from "@/components/ui/separator";
 import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 
-
 type HoursMap = { [key in DayOfWeek]?: Timeslot };
 
 const OpeningHoursConfig = () => {
@@ -49,11 +48,7 @@ const OpeningHoursConfig = () => {
                 const data: Timeslot[] = await response.json();
                 const hoursData: HoursMap = {};
                 data.forEach((timeslot) => {
-                    hoursData[timeslot.day as DayOfWeek] = {
-                        ...timeslot,
-                        openHour: new Date(timeslot.openHour),
-                        closeHour: new Date(timeslot.closeHour),
-                    };
+                    hoursData[timeslot.day as DayOfWeek] = timeslot;
                 });
                 setHours(hoursData);
             } catch (error) {
@@ -63,7 +58,7 @@ const OpeningHoursConfig = () => {
         fetchHours();
     }, []);
 
-    const handleChange = (day: DayOfWeek, key: keyof Timeslot, value: any) => {
+    const handleChange = (day: DayOfWeek, key: keyof Timeslot, value: string) => {
         setHours((prev) => ({
             ...prev,
             [day]: { ...prev[day], [key]: value } as Timeslot,
@@ -109,12 +104,7 @@ const OpeningHoursConfig = () => {
     }
 
     const handleTimeChange = (day: DayOfWeek, key: "openHour" | "closeHour", timeValue: string) => {
-        const date = hours[day]?.[key];
-        const [hoursValue, minutes] = timeValue.split(":");
-        const newDate = new Date(date || Date.now());
-        newDate.setHours(parseInt(hoursValue));
-        newDate.setMinutes(parseInt(minutes));
-        handleChange(day, key, newDate);
+        handleChange(day, key, timeValue);
     };
 
     const handleSave = () => {
@@ -132,8 +122,6 @@ const OpeningHoursConfig = () => {
             toast.error("Failed to save opening hours");
         }
     };
-
-    const formatTime = (date: Date) => date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
     return (
         <>
@@ -153,21 +141,21 @@ const OpeningHoursConfig = () => {
                             <div className="flex items-center space-x-4 mt-2">
                                 <Switch
                                     checked={hours[day as DayOfWeek]?.isOpen || false}
-                                    onCheckedChange={(checked: boolean) => handleChange(day as DayOfWeek, "isOpen", checked)}
+                                    onCheckedChange={(checked: boolean) => handleChange(day as DayOfWeek, "isOpen", checked.toString())}
                                 />
                                 <Label>{hours[day as DayOfWeek]?.isOpen ? "Open" : "Closed"}</Label>
                                 {hours[day as DayOfWeek]?.isOpen && (
                                     <>
                                         <Input
                                             type="time"
-                                            value={formatTime(hours[day as DayOfWeek]?.openHour || new Date())}
+                                            value={hours[day as DayOfWeek]?.openHour || ""}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                 handleTimeChange(day as DayOfWeek, "openHour", e.target.value)
                                             }
                                         />
                                         <Input
                                             type="time"
-                                            value={formatTime(hours[day as DayOfWeek]?.closeHour || new Date())}
+                                            value={hours[day as DayOfWeek]?.closeHour || ""}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                                 handleTimeChange(day as DayOfWeek, "closeHour", e.target.value)
                                             }

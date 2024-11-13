@@ -10,7 +10,7 @@ export enum DayOfWeek {
 
 export default interface Timeslot {
     day: DayOfWeek;
-    openHour: Date;
-    closeHour: Date;
+    openHour: string;
+    closeHour: string;
     isOpen: boolean;
 }
