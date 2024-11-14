@@ -3,10 +3,9 @@ import Link from "next/link";
 import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {Sheet, SheetContent, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
-import { DashboardHome } from "@/app/components/dashboard/dashboard-home";
+import {ClientDashboard} from "@/app/components/dashboard/client-dashboard";
 import Profile from "@/app/components/dashboard/profile";
-import OrdersPage from "@/app/components/dashboard/orders";
-import ReservationsPage from "@/app/components/panel/reservation-settings";
+import ReservationsPage from "@/app/components/dashboard/reservations";
 import SettingsPage from "@/app/components/dashboard/settings";
 import { useActiveSection } from "@/app/context/activesectioncontext";
 
@@ -38,12 +37,6 @@ export function DashboardScreen() {
                         onClick={() => setActiveSection("Profile")}
                     >
                         Profile
-                    </button>
-                    <button
-                        className={`text-foreground transition-colors hover:text-foreground ${activeSection === "Orders" ? "font-bold" : "text-muted-foreground"}`}
-                        onClick={() => setActiveSection("Orders")}
-                    >
-                        Orders
                     </button>
                     <button
                         className={`text-foreground transition-colors hover:text-foreground ${activeSection === "Reservations" ? "font-bold" : "text-muted-foreground"}`}
@@ -87,12 +80,6 @@ export function DashboardScreen() {
                                 Dashboard
                             </button>
                             <button
-                                className={`hover:text-foreground ${activeSection === "Orders" ? "font-bold" : "text-muted-foreground"}`}
-                                onClick={() => setActiveSection("Orders")}
-                            >
-                                Orders
-                            </button>
-                            <button
                                 className={`hover:text-foreground ${activeSection === "Profile" ? "font-bold" : "text-muted-foreground"}`}
                                 onClick={() => setActiveSection("Profile")}
                             >
@@ -115,9 +102,8 @@ export function DashboardScreen() {
                 </Sheet>
             </header>
             <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-                {activeSection === "Dashboard" && <DashboardHome />}
+                {activeSection === "Dashboard" && <ClientDashboard setActiveSection={setActiveSection} />}
                 {activeSection === "Profile" && <Profile />}
-                {activeSection === "Orders" && <OrdersPage />}
                 {activeSection === "Reservations" && <ReservationsPage />}
                 {activeSection === "Settings" && <SettingsPage />}
             </main>

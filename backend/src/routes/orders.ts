@@ -1,6 +1,6 @@
 import express from "express";
 import Order from "../models/order";
-import Meal from "../models/meal";
+import { param, validationResult } from "express-validator";
 
 const router = express.Router();
 
@@ -44,5 +44,32 @@ router.get("/most-ordered", async (req, res): Promise<void> => {
         res.status(500).json({ message: "Error fetching most ordered items" });
     }
 });
+
+router.get(
+    '/:userId',
+    param('userId').isMongoId().withMessage('Invalid user ID'),
+    async (req, res): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { userId } = req.params as Record<string, any>;
+
+        try {
+            const lastReservation = await Order.findOne({ user: userId }).sort({ reservationTime: -1 });
+            if (!lastReservation) {
+                res.status(404).json({ message: 'No reservations found for this user' });
+                return;
+            }
+            const populatedLastReservation = await lastReservation.populate("meals");
+            const totalSum = populatedLastReservation.meals.reduce((sum:any, meal: any) => sum + meal.price, 0);
+            res.json({ totalSum });
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching last reservation' });
+        }
+    }
+);
 
 export default router;

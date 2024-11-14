@@ -566,14 +566,16 @@ async function main(): Promise<void> {
                 meals: meals.filter(m => ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => m._id),
                 date: new Date(),
                 status: 'IN_PROGRESS',
-                reservation: reservations[0]._id
+                reservation: reservations[0]._id,
+                user: users.find(u => u.email === 'user@test.com')!._id,
             },
             {
                 table: tables.find(t => t.name === 'Table 2')!._id,
                 meals: meals.filter(m => ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => m._id),
                 date: new Date(),
                 status: 'SERVED',
-                reservation: reservations[1]._id
+                reservation: reservations[1]._id,
+                user: users.find(u => u.email === 'user@test.com')!._id,
             },
             // Walk-in order (no reservation)
             {

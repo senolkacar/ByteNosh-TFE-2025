@@ -236,6 +236,51 @@ router.put("/:id/cancel",
     }
 );
 
+router.get('/last/:userId'
+    , param("userId").isMongoId().withMessage("Invalid user ID")
+    , async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
 
+        const { userId } = req.params;
+
+        try {
+            const reservation = await Reservation.findOne({ user: userId }).sort({ createdAt: -1 });
+            if (!reservation) {
+                res.status(404).json({ message: "Reservation not found" });
+                return;
+            }
+
+            res.json({ reservation });
+        } catch (error) {
+            console.error("Error fetching reservation:", error);
+            res.status(500).json({ message: "Error fetching reservation" });
+        }
+    }
+)
+
+router.get('/all/:userId',
+    param("userId").isMongoId().withMessage("Invalid user ID"),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { userId } = req.params;
+
+        try {
+            const reservations = await Reservation.find({ user: userId }).populate("table", "name").populate("section", "name");
+            res.json({ reservations });
+        } catch (error) {
+            console.error("Error fetching reservations:", error);
+            res.status(500).json({ message: "Error fetching reservations" });
+        }
+    }
+)
 
 export default router;
