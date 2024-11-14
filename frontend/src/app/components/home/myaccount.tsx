@@ -110,18 +110,22 @@ export default function AccountMenu() {
 
     return (
         <React.Fragment>
-            {!permissionGranted && (
-                <button onClick={handlePermission} className="text-sm mb-2 text-blue-500 underline">
-                    Enable Notifications
-                </button>
+            {user?.role === 'ADMIN' && (
+                <>
+                    {!permissionGranted && (
+                        <button onClick={handlePermission} className="text-sm mb-2 text-blue-500 underline">
+                            Enable Notifications
+                        </button>
+                    )}
+                    <Tooltip title="Notifications">
+                        <IconButton onClick={() => router.push('/panel')} size="small">
+                            <Badge badgeContent={unreadReservations} color="error" overlap="circular">
+                                <NotificationsActiveIcon className="hover:cursor-pointer scale-150 hover:bg-gray-200 rounded-full" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                </>
             )}
-            <Tooltip title="Notifications">
-                <IconButton onClick={() => router.push('/panel')} size="small">
-                    <Badge badgeContent={unreadReservations} color="error" overlap="circular">
-                        <NotificationsActiveIcon className="hover:cursor-pointer scale-150 hover:bg-gray-200 rounded-full" />
-                    </Badge>
-                </IconButton>
-            </Tooltip>
             <Tooltip title="Account settings">
                 <IconButton
                     onClick={handleClick}
