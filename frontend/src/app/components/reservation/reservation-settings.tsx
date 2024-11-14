@@ -104,6 +104,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
             next.setHours(current.getHours() + 1);
             slots.push(`${format(current, "HH:mm")} - ${format(next, "HH:mm")}`);
 
+
             // Check if the current slot is in the future
             if (new Date(`${date.toDateString()} ${current.toTimeString().split(' ')[0]}`) >= new Date()) {
                 allSlotsPassed = false;
@@ -174,23 +175,35 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
                         <div>
                             <p className="font-semibold text-sm">Available Time Slots</p>
                             <div className="grid grid-cols-3 gap-2 mt-2">
-                                {timeSlots.map((slot) => (
-                                    <Badge
-                                        key={slot}
-                                        className={`py-1 px-2 text-xs font-semibold ${
-                                            selectedTimeSlot === slot ? 'bg-green-500 text-white' : ''
-                                        } ${
-                                            new Date(`${date?.toDateString()} ${slot.split(" - ")[0]}`) < new Date() ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'hover:bg-green-500 hover:cursor-pointer'
-                                        }`}
-                                        onClick={() => {
-                                            if (new Date(`${date?.toDateString()} ${slot.split(" - ")[0]}`) >= new Date()) {
-                                                handleTimeSlotSelect(slot);
-                                            }
-                                        }}
-                                    >
-                                        {slot}
-                                    </Badge>
-                                ))}
+                                {timeSlots.map((slot) => {
+                                    if (!date) return null;
+                                    const [startTime] = slot.split(" - ");
+                                    const timeslotStart = new Date(`${date.toDateString()} ${startTime}`);
+                                    const now = new Date();
+
+                                    // Convert Date objects to timestamps (numbers)
+                                    const timeslotStartTime = timeslotStart.getTime();
+                                    const nowTime = now.getTime();
+
+                                    const isDisabled = timeslotStartTime < nowTime || (timeslotStartTime - nowTime) / (1000 * 60 * 60) < 1; // less than 1 hour
+                                    const handleClick = () => {
+                                        if (!isDisabled) {
+                                            handleTimeSlotSelect(slot);
+                                        }
+                                    };
+
+                                    return (
+                                        <Badge
+                                            key={slot}
+                                            className={`py-1 px-2 text-xs font-semibold ${
+                                                selectedTimeSlot === slot ? 'bg-green-500 text-white' : ''
+                                            } ${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'hover:bg-green-500 hover:cursor-pointer'}`}
+                                            onClick={handleClick}
+                                        >
+                                            {slot}
+                                        </Badge>
+                                    );
+                                })}
                             </div>
                             <Button
                                 onClick={() => {
