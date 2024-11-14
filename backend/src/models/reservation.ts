@@ -13,10 +13,10 @@ const reservationSchema = new mongoose.Schema({
         default: 'PENDING'
     },
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
     notes: String,
     qrCodeUrl: String,
-});
+},
+    { timestamps: true }
+);
 
 export default mongoose.model('Reservation', reservationSchema);

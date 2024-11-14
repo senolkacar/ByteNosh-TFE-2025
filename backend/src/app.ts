@@ -49,6 +49,7 @@ mongoose.connect(DB_URI as string);
 
 app.use('/api/auth', Auth);
 app.use('/images', express.static(path.join(__dirname, '..', 'images')));
+app.use('/sounds', express.static(path.join(__dirname, '..', 'sounds')));
 
 
 admin.initializeApp({

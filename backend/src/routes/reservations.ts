@@ -38,6 +38,9 @@ async function saveReservationToFirestore(reservation: any) {
             timeSlot: reservation.timeSlot ?? null,
             user: reservation.user ? reservation.user.toString() : null,
             status: reservation.status ?? null,
+            isRead: false,
+            createdAt: reservation.createdAt?.toISOString(),
+            updatedAt: reservation.updatedAt?.toISOString()
         });
     } catch (error) {
         console.error("Error saving reservation to Firestore:", error);
@@ -84,6 +87,7 @@ router.post(
                 timeSlot,
                 user: userId,
                 status: "PENDING",
+                isRead: false
             });
 
             const savedReservation = await newReservation.save();

@@ -13,14 +13,18 @@ import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "@/components/ui/avatar"
+} from "@/components/ui/avatar";
 import { useRouter } from 'next/navigation';
 import { useActiveSection } from "@/app/context/activesectioncontext";
 import { usePathname } from 'next/navigation';
 import DisplayUsername from "@/app/components/home/display-username";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import User from "@/app/models/user";
-import {useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
+import Badge from '@mui/material/Badge';
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import db from "@/lib/firebase";
 
 export default function AccountMenu() {
     const router = useRouter();
@@ -28,8 +32,11 @@ export default function AccountMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const pathname = usePathname();
-    const [user, setUser] = useState<User>()
+    const [user, setUser] = useState<User>();
     const email = useSession().data?.user?.email;
+    const [unreadReservations, setUnreadReservations] = useState(0);
+    const [permissionGranted, setPermissionGranted] = useState(localStorage.getItem("permissionGranted") === "true");
+    const notificationSound = React.useMemo(() => new Audio('http://localhost:5000/sounds/notification.mp3'), []);
 
     useEffect(() => {
         async function fetchUser() {
@@ -42,7 +49,27 @@ export default function AccountMenu() {
             }
         }
         fetchUser();
-    }, []);
+    }, [email]);
+
+    useEffect(() => {
+        if (permissionGranted) {
+            const q = query(collection(db, "reservations"), where("isRead", "==", false));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const newUnreadCount = snapshot.size;
+
+                // Play sound only if there are new unread reservations
+                if (newUnreadCount > unreadReservations) {
+                    notificationSound.play().catch((error) => {
+                        console.error('Audio playback failed:', error);
+                    });
+                }
+
+                setUnreadReservations(newUnreadCount);
+            });
+
+            return () => unsubscribe();
+        }
+    }, [permissionGranted, unreadReservations, notificationSound]);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -59,8 +86,7 @@ export default function AccountMenu() {
     };
 
     const handleSettingsClick = () => {
-
-        if(pathname !== '/dashboard') {
+        if (pathname !== '/dashboard') {
             router.push('/dashboard');
         }
         setActiveSection("Profile");
@@ -73,8 +99,29 @@ export default function AccountMenu() {
         handleClose();
     };
 
+    const handlePermission = () => {
+        notificationSound.play().then(() => {
+            setPermissionGranted(true);
+            localStorage.setItem("permissionGranted", "true");
+        }).catch((error) => {
+            console.error('Audio playback failed:', error);
+        });
+    };
+
     return (
         <React.Fragment>
+            {!permissionGranted && (
+                <button onClick={handlePermission} className="text-sm mb-2 text-blue-500 underline">
+                    Enable Notifications
+                </button>
+            )}
+            <Tooltip title="Notifications">
+                <IconButton onClick={() => router.push('/panel')} size="small">
+                    <Badge badgeContent={unreadReservations} color="error" overlap="circular">
+                        <NotificationsActiveIcon className="hover:cursor-pointer scale-150 hover:bg-gray-200 rounded-full" />
+                    </Badge>
+                </IconButton>
+            </Tooltip>
             <Tooltip title="Account settings">
                 <IconButton
                     onClick={handleClick}
@@ -105,13 +152,13 @@ export default function AccountMenu() {
                     </Avatar> My account
                 </MenuItem>
                 <Divider />
-                {user?.role === 'ADMIN' &&(
-                <MenuItem onClick={handleAdminPanelClick}>
-                    <ListItemIcon>
-                        <KeyIcon/>
-                    </ListItemIcon>
-                    Admin Panel
-                </MenuItem>
+                {user?.role === 'ADMIN' && (
+                    <MenuItem onClick={handleAdminPanelClick}>
+                        <ListItemIcon>
+                            <KeyIcon/>
+                        </ListItemIcon>
+                        Admin Panel
+                    </MenuItem>
                 )}
                 <MenuItem onClick={handleSettingsClick}>
                     <ListItemIcon>

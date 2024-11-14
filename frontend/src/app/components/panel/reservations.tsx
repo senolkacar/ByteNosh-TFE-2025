@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { collection, onSnapshot } from "@firebase/firestore";
+import {collection, onSnapshot, orderBy} from "@firebase/firestore";
 import db from "@/lib/firebase";
+import {doc, query, updateDoc, where} from "firebase/firestore";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,11 +34,18 @@ export default function ReservationsPage() {
     const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
 
+
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, "reservations"), (snapshot) => {
+        const q = query(
+            collection(db, "reservations"),
+            orderBy("createdAt", "desc")
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
             const reservationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setReservations(reservationData);
         });
+
         return () => unsubscribe();
     }, []);
 
@@ -51,7 +59,29 @@ export default function ReservationsPage() {
     }, [selectedReservationId]);
 
     const handleReservationDetails = (reservationId: string) => {
-        setSelectedReservationId(reservationId);
+
+    };
+
+    const handleMarkAsRead = async (reservationId: string) => {
+        try {
+            // Create a reference to the reservation document in Firestore
+            const reservationRef = doc(db, "reservations", reservationId);
+
+            // Update the isRead field to true
+            await updateDoc(reservationRef, { isRead: true });
+
+            // Update the local state for immediate UI feedback
+            setReservations(prevReservations =>
+                prevReservations.map(reservation =>
+                    reservation.id === reservationId ? { ...reservation, isRead: true } : reservation
+                )
+            );
+
+            toast.success('Marked as read');
+        } catch (error) {
+            console.error('Error marking reservation as read:', error);
+            toast.error('Failed to mark as read');
+        }
     };
 
     const handleCancelReservation = (reservationId: string) => {
@@ -86,6 +116,8 @@ export default function ReservationsPage() {
                         <TableHead>Reservation Date</TableHead>
                         <TableHead>Reservation Time</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Booking Date</TableHead>
+                        <TableHead>Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -112,6 +144,16 @@ export default function ReservationsPage() {
                                     <Badge variant="outline" className={reservation.status === "CONFIRMED" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
                                         {reservation.status}
                                     </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    {new Date(reservation.createdAt).toLocaleDateString('en-GB')}
+                                </TableCell>
+                                <TableCell>
+                                    {!reservation.isRead && (
+                                        <Button onClick={() => handleMarkAsRead(reservation.id)}>
+                                            Mark as read
+                                        </Button>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))
