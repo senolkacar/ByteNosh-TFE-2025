@@ -18,6 +18,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
     const [lastActivityTime, setLastActivityTime] = useState<Date>(new Date());
     const inactivityTimeout = useRef<NodeJS.Timeout | null>(null);
     const [isTimeSlotEmpty, setIsTimeSlotEmpty] = useState(false);
+    const [showWaitlistModal, setShowWaitlistModal] = useState(false);
 
     useEffect(() => {
         async function fetchClosureDays() {
@@ -82,6 +83,22 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
             console.error("Failed to fetch opening hours", error);
         }
     };
+
+    const handleCheckAvailability = async (date: any, selectedTimeSlot: any) => {
+        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date}&timeSlot=${selectedTimeSlot}`);
+        const availabilityData = await response.json();
+
+        if (!availabilityData.isAvailable) {
+            setShowWaitlistModal(true);
+        } else {
+            setShowWaitlistModal(false);
+            onCheckAvailability(date, selectedTimeSlot);
+        }
+    };
+
+    const onJoinWaitlist = async (date: any, selectedTimeSlot: any) => {
+        console.log("Joining waitlist for", date, selectedTimeSlot);
+    }
 
     const generateTimeSlots = (date: Date, openHour: string, closeHour: string) => {
         const slots = [];
@@ -208,7 +225,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
                             <Button
                                 onClick={() => {
                                     if (date && selectedTimeSlot) {
-                                        onCheckAvailability(date, selectedTimeSlot);
+                                        handleCheckAvailability(date, selectedTimeSlot);
                                     }
                                 }}
                                 className="w-full mt-4 py-2 text-center bg-blue-500 text-white rounded-md"
@@ -219,6 +236,14 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
                     </div>
                 </CardContent>
             </Card>
+            {showWaitlistModal && (
+                <div className="mt-4">
+                    <p>It looks like there are no available tables for your selected time. Would you like to join the waitlist?</p>
+                    <Button onClick={() => onJoinWaitlist(date, selectedTimeSlot)} className="mt-2">
+                        Join Waitlist
+                    </Button>
+                </div>
+            )}
         </motion.div>
     );
 }

@@ -9,7 +9,7 @@ import ReservationSettings from "@/app/components/panel/reservation-settings";
 import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
 import SectionAndTables from "@/app/components/panel/section-and-tables";
 import Reservations from "@/app/components/panel/reservations";
-
+import Waitlist from "@/app/components/panel/waitlist";
 
 
 export default function Panel() {
@@ -32,6 +32,8 @@ export default function Panel() {
                 return <ReservationSettings />;
             case "Reservations":
                 return <Reservations />;
+            case "Waitlist":
+                return <Waitlist />;
             default:
                 return <SiteConfiguration />;
         }
@@ -69,6 +71,9 @@ export default function Panel() {
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("Reservations")} className={`${selectedLink === "Reservations" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Reservations
+                        </Link>
+                        <Link href="#" onClick={() => setSelectedLink("Waitlist")} className={`${selectedLink === "Waitlist" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                            Waitlist
                         </Link>
                     </nav>
                     <div className="grid gap-6">

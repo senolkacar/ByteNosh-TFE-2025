@@ -139,7 +139,7 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        {!lastReservation ? (
+                        {!lastReservation || !lastReservation.reservation ? (
                             <>
                                 <div className="text-md font-bold">No reservations</div>
                                 <p className="text-xs text-muted-foreground">
@@ -178,7 +178,7 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                     <CardContent>
                         <div className="text-2xl font-bold">{lastOrder}€</div>
                         <p className="text-xs text-muted-foreground">
-                            from {lastReservation ? format(new Date(lastReservation.reservation.reservationTime), "dd/MM/yyyy") : "No reservations"}
+                            from {lastReservation && lastReservation.reservation ? format(new Date(lastReservation.reservation.reservationTime), "dd/MM/yyyy") : "No reservations"}
                         </p>
                     </CardContent>
                 </Card>
