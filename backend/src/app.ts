@@ -29,6 +29,7 @@ import reservationRoutes from './routes/reservations';
 import contactRoutes from './routes/contact';
 import waitlistRoutes from "./routes/waitlist";
 import "../src/utils/cron";
+import "../src/utils/upcoming-reservation-job";
 
 
 app.use(cors());
