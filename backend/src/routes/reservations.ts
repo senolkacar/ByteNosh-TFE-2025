@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import encryptData from "../utils/qr-code";
 import { sendEmail } from "../utils/mailer";
 import User from "../models/user";
+import { getSocketIO } from "../utils/socket";
 
 const router = express.Router();
 
@@ -228,6 +229,8 @@ router.put("/:id/cancel",
 
             await admin.messaging().send(message);
 
+            const io = getSocketIO();
+            io.emit("table-available", { tableId: reservation.table, timeSlot: reservation.timeSlot });
             res.json({ reservation });
         } catch (error) {
             console.error("Error cancelling reservation:", error);

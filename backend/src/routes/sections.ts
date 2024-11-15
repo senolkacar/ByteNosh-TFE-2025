@@ -162,4 +162,49 @@ router.get("/:sectionId/tables",
     }
 );
 
+// CHECK AVAILABILITY FOR ALL TABLES IN ALL SECTION FOR A GIVEN DATE AND TIME SLOT IF ANY TABLE IS AVAILABLE RETURN TRUE ELSE FALSE
+// Route to check availability of tables for a given date and time slot
+router.get("/availability/check-availability", async (req: Request, res: Response): Promise<void> => {
+    // Extract reservationDate and timeSlot from query parameters
+    const { reservationDate, timeSlot } = req.query as { reservationDate: string, timeSlot: string };
+    const reservationDateObj = new Date(reservationDate);
+
+    try {
+        // Step 1: Find all tables
+        const tables = await Table.find().lean();
+
+        // Step 2: Find reservations for the specified date and time slot
+        const reservations = await Reservation.find({
+            table: { $in: tables.map(table => table._id) },
+            reservationTime: {
+                $gte: reservationDateObj,
+                $lt: new Date(reservationDateObj.getTime() + 24 * 60 * 60 * 1000), // End of the day
+            },
+            timeSlot,  // Ensure we filter by timeSlot as well
+            status: { $in: ["PENDING", "CONFIRMED"] },
+        }).lean();
+
+        // Step 3: Map reservations to table statuses
+        const tableStatusMap: Record<string, string> = {};
+        reservations.forEach(reservation => {
+            if (reservation.table) {
+                tableStatusMap[reservation.table.toString()] = "RESERVED";
+            }
+        });
+
+        // Step 4: Attach status to each table
+        const tablesWithStatus = tables.map(table => ({
+            ...table,
+            status: table._id ? tableStatusMap[table._id.toString()] || 'AVAILABLE' : 'UNKNOWN',
+        }));
+
+        // Step 5: Check if any table is available
+        const isAvailable = tablesWithStatus.some(table => table.status === 'AVAILABLE');
+        res.status(200).json({ isAvailable });
+    } catch (error) {
+        console.error("Error checking availability:", error as any); // Log full error details
+        res.status(500).json({ message: "Error checking availability", error: (error as any).message });
+    }
+});
+
 export default router;

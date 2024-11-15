@@ -7,11 +7,11 @@ import admin from 'firebase-admin';
 import serviceAccount from "../firebase/bytenosh-d27b2-firebase-adminsdk-02pq6-c1f0941ea8.json";
 
 
-
+import { createServer } from "http";
+import {initializeSocket} from "./utils/socket";
 const app = express();
 const path = require('path');
-const nodemailer = require('nodemailer');
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 const DB_URI = process.env.MONGODB_URI;
 import userRoutes from './routes/users';
 import openingHoursRoutes from './routes/opening-hours';
@@ -27,6 +27,9 @@ import configRoutes from './routes/config';
 import weatherRoutes from './routes/weather';
 import reservationRoutes from './routes/reservations';
 import contactRoutes from './routes/contact';
+import waitlistRoutes from "./routes/waitlist";
+import "../src/utils/cron";
+
 
 app.use(cors());
 app.use(express.json());
@@ -44,6 +47,8 @@ app.use('/api/config', configRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/waitlist', waitlistRoutes);
+
 
 mongoose.connect(DB_URI as string);
 
@@ -86,6 +91,9 @@ app.post('/api/upload', upload.single('image'), (req, res): void => {
     res.json({ filename: req.file.filename });
 });
 
-app.listen(PORT, () => {
+const httpServer = createServer(app);
+const io = initializeSocket(httpServer);
+
+httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
