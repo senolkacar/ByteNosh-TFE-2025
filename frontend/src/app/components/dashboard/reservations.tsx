@@ -7,10 +7,13 @@ import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {format} from "date-fns";
 import {Badge} from "@/components/ui/badge";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 
 export default function Reservations() {
     const [reservations, setReservations] = useState<any[]>([]);
     const session = useSession();
+    const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
+    const [qrCodeData, setQRCodeData] = useState<string | null>(null);
     const userId = session.data?.user?.id;
 
 
@@ -50,6 +53,13 @@ export default function Reservations() {
             console.error('Error cancelling reservation:', error);
         }
     }
+
+    const handleQRCodeView = (qrCodeUrl: string) => {
+        setQRCodeData(qrCodeUrl);
+        setShowQRCodeDialog(true);
+    };
+
+
     return (
         <Card className="xl:col-span-3" x-chunk="dashboard-01-chunk-4">
             <CardHeader className="flex flex-row items-center">
@@ -82,7 +92,7 @@ export default function Reservations() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            reservations.sort((a, b) => new Date(b.reservationTime).getTime() - new Date(a.reservationTime).getTime())
+                            reservations.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
                                 .map((reservation) => (
                                     <TableRow key={reservation._id}>
                                         <TableCell>
@@ -116,12 +126,32 @@ export default function Reservations() {
                                                     Cancel
                                                 </Button>
                                             )}
+                                            {reservation.status !== "CANCELLED" && (
+                                                <Button className="mt-2" onClick={() => handleQRCodeView(reservation.qrCodeUrl)}>
+                                                    View QR Code
+                                                </Button>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))
                         )}
                     </TableBody>
                 </Table>
+                {showQRCodeDialog && (
+                    <Dialog open={showQRCodeDialog} onOpenChange={setShowQRCodeDialog}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>QR Code</DialogTitle>
+                            </DialogHeader>
+                            <div className="flex justify-center">
+                                {qrCodeData && <img src={qrCodeData} alt="QR Code" />}
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={() => setShowQRCodeDialog(false)}>Close</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </CardContent>
         </Card>
     );

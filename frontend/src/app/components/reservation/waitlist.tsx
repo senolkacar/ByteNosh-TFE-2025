@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { toast } from "react-hot-toast";
 import {useSession} from "next-auth/react";
+import { Toaster, toast } from "react-hot-toast";
 
 interface WaitlistProps {
     date: Date;
@@ -25,7 +25,6 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
         name: z.string().min(1, "Name is required"),
         contact: z.string().email("Invalid email address"),
         guests: z.number().min(1, "At least one guest is required"),
-        preferredTime: z.string().min(1, "Preferred time is required"),
     });
 
     useEffect(() => {
@@ -49,8 +48,7 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
         defaultValues: {
             name: "",
             contact: "",
-            guests,
-            preferredTime: new Date().toISOString().slice(0, 16),
+            guests:1,
         },
     });
 
@@ -120,7 +118,12 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
                             <FormItem>
                                 <FormLabel>Number of Guests</FormLabel>
                                 <FormControl>
-                                    <Input type="number" placeholder="Number of Guests" {...field} />
+                                    <Input
+                                        type="number"
+                                        placeholder="Number of Guests"
+                                        {...field}
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -131,6 +134,7 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
                     </Button>
                 </form>
             </Form>
+            <Toaster/>
         </div>
     );
 }

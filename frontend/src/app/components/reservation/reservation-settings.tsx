@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -8,6 +8,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from "@/components/ui/dialog";
+import Waitlist from "@/app/components/reservation/waitlist";
+import toast from "react-hot-toast";
 
 export default function ReservationSettings({ onCheckAvailability }: any) {
     const [closureDays, setClosureDays] = useState<Date[]>([]);
@@ -85,10 +95,10 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
     };
 
     const handleCheckAvailability = async (date: any, selectedTimeSlot: any) => {
-        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date}&timeSlot=${selectedTimeSlot}`);
+        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date.toISOString()}&timeSlot=${selectedTimeSlot}`);
         const availabilityData = await response.json();
 
-        if (!availabilityData.isAvailable) {
+        if (availabilityData.allSectionsFull) {
             setShowWaitlistModal(true);
         } else {
             setShowWaitlistModal(false);
@@ -139,7 +149,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
         setLastActivityTime(new Date());
     };
 
-    const handleDateSelect = (selectedDate: Date | undefined) => {
+    const handleDateSelect = (selectedDate: Date | null) => {
         if (!selectedDate) return;
         setDate(selectedDate);
         setSelectedTimeSlot(null);
@@ -183,7 +193,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
                                     }
                                     mode="single"
                                     selected={date || undefined}
-                                    onSelect={(day) => handleDateSelect(day)}
+                                    onSelect={(day: Date | undefined) => handleDateSelect(day || null)}
                                     weekStartsOn={1}
                                     initialFocus
                                 />
@@ -236,14 +246,34 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
                     </div>
                 </CardContent>
             </Card>
-            {showWaitlistModal && (
-                <div className="mt-4">
-                    <p>It looks like there are no available tables for your selected time. Would you like to join the waitlist?</p>
-                    <Button onClick={() => onJoinWaitlist(date, selectedTimeSlot)} className="mt-2">
-                        Join Waitlist
-                    </Button>
-                </div>
-            )}
+            <Dialog open={showWaitlistModal} onOpenChange={setShowWaitlistModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Join the Waitlist</DialogTitle>
+                        <DialogDescription className="font-semibold text-red-500">
+                            All tables are currently booked for this section and time slot. <br/> Join the waitlist, and we’ll notify you if a table becomes available.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4">
+                        {showWaitlistModal && date && selectedTimeSlot ?  (
+                            <Waitlist
+                                date={date}
+                                timeSlot={selectedTimeSlot}
+                                guests={0}
+                                onWaitlistSubmitted={() => {
+                                    setShowWaitlistModal(false);
+                                    toast.success("You have been added to the waitlist!");
+                                }}
+                            />
+                        ) : (
+                            <Button onClick={() => setShowWaitlistModal(true)}>Join Waitlist</Button>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={() => setShowWaitlistModal(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }

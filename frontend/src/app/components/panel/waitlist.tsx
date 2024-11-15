@@ -2,40 +2,49 @@
 
 import {useEffect, useState} from "react";
 import { io, Socket } from "socket.io-client";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
-import {format} from "date-fns";
+import {format} from "date-fns/format";
 
 export default function Waitlist() {
     const [waitlists, setWaitlists] = useState<any[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        // Connect to the Socket.io server
-        const socket = io("http://localhost:5000", {
-            withCredentials: true,
-        });
+        // Fetch existing waitlist data from the server on component mount
+        async function fetchWaitlist() {
+            try {
+                const response = await fetch("/api/waitlist");
+                const data = await response.json();
+                const sortedData = data.sort((a: any, b: any) => a.createdAt - b.createdAt);
+                setWaitlists(sortedData);
+            } catch (error) {
+                console.error("Error fetching waitlist entries:", error);
+            }
+        }
 
-        // Listen for 'waitlist-update' events from the server
-        socket.on("waitlist-update", (update) => {
+        fetchWaitlist();
+
+        // Connect to the Socket.io server
+        const socketInstance = io("http://localhost:5000", { withCredentials: true });
+        setSocket(socketInstance);
+
+        // Listen for real-time 'waitlist-update' events from the server
+        socketInstance.on("waitlist-update", (update) => {
             if (update?.entry) {
-                console.log("Waitlist update received:", update);
                 setWaitlists((prevWaitlists) => [...prevWaitlists, update.entry]);
-            } else {
-                console.error("Received update with no data", update);
             }
         });
 
         // Cleanup the socket connection when the component unmounts
         return () => {
-            socket.disconnect();
+            socketInstance.disconnect();
         };
     }, []);
 
-
     function handleNotify(waitlistId: string) {
         if (socket) {
-            socket.emit("notify-customer", waitlistId); // Example event to notify customer
+            socket.emit("notify-customer", waitlistId);
         }
     }
 
@@ -47,6 +56,8 @@ export default function Waitlist() {
                 <TableRow>
                     <TableHead>Customer</TableHead>
                     <TableHead>Contact</TableHead>
+                    <TableHead>Reservation Date</TableHead>
+                    <TableHead>Time Slot</TableHead>
                     <TableHead>Guests</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
@@ -62,6 +73,8 @@ export default function Waitlist() {
                         <TableRow className="font-semibold" key={waitlist._id}>
                             <TableCell>{waitlist.name}</TableCell>
                             <TableCell>{waitlist.contact}</TableCell>
+                            <TableCell>{waitlist.reservationDate ? format(new Date(waitlist.reservationDate), "dd/MM/yyyy") : "Invalid Date"}</TableCell>
+                            <TableCell>{waitlist.timeSlot}</TableCell>
                             <TableCell>{waitlist.guests}</TableCell>
                             <TableCell>{waitlist.status}</TableCell>
                             <TableCell>

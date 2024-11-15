@@ -20,10 +20,20 @@ router.post("/", async (req, res) => {
         const io = getSocketIO();
         io.emit("waitlist-update", { message: "New waitlist entry added", entry: newWaitlistEntry });
 
-        res.status(201).json({ message: "Successfully added to waitlist" });
+        res.status(201).json(newWaitlistEntry);
     } catch (error) {
         console.error("Error adding to waitlist:", error);
         res.status(500).json({ message: "Failed to add to waitlist" });
+    }
+});
+
+router.get("/", async (req, res) => {
+    try {
+        const waitlistEntries = await Waitlist.find();
+        res.status(200).json(waitlistEntries);
+    } catch (error) {
+        console.error("Error fetching waitlist entries:", error);
+        res.status(500).json({ message: "Error fetching waitlist entries" });
     }
 });
 

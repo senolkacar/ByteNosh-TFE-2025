@@ -5,6 +5,8 @@ const waitlistSchema = new mongoose.Schema({
     name: { type: String, required: true },
     contact: { type: String, required: true },
     guests: { type: Number, required: true },
+    reservationDate: Date,
+    timeSlot: { type: String, required: true },
     status: {
         type: String,
         enum: ["WAITING", "NOTIFIED", "SEATED", "CANCELLED"],

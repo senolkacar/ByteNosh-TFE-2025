@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link"
 import {
     Activity,
@@ -28,6 +27,16 @@ import {
 import {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import {format} from "date-fns";
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogOverlay,
+    AlertDialogPortal,
+} from "@/components/ui/alert-dialog"
 
 export function ClientDashboard({ setActiveSection }: { setActiveSection: (section: string) => void }) {
     const [upcomingReservation, setUpcomingReservation] = useState<any | null>(null);
@@ -35,6 +44,8 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
     const [notifications, setNotifications] = useState();
     const [lastOrder, setLastOrder] = useState(0);
     const [reservations, setReservations] = useState<any[]>([]);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [reservationToCancel, setReservationToCancel] = useState<string | null>(null);
 
     const session = useSession();
     const userId = session.data?.user?.id;
@@ -83,14 +94,21 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
         fetchLastReservation();
     }, [userId]);
 
-    const handleReservationCancel = async (reservationId: string) => {
+    const handleReservationCancelConfirmation = (reservationId: string) => {
+        setReservationToCancel(reservationId);
+        setDialogOpen(true);
+    };
+
+    const handleReservationCancel = async () => {
+        if (!reservationToCancel) return;
+
         try {
-            const response = await fetch(`/api/reservations/${reservationId}/cancel`, {
+            const response = await fetch(`/api/reservations/${reservationToCancel}/cancel`, {
                 method: 'PUT',
             });
             if (response.ok) {
                 const updatedReservations = reservations.map((reservation) => {
-                    if (reservation._id === reservationId) {
+                    if (reservation._id === reservationToCancel) {
                         return {
                             ...reservation,
                             status: 'CANCELLED',
@@ -99,11 +117,13 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                     return reservation;
                 });
                 setReservations(updatedReservations);
+                setDialogOpen(false);
+                setReservationToCancel(null);
             }
         } catch (error) {
             console.error('Error cancelling reservation:', error);
         }
-    }
+    };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -184,78 +204,100 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                 </Card>
             </div>
             <div className="grid gap-4 md:gap-8 lg:grid-cols-1 xl:grid-cols-3">
-    <Card className="xl:col-span-3" x-chunk="dashboard-01-chunk-4">
-        <CardHeader className="flex flex-row items-center">
-            <div className="grid gap-2">
-                <CardTitle>Reservation History</CardTitle>
-                <CardDescription>
-                    Recent reservations and their status
-                </CardDescription>
+                <Card className="xl:col-span-3" x-chunk="dashboard-01-chunk-4">
+                    <CardHeader className="flex flex-row items-center">
+                        <div className="grid gap-2">
+                            <CardTitle>Reservation History</CardTitle>
+                            <CardDescription>
+                                Recent reservations and their status
+                            </CardDescription>
+                        </div>
+                        <Button asChild size="sm" className="ml-auto gap-1">
+                            <Link href="#" onClick={() => setActiveSection("Reservations")}>
+                                View All
+                                <ArrowUpRight className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Reservation ID</TableHead>
+                                    <TableHead>Reservation Date</TableHead>
+                                    <TableHead>Reservation Time</TableHead>
+                                    <TableHead>Guests</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-center">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {reservations.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center">
+                                            You have no reservations yet
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    reservations.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5)
+                                        .map((reservation) => (
+                                            <TableRow key={reservation._id}>
+                                                <TableCell>
+                                                    <div className="font-medium">{reservation._id}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {format(new Date(reservation.reservationTime), "dd-MM-yyyy")}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {reservation.timeSlot}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {reservation.guests}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className={
+                                                        reservation.status === "CANCELLED" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                                                    }>
+                                                        {reservation.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    {new Date(reservation.reservationTime) > new Date() && reservation.status !== "CANCELLED" && (
+                                                        <Button onClick={() => handleReservationCancelConfirmation(reservation._id)}>
+                                                            Cancel
+                                                        </Button>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1">
-                <Link href="#" onClick={() => setActiveSection("Reservations")}>
-                    View All
-                    <ArrowUpRight className="h-4 w-4" />
-                </Link>
-            </Button>
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Reservation ID</TableHead>
-                        <TableHead>Reservation Date</TableHead>
-                        <TableHead>Reservation Time</TableHead>
-                        <TableHead>Guests</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {reservations.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={4} className="text-center">
-                                You have no reservations yet
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        reservations.sort((a, b) => new Date(b.reservationTime).getTime() - new Date(a.reservationTime).getTime())
-                            .map((reservation) => (
-                            <TableRow key={reservation._id}>
-                                <TableCell>
-                                    <div className="font-medium">{reservation._id}</div>
-                                </TableCell>
-                                <TableCell>
-                                        {format(new Date(reservation.reservationTime), "dd-MM-yyyy")}
-                                </TableCell>
-                                <TableCell>
-                                    {reservation.timeSlot}
-                                </TableCell>
-                                <TableCell>
-                                    {reservation.guests}
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className={
-                                        reservation.status === "CANCELLED" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-                                    }>
-                                        {reservation.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-center">
-                                    {new Date(reservation.reservationTime) > new Date() && reservation.status !== "CANCELLED" && (
-                                        <Button onClick={() => handleReservationCancel(reservation._id)}>
-                                            Cancel
-                                        </Button>
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-        </CardContent>
-    </Card>
-</div>
+            <AlertDialog open={dialogOpen} onOpenChange={() => setDialogOpen(false)}>
+                <AlertDialogOverlay>
+                    <AlertDialogPortal>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Cancellation</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to cancel this reservation? This action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="destructive" onClick={handleReservationCancel}>
+                                    Confirm
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogPortal>
+                </AlertDialogOverlay>
+            </AlertDialog>
         </main>
     )
 }
