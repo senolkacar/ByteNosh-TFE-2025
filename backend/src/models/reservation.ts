@@ -15,6 +15,7 @@ const reservationSchema = new mongoose.Schema({
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
     notes: String,
     qrCodeUrl: String,
+    notified: { type: Boolean, default: false }
 },
     { timestamps: true }
 );
