@@ -32,11 +32,13 @@ export default function BlogPage() {
                         const formatDate = new Date(post.date).toLocaleDateString('en-GB');
                         return (
                             <Card key={post._id} className="shadow-md transition-transform transform hover:scale-105">
-                                <CardHeader className="p-0">
+                                <CardHeader className="p-0 relative w-full h-64">
                                     <Image
-                                        className="rounded-t-lg object-cover w-full h-64"
+                                        className="rounded-t-lg object-cover"
                                         src="http://localhost:5000/images/food.png"
                                         alt="food"
+                                        fill
+                                        style={{ objectFit: "cover" }}
                                     />
                                 </CardHeader>
                                 <CardContent className="h-64 overflow-hidden">

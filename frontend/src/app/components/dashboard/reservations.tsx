@@ -145,7 +145,7 @@ export default function Reservations() {
                                 <DialogTitle>QR Code</DialogTitle>
                             </DialogHeader>
                             <div className="flex justify-center">
-                                {qrCodeData && <Image src={qrCodeData} alt="QR Code" />}
+                                {qrCodeData && <Image fill={true}  src={qrCodeData} alt="QR Code" />}
                             </div>
                             <DialogFooter>
                                 <Button onClick={() => setShowQRCodeDialog(false)}>Close</Button>

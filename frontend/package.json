@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "reset-db": "npm run --prefix ../backend reset-db"
+    "reset-db": "npm run dev && npm run --prefix ../backend reset-db"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.7.2",
@@ -48,7 +48,7 @@
     "next-auth": "^5.0.0-beta.19",
     "quill": "^2.0.2",
     "react": "18.2.0",
-    "react-day-picker": "^9.3.1",
+    "react-day-picker": "^8.10.1",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.53.1",
     "react-hot-toast": "^2.4.1",

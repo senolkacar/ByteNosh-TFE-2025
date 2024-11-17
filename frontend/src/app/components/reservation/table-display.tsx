@@ -229,7 +229,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                 Reservation Confirmed!
                             </h3>
                             {qrCodeUrl && (
-                                <Image src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
+                                <Image fill={true} src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
                             )}
                             <p>
                                 Thank you for your reservation,{" "}

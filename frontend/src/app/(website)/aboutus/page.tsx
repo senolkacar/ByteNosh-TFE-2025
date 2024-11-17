@@ -24,7 +24,13 @@ export default function AboutUs() {
         <div className="container mt-6 p-8">
             <div className="flex flex-col lg:flex-row">
                 <div className="flex-1 p-3">
-                    <Image src="http://localhost:5000/images/waitress.jpg" alt="About us" className="w-3/4 mx-auto"/>
+                    <Image
+                        src="http://localhost:5000/images/waitress.jpg"
+                        alt="About us"
+                        width={600}
+                        height={300}
+                        className="object-contain"
+                    />
                 </div>
                 <div className="flex-1">
                     <h2 className="text-6xl font-semibold mb-3 ml-4">{config?.aboutUs.title1}</h2>
@@ -41,7 +47,7 @@ export default function AboutUs() {
                     <button onClick={openModal} className="bg-yellow-400 font-bold px-4 py-2 mr-4 ml-4 mt-3 mb-3"><PlayArrowIcon/> Promo video</button>
                 </div>
                 <div className="flex-1 relative">
-                    <Image src="http://localhost:5000/images/promovideo.jpg" alt="Promo video" className="mx-auto"/>
+                    <Image fill={true}  src="http://localhost:5000/images/promovideo.jpg" alt="Promo video" className="mx-auto"/>
                     <button onClick={openModal} className="absolute inset-0 flex items-center justify-center">
                         <PlayArrowIcon className="text-white text-6xl"/>
                     </button>

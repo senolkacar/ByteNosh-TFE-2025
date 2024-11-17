@@ -74,15 +74,23 @@ export default function HomeMenu() {
                     <SwiperSlide key={idx}>
                         <div
                             className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">
-                            <div className="flex justify-center">
-                                <Image className="object-scale-down h-20" src={`http://localhost:5000/images/${item.image}`}  alt="meal"/>
+                            <div className="flex justify-center items-center w-20 h-20 mx-auto">
+                                <Image
+                                    src={`http://localhost:5000/images/${item.image}`}
+                                    alt="meal"
+                                    width={80}
+                                    height={80}
+                                    className="object-contain"
+                                />
                             </div>
                             <h4 className="text-xl font-semibold my-3">{item.name}</h4>
                             <p className="text-gray-500">Description of the food</p>
 
                             <div className="flex justify-center items-center gap-12 mt-4">
                                 <p className="font-semibold text-2xl">{item.price}€</p>
-                                <Link href="/menu"><button className="bg-yellow-400 font-bold px-6 py-2">More</button></Link>
+                                <Link href="/menu">
+                                    <button className="bg-yellow-400 font-bold px-6 py-2">More</button>
+                                </Link>
                             </div>
                         </div>
                     </SwiperSlide>
@@ -92,5 +100,5 @@ export default function HomeMenu() {
             <DownloadApp/>
             <Footer/>
         </section>
-);
+    );
 }

@@ -137,7 +137,7 @@ export default function AccountMenu() {
                 >
                     <Avatar className="hidden h-9 w-9 sm:flex">
                         <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
-                        <AvatarFallback>{user ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
+                        <AvatarFallback>{user && user.fullName ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar>
                     <DisplayUsername/>
                 </IconButton>
@@ -152,7 +152,7 @@ export default function AccountMenu() {
                 <MenuItem onClick={handleMyAccountClick}>
                     <Avatar className="hidden h-9 w-9 mr-2 sm:flex">
                         <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
-                        <AvatarFallback>{user ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
+                        <AvatarFallback>{user && user.fullName ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar> My account
                 </MenuItem>
                 <Divider />

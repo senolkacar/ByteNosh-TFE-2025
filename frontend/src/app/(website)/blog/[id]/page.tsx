@@ -41,8 +41,14 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <MainTitle title={"Blog"} description={post.title} linkText={"Home"} linkUrl={"/"} />
             <div className="container mx-auto mt-6 p-8">
                 <div className="flex flex-col lg:flex-row">
-                    <div className="flex-1">
-                        <Image src="http://localhost:5000/images/waitress.jpg" alt="Blog" className="w-3/4 mx-auto"/>
+                    <div className="flex-1 flex justify-center">
+                        <Image
+                            src="http://localhost:5000/images/waitress.jpg"
+                            alt="Blog"
+                            width={300}
+                            height={300}
+                            className="w-3/4 h-auto object-contain"
+                        />
                     </div>
                     <div className="flex-1 mx-auto mt-4">
                         <h1 className="text-3xl font-bold">{post.title}</h1>

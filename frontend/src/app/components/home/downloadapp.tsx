@@ -23,8 +23,8 @@ export default function DownloadApp() {
                         <a href={config?.mobile.appStore as string}><Image src="http://localhost:5000/images/appstore.png" alt="appstore" width="300" height="300" className="transform hover:scale-110 transition duration-300"/></a>
                     </div>
                 </div>
-                <div className="col-lg-6">
-                    <Image src="http://localhost:5000/images/phone.png" alt="Phone" className="w-full"/>
+                <div className="col-lg-6 relative w-full h-auto">
+                    <Image src="http://localhost:5000/images/phone.png" alt="Phone" className="object-contain" fill={true}/>
                 </div>
             </div>
         </div>

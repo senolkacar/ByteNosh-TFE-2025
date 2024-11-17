@@ -311,6 +311,7 @@ return (
                                                         src={`http://localhost:5000/images/${field.value}`}
                                                         alt="Meal"
                                                         className="w-1/5 h-1/5 object-cover rounded-lg mb-4"
+                                                        fill={true}
                                                     />
                                                     <p>Current Image: {field.value}</p>
                                                 </div>
