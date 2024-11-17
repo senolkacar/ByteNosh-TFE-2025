@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import {useRouter} from "next/navigation";
 import  Post  from "@/app/models/post";
+import Image from "next/image";
 
 export default function BlogPage() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -32,7 +33,7 @@ export default function BlogPage() {
                         return (
                             <Card key={post._id} className="shadow-md transition-transform transform hover:scale-105">
                                 <CardHeader className="p-0">
-                                    <img
+                                    <Image
                                         className="rounded-t-lg object-cover w-full h-64"
                                         src="http://localhost:5000/images/food.png"
                                         alt="food"

@@ -8,6 +8,7 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {format} from "date-fns";
 import {Badge} from "@/components/ui/badge";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import Image from "next/image";
 
 export default function Reservations() {
     const [reservations, setReservations] = useState<any[]>([]);
@@ -144,7 +145,7 @@ export default function Reservations() {
                                 <DialogTitle>QR Code</DialogTitle>
                             </DialogHeader>
                             <div className="flex justify-center">
-                                {qrCodeData && <img src={qrCodeData} alt="QR Code" />}
+                                {qrCodeData && <Image src={qrCodeData} alt="QR Code" />}
                             </div>
                             <DialogFooter>
                                 <Button onClick={() => setShowQRCodeDialog(false)}>Close</Button>

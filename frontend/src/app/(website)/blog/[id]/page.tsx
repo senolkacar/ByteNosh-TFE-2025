@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import MainTitle from "@/app/components/home/maintitle";
 import { use } from 'react';
+import Image from "next/image";
 
 type Post = {
     _id: string;
@@ -41,7 +42,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="container mx-auto mt-6 p-8">
                 <div className="flex flex-col lg:flex-row">
                     <div className="flex-1">
-                        <img src="http://localhost:5000/images/waitress.jpg" alt="Blog" className="w-3/4 mx-auto"/>
+                        <Image src="http://localhost:5000/images/waitress.jpg" alt="Blog" className="w-3/4 mx-auto"/>
                     </div>
                     <div className="flex-1 mx-auto mt-4">
                         <h1 className="text-3xl font-bold">{post.title}</h1>

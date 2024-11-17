@@ -1,5 +1,6 @@
 'use client';
 import MainTitle from "@/app/components/home/maintitle";
+import Image from 'next/image';
 import {useEffect, useState} from "react";
 import Meal from "@/app/models/meal";
 
@@ -59,7 +60,7 @@ export default function Menu(){
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {filteredMeals.map(meal => (
                             <div key={meal._id} className="border rounded-lg overflow-hidden shadow-lg">
-                                <img src={`${baseUrl}/images/${meal.image}`} alt={meal.name} className="w-full h-64 object-cover"/>
+                                <Image src={`${baseUrl}/images/${meal.image}`} alt={meal.name} width={500} height={500} className="w-full h-64 object-cover"/>
                                 <div className="p-4">
                                     <h3 className="font-bold text-lg mb-2">{meal.name}</h3>
                                     <p className="text-gray-700 text-base mb-4">{meal.description}</p>

@@ -11,5 +11,5 @@ export default interface Reservation {
     createdAt: Date;
     updatedAt: Date;
     notes: string;
-    qrCodeUrl: String,
+    qrCodeUrl: string,
 }

@@ -106,10 +106,6 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
         }
     };
 
-    const onJoinWaitlist = async (date: any, selectedTimeSlot: any) => {
-        console.log("Joining waitlist for", date, selectedTimeSlot);
-    }
-
     const generateTimeSlots = (date: Date, openHour: string, closeHour: string) => {
         const slots = [];
         let allSlotsPassed = true;

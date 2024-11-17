@@ -9,6 +9,7 @@ import Link from "next/link";
 import DownloadApp from "@/app/components/home/downloadapp";
 import Footer from "@/app/components/home/footer";
 import {useEffect, useState} from "react";
+import Image from "next/image";
 
 export default function HomeMenu() {
     const [items,setItems] = useState<any[]>([]);
@@ -74,7 +75,7 @@ export default function HomeMenu() {
                         <div
                             className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">
                             <div className="flex justify-center">
-                                <img className="object-scale-down h-20" src={`http://localhost:5000/images/${item.image}`}  alt="meal"/>
+                                <Image className="object-scale-down h-20" src={`http://localhost:5000/images/${item.image}`}  alt="meal"/>
                             </div>
                             <h4 className="text-xl font-semibold my-3">{item.name}</h4>
                             <p className="text-gray-500">Description of the food</p>

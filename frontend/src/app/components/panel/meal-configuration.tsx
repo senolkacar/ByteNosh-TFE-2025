@@ -38,6 +38,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
+import Image from "next/image";
 
 
 
@@ -306,7 +307,7 @@ return (
                                             {editingMeal && field.value && (
                                                 <div>
                                                     {/* Show current image when editing */}
-                                                    <img
+                                                    <Image
                                                         src={`http://localhost:5000/images/${field.value}`}
                                                         alt="Meal"
                                                         className="w-1/5 h-1/5 object-cover rounded-lg mb-4"

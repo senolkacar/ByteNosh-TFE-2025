@@ -17,6 +17,7 @@ import ReservationModel from "@/app/models/reservation";
 import Waitlist from "@/app/components/reservation/waitlist";
 import toast, {Toaster} from "react-hot-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import Image from "next/image";
 
 const schema = z.object({
     section: z.string().min(1, { message: "Please select a section" }),
@@ -228,7 +229,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                 Reservation Confirmed!
                             </h3>
                             {qrCodeUrl && (
-                                <img src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
+                                <Image src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
                             )}
                             <p>
                                 Thank you for your reservation,{" "}
