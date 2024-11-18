@@ -24,7 +24,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     useEffect(() => {
         async function fetchPost() {
             if (!id) return;
-            const response = await fetch(`${apiBaseUrl}/api/blog/${id}`);
+            const response = await fetch("/api/blog/${id}");
             const data = await response.json();
             setPost(data);
         }

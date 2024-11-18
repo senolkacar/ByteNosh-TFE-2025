@@ -10,10 +10,12 @@ export const publicRoutes = [
     "/menu",
     "/blog",
     /^\/blog(\/.*)?$/,
+    /^\/api\/blog(\/.*)?$/,
     "/contactus",
     "/aboutus",
     "/api/opening-hours",
-    "/api/orders/most-ordered"
+    "/api/orders/most-ordered",
+    "/api/posts",
 ];
 
 export const adminRoutes = [

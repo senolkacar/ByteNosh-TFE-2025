@@ -31,7 +31,12 @@ const nextConfig = {
             protocol: 'http',
             hostname: 'localhost',
             pathname: '**'
-        }
+        },
+            {
+                protocol: 'http',
+                hostname: 'backend',
+                pathname: '**',
+            },
         ]
     },
     eslint: {
