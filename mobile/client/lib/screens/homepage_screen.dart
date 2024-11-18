@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '/models/food_item.dart';
-import '/screens/add_screen.dart';
+import '/screens/food_details.dart';
 import '/screens/profile_screen.dart';
-import '/screens/menu_screen.dart';
+import '/screens/reservation_screen.dart';
 import 'package:http/http.dart' as http;
+import '/constants/api_constants.dart';
 
 class HomepageScreen extends StatefulWidget {
   final String userEmail;
+  final Map<String, dynamic> userData;
 
-  const HomepageScreen({super.key, required this.userEmail});
+  const HomepageScreen({super.key, required this.userEmail, required this.userData});
 
   @override
   State<HomepageScreen> createState() => _HomepageScreenState();
@@ -17,7 +19,6 @@ class HomepageScreen extends StatefulWidget {
 
 class _HomepageScreenState extends State<HomepageScreen> {
   late Future<List<FoodItem>> foodItems;
-  final String baseUrl = 'http://10.0.2.2:5000';
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -30,9 +31,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
     final response = await http.get(Uri.parse('$baseUrl/api/meals'));
 
     if (response.statusCode == 200) {
-      List jsonResponse = jsonDecode(response.body);
-      print(jsonResponse);
-      return jsonResponse.map((item) => FoodItem.fromJson(item)).toList();
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse.map((item) => FoodItem.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw Exception('Failed to load food items');
     }
@@ -95,7 +95,6 @@ class _HomepageScreenState extends State<HomepageScreen> {
                     ),
                     child: const Text('View All'),
                     onPressed: () {
-                      // Redirect to the menu page
                     },
                   ),
                 ]),
@@ -185,7 +184,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                 topRight: Radius.circular(10),
                               ),
                               child: Image.network(
-                                '$baseUrl${foodItem.imageUrl}',
+                                '$baseUrl/images/${foodItem.imageUrl}',
                                 width: double.infinity,
                                 height: 100,
                                 fit: BoxFit.cover,
@@ -226,8 +225,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                       onPressed: () {
                                         _showAddItemModal(foodItem);
                                       },
-                                      icon: Icon(Icons.add_shopping_cart),
-                                      label: Text('Add'),
+                                      icon: Icon(Icons.read_more),
+                                      label: Text('More'),
                                   ),
                                 ],
                               ),
@@ -252,16 +251,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.menu),
-              label: 'Menu',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Cart',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: 'Favorites',
+              icon: Icon(Icons.event),
+              label: 'Reservations',
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.person),
@@ -276,17 +267,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MenuScreen(),
+                    builder: (context) => ReservationScreen(userId: widget.userData['_id']),
                   ),
                 );
                 break;
               case 2:
-                // Redirect to the cart page
-                break;
-              case 3:
-                // Redirect to the favorites page
-                break;
-              case 4:
                 Navigator.push(
                   context,
                   MaterialPageRoute(

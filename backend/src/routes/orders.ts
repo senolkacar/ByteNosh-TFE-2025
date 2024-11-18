@@ -72,4 +72,28 @@ router.get(
     }
 );
 
+router.get('/getOne/:id',
+    param('id').isMongoId().withMessage('Invalid order ID'),
+    async (req, res): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const { id } = req.params as Record<string, any>;
+
+        try {
+            const order = await Order.findById(id).populate('meals', 'name description price');
+            if (!order) {
+                res.status(404).json({ message: 'Order not found' });
+                return;
+            }
+            res.json(order);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching order' });
+        }
+    }
+);
+
 export default router;
