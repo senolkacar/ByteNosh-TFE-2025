@@ -34,9 +34,10 @@ export default function AccountMenu() {
     const pathname = usePathname();
     const [user, setUser] = useState<User>();
     const email = useSession().data?.user?.email;
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [unreadReservations, setUnreadReservations] = useState(0);
     const [permissionGranted, setPermissionGranted] = useState(localStorage.getItem("permissionGranted") === "true");
-    const notificationSound = React.useMemo(() => new Audio('http://localhost:5000/sounds/notification.mp3'), []);
+    const notificationSound = React.useMemo(() => new Audio(`${apiBaseUrl}/sounds/notification.mp3`), []);
 
     useEffect(() => {
         async function fetchUser() {
@@ -136,7 +137,7 @@ export default function AccountMenu() {
                     aria-expanded={open ? 'true' : undefined}
                 >
                     <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
+                        <AvatarImage src={`${apiBaseUrl}/images/${user?.avatar}`} alt="Avatar" />
                         <AvatarFallback>{user && user.fullName ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar>
                     <DisplayUsername/>
@@ -151,7 +152,7 @@ export default function AccountMenu() {
             >
                 <MenuItem onClick={handleMyAccountClick}>
                     <Avatar className="hidden h-9 w-9 mr-2 sm:flex">
-                        <AvatarImage src={`http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
+                        <AvatarImage src={`${apiBaseUrl}/images/${user?.avatar}`} alt="Avatar" />
                         <AvatarFallback>{user && user.fullName ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                     </Avatar> My account
                 </MenuItem>

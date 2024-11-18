@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ./backend/package*.json ./
 
 # Install the dependencies
-RUN npm ci && npm cache clean --force
+RUN npm install
 
 # Copy the entire backend source files into the container
 COPY ./backend/ ./

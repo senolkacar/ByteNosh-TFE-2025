@@ -19,11 +19,12 @@ interface BlogPostPageProps {
 export default function BlogPostPage({ params }: BlogPostPageProps) {
     const { id } = use(params);
     const [post, setPost] = useState<Post | null>(null);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     useEffect(() => {
         async function fetchPost() {
             if (!id) return;
-            const response = await fetch(`http://localhost:5000/api/blog/${id}`);
+            const response = await fetch(`${apiBaseUrl}/api/blog/${id}`);
             const data = await response.json();
             setPost(data);
         }
@@ -43,7 +44,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex flex-col lg:flex-row">
                     <div className="flex-1 flex justify-center">
                         <Image
-                            src="http://localhost:5000/images/waitress.jpg"
+                            src={`${apiBaseUrl}/images/waitress.jpg`}
                             alt="Blog"
                             width={300}
                             height={300}

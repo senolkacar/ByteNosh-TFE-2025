@@ -13,6 +13,7 @@ import Image from "next/image";
 
 export default function HomeMenu() {
     const [items,setItems] = useState<any[]>([]);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const responsive = {
         desktop: {
             breakpoint: { max: 3000, min: 1024 },
@@ -76,7 +77,7 @@ export default function HomeMenu() {
                             className="bg-gray-50 m-4 p-3 rounded-lg text-center shadow-md hover:bg-white hover:shadow-md hover:shadow-gray-400 ">
                             <div className="flex justify-center items-center w-20 h-20 mx-auto">
                                 <Image
-                                    src={`http://localhost:5000/images/${item.image}`}
+                                    src={`${apiBaseUrl}/images/${item.image}`}
                                     alt="meal"
                                     width={80}
                                     height={80}

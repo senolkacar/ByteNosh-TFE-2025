@@ -10,7 +10,7 @@ let io: SocketIOServer;
 export const initializeSocket = (httpServer: HttpServer) => {
     io = new SocketIOServer(httpServer, {
         cors: {
-            origin: "http://localhost:3000",
+            origin: process.env.FRONTEND_BASE_URL,
             methods: ["GET", "POST"],
             credentials: true,
         },

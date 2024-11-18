@@ -29,7 +29,7 @@ export default function Menu(){
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value.toLowerCase());
     };
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     return(
         <>
             <MainTitle title={"Menu"} description={"Discover our delicious dishes and drinks"} linkText={"Home"} linkUrl={"/"}/>

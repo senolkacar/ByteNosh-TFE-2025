@@ -9,7 +9,7 @@ import {format} from "date-fns/format";
 export default function Waitlist() {
     const [waitlists, setWaitlists] = useState<any[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
-
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     useEffect(() => {
         // Fetch existing waitlist data from the server on component mount
         async function fetchWaitlist() {
@@ -26,7 +26,7 @@ export default function Waitlist() {
         fetchWaitlist();
 
         // Connect to the Socket.io server
-        const socketInstance = io("http://localhost:5000", { withCredentials: true });
+        const socketInstance = io(`${apiBaseUrl}`, { withCredentials: true });
         setSocket(socketInstance);
 
         // Listen for real-time 'waitlist-update' events from the server

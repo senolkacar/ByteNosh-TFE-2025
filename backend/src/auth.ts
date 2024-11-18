@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from './models/user';
@@ -39,7 +39,7 @@ router.post(
                 return;
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await bcrypt.hash(password, 8);
             const newUser = new User({ username, email, password: hashedPassword, role: 'USER' });
             await newUser.save();
 

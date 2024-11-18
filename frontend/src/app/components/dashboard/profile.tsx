@@ -25,6 +25,7 @@ export default function Profile() {
     const [user, setUser] = useState<User>();
     const email = useSession().data?.user?.email;
     const userID = useSession().data?.user?.id;
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const form = useForm({
         mode: "onChange",
@@ -114,7 +115,7 @@ export default function Profile() {
                                             <FormControl>
                                                 <div className="flex items-center gap-4">
                                                     <Avatar className="w-20 h-20">
-                                                        <AvatarImage src={field.value ? `http://localhost:5000/images/${field.value}` : `http://localhost:5000/images/${user?.avatar}`} alt="Avatar" />
+                                                        <AvatarImage src={field.value ? `${apiBaseUrl}/images/${field.value}` : `${apiBaseUrl}/images/${user?.avatar}`} alt="Avatar" />
                                                         <AvatarFallback>{user ? `${user.fullName.split(' ').pop()?.charAt(0)}${user.fullName.split(' ')[0].charAt(0)}` : ''}</AvatarFallback>
                                                     </Avatar>
                                                     <Input type="file" onChange={e => handleImageUpload(e)} />

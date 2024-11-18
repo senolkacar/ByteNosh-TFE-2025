@@ -10,10 +10,11 @@ import Image from "next/image";
 export default function BlogPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const router = useRouter();
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     useEffect(() => {
         async function fetchPosts() {
-            const response = await fetch('http://localhost:5000/api/posts');
+            const response = await fetch(`${apiBaseUrl}/api/posts`);
             const data = await response.json();
             setPosts(data);
         }
@@ -35,7 +36,7 @@ export default function BlogPage() {
                                 <CardHeader className="p-0 relative w-full h-64">
                                     <Image
                                         className="rounded-t-lg object-cover"
-                                        src="http://localhost:5000/images/food.png"
+                                        src={`${apiBaseUrl}/images/food.png`}
                                         alt="food"
                                         fill
                                         style={{ objectFit: "cover" }}

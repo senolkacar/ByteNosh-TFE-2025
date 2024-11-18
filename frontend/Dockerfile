@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ./frontend/package*.json ./
 
 # Install the dependencies
-RUN npm ci && npm cache clean --force
+RUN npm install
 
 # Copy the entire frontend source files into the container
 COPY ./frontend/ ./

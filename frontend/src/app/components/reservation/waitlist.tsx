@@ -20,6 +20,7 @@ interface WaitlistProps {
 export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }: WaitlistProps) {
     const [socket, setSocket] = useState<any | null>(null);
     const session = useSession();
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [user, setUser] = useState(session.data?.user);
     const waitlistSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -29,7 +30,7 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
 
     useEffect(() => {
         // Establish socket connection when component mounts
-        const newSocket = io("http://localhost:5000", {
+        const newSocket = io(`${apiBaseUrl}`, {
             withCredentials: true, // Include credentials if required by your server's CORS settings
         });
         setSocket(newSocket);

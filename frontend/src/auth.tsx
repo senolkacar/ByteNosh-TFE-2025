@@ -1,18 +1,19 @@
-import NextAuth, {DefaultSession, Session, User} from "next-auth";
+import NextAuth from "next-auth";
 import { NextAuthConfig } from "next-auth";
 
 import Credentials from "next-auth/providers/credentials";
-import Google from "@auth/core/providers/google";
+import Google from "next-auth/providers/google";
 import clientPromise from "@/lib/db";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import type { Adapter } from "next-auth/adapters";
 import authConfig from "@/auth.config";
-import {signInSchema} from "@/lib/zod";
 import {ZodError} from "zod";
-import {JWT} from "@auth/core/jwt";
+import { JWT } from "@auth/core/jwt";
 
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 const authOptions: NextAuthConfig = {
-    adapter: MongoDBAdapter(clientPromise),
+    adapter: MongoDBAdapter(clientPromise) as Adapter,
     session: { strategy: "jwt" },
     ...authConfig,
     providers: [
@@ -28,7 +29,7 @@ const authOptions: NextAuthConfig = {
 
                 const { email, password } = credentials;
                 try {
-                    const res = await fetch('http://localhost:5000/api/auth/login', {
+                    const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -55,8 +56,8 @@ const authOptions: NextAuthConfig = {
             },
         }),
         Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
     ],
     secret: process.env.AUTH_SECRET,

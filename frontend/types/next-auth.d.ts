@@ -1,5 +1,6 @@
 import { DefaultSession, DefaultUser } from "next-auth";
-import { DefaultJWT } from "next-auth/jwt";
+import { DefaultJWT } from "@auth/core/jwt";
+import { AdapterUser as NextAuthAdapterUser } from "@auth/core/adapters";
 
 declare module "next-auth" {
     interface Session extends DefaultSession {
@@ -25,5 +26,13 @@ declare module "next-auth" {
         fullName: string;
         email: string;
         phone: string;
+    }
+}
+
+declare module "@auth/core/adapters" {
+    interface AdapterUser extends NextAuthAdapterUser {
+        role?: string;
+        fullName?: string;
+        phone?: string;
     }
 }

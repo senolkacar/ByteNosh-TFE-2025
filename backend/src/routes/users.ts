@@ -1,7 +1,7 @@
 import express, {Request, Response} from 'express';
 import {body, param, validationResult} from 'express-validator';
 import User from '../models/user';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import mongoose from "mongoose";
 import {sendEmail} from "../utils/mailer";
 

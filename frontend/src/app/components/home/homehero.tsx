@@ -14,6 +14,7 @@ export default function HomeHero() {
             .then(data => setConfig(data))
             .catch(error => console.error('Error fetching config:', error));
     }, []);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const {data: session,status} = useSession();
     return (
         <div className="bg-amber-50 px-4 py-24">
@@ -36,7 +37,7 @@ export default function HomeHero() {
                 </div>
             </div>
             <div className="col-span-1 relative">
-                <Image src="http://localhost:5000/images/food.png" alt="food" height="450" width="450"/>
+                <Image src={`${apiBaseUrl}/images/food.png`} alt="food" height="450" width="450" />
             </div>
             </div>
         </section>

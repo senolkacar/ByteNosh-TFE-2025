@@ -6,7 +6,7 @@ import order from '../src/models//order';
 import category from '../src/models/category';
 import post from '../src/models/post';
 import siteConfig from '../src/models/siteconfig';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as dotenv from "dotenv";
 import section from "../src/models/section";
 import timeslot from "../src/models/timeslot";

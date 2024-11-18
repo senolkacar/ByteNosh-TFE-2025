@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 const nextConfig = {
     webpack: (config, { isServer }) => {
         if (!isServer) {
@@ -21,7 +22,7 @@ const nextConfig = {
             },
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:5000/api/:path*',
+                destination: `${apiBaseUrl}/api/:path*`,
             },
         ];
     },

@@ -59,6 +59,7 @@ export default function MealConfiguration() {
     const [deleteMeal, setDeleteMeal] = useState<string | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const rowsPerPage = 5;
     // Meal form setup
     const formDefaultValues = {
@@ -308,7 +309,7 @@ return (
                                                 <div>
                                                     {/* Show current image when editing */}
                                                     <Image
-                                                        src={`http://localhost:5000/images/${field.value}`}
+                                                        src={`${apiBaseUrl}/images/${field.value}`}
                                                         alt="Meal"
                                                         className="w-1/5 h-1/5 object-cover rounded-lg mb-4"
                                                         fill={true}

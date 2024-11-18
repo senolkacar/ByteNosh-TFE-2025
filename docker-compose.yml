@@ -8,7 +8,9 @@ services:
     volumes:
       - ./backend:/app
     env_file:
-      - ./backend/.env
+      - ./backend/.env.docker
+    depends_on:
+      - mongodb
     command: npm run dev
 
   frontend:
@@ -20,8 +22,10 @@ services:
     volumes:
       - ./frontend:/app
     env_file:
-      - ./frontend/.env
+      - ./frontend/.env.docker
     command: npm run dev
+    environment:
+      RUNNING_IN_DOCKER: "true"
 
   mongodb:
     image: mongo
@@ -29,6 +33,10 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    environment:
+      - ./frontend/.env.docker
+
+
 
 volumes:
   mongo_data:

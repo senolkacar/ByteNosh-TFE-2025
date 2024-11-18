@@ -10,7 +10,7 @@
     "reset-db": "npm run dev && npm run --prefix ../backend reset-db"
   },
   "dependencies": {
-    "@auth/mongodb-adapter": "^3.7.2",
+    "@auth/mongodb-adapter": "^3.7.4",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@heroicons/react": "^2.1.5",
@@ -36,7 +36,7 @@
     "@tanstack/react-query": "^5.59.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
+    "date-fns": "^3.0.0",
     "firebase": "^11.0.1",
     "framer-motion": "^11.11.11",
     "i": "^0.3.7",

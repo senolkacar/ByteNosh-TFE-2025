@@ -24,6 +24,7 @@ export default function Register() {
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
     const router = useRouter();
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const form = useForm<z.infer<typeof RegisterSchema>>({
         resolver: zodResolver(RegisterSchema),
@@ -36,7 +37,7 @@ export default function Register() {
 
     const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
         try {
-            const res = await fetch('http://localhost:5000/api/auth/register', {
+            const res = await fetch(`${apiBaseUrl}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
