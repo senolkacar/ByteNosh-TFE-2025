@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, {JwtPayload} from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from './models/user';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: './.env' });
 const router = express.Router();
-const JWT_SECRET = process.env.AUTH_SECRET;
+const JWT_SECRET = process.env.AUTH_SECRET!;
 if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not defined');
 }
@@ -84,6 +84,29 @@ router.post(
         }
     }
 );
+
+router.get('/validate', async (req: Request, res: Response): Promise<void> => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        res.status(401).json({ message: 'No token provided' });
+        return;
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error validating token' });
+    }
+});
+
+
+
 
 // Return the user with the provided mail else return null
 router.get(

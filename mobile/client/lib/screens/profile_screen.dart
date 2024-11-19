@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'login_screen.dart';
+
+final storage = FlutterSecureStorage();
 
 class ProfileScreen extends StatelessWidget {
   final String userEmail;
   const ProfileScreen({super.key, required this.userEmail});
+
+  void logout(BuildContext context) async {
+    await storage.delete(key: 'user_token');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +42,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
+              onPressed: () => logout(context),
               child: Text('Log Out'),
             ),
           ],

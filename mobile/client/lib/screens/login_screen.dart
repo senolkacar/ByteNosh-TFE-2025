@@ -7,6 +7,9 @@ import 'package:client/components/input_field.dart';
 import 'package:client/components/login_button.dart';
 import 'package:http/http.dart' as http;
 import '/constants/api_constants.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final storage = FlutterSecureStorage();
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -46,30 +49,19 @@ class _LoginScreenState extends State<LoginScreen> {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final String token = responseData['token'];
 
-        // Fetch user details after successful login
-        final userResponse = await http.get(
-          Uri.parse('$baseUrl/api/users/$email'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-        );
+        // Save JWT token to secure storage
+        await storage.write(key: 'user_token', value: token);
 
-        if (userResponse.statusCode == 200) {
-          final Map<String, dynamic> userData = jsonDecode(userResponse.body);
-
-          // Navigate to HomePageScreen and pass user data
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomepageScreen(userEmail: email, userData: userData),
+        // Navigate to HomepageScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomepageScreen(
+              userEmail: email,
+              userData: responseData['user'],
             ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to fetch user details: ${userResponse.body}')),
-          );
-        }
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: ${response.body}')),
