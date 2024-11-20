@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '/constants/api_constants.dart';
 import 'package:intl/intl.dart';
+import 'make_reservation_screen.dart';
 
 class ReservationScreen extends StatefulWidget {
   final String userId;
@@ -47,7 +48,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MakeReservationScreen(), // Replace with your actual screen
+        builder: (context) => MakeReservationScreen(userId: widget.userId),
       ),
     );
   }
@@ -249,16 +250,3 @@ class _ReservationScreenState extends State<ReservationScreen> {
   }
 }
 
-class MakeReservationScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Make a New Reservation"),
-      ),
-      body: Center(
-        child: Text("Reservation creation form here"),
-      ),
-    );
-  }
-}
