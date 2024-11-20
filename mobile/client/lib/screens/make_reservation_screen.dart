@@ -169,27 +169,30 @@ class _MakeReservationScreenState extends State<MakeReservationScreen> {
           'tableId': _selectedTable!.id,
           'reservationDate': _selectedDate!.toIso8601String(),
           'timeSlot': _selectedTimeSlot,
-          'section': _selectedSection,
+          'sectionId': _selectedSection, // Correct key
           'guests': _numberOfGuests,
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Reservation confirmed!')),
         );
         Navigator.pop(context);
       } else {
-        throw Exception('Failed to make reservation');
+        final errorResponse = jsonDecode(response.body);
+        print('Error Response: ${errorResponse.toString()}');
+        throw Exception('Failed to make reservation: ${response.body}');
       }
     } catch (e) {
+      print('Exception: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,

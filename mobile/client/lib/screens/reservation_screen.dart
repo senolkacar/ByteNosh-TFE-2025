@@ -4,6 +4,7 @@ import 'dart:convert';
 import '/constants/api_constants.dart';
 import 'package:intl/intl.dart';
 import 'make_reservation_screen.dart';
+import 'dart:convert';
 
 class ReservationScreen extends StatefulWidget {
   final String userId;
@@ -52,6 +53,50 @@ class _ReservationScreenState extends State<ReservationScreen> {
       ),
     );
   }
+
+  void _showQRCodeDialog(BuildContext context, String qrCodeBase64) {
+    // Extract Base64 data by removing the "data:image/png;base64," prefix
+    final base64Data = qrCodeBase64.split(',').last;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Reservation QR Code',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              SizedBox(height: 16),
+              Image.memory(
+                base64Decode(base64Data),
+                fit: BoxFit.contain,
+                width: 200,
+                height: 200,
+                errorBuilder: (context, error, stackTrace) {
+                  return Text(
+                    'Failed to load QR Code',
+                    style: TextStyle(color: Colors.red),
+                  );
+                },
+              ),
+              SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Close',
+                  style: TextStyle(color: Colors.pink[900]),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +249,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                                       ],
                                     ),
                                   ),
-                              SizedBox(height: 16),
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: ElevatedButton.icon(
@@ -216,7 +260,13 @@ class _ReservationScreenState extends State<ReservationScreen> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    // Placeholder for sharing or using the QR code URL
+                                    if (reservation['qrCodeUrl'] != null) {
+                                      _showQRCodeDialog(context, reservation['qrCodeUrl']);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('No QR Code available for this reservation.')),
+                                      );
+                                    }
                                   },
                                   icon: Icon(Icons.qr_code),
                                   label: Text('Show QR Code'),
