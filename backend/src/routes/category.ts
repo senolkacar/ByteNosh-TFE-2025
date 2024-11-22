@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import Category from "../models/category";
 import {body, param, validationResult} from "express-validator";
 import mongoose from "mongoose";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
@@ -15,6 +16,8 @@ router.get("/", async (req, res): Promise<void> => {
 });
 
 router.delete("/:id",
+    validateToken,
+    validateRole('ADMIN'),
     param('id').escape().isMongoId().withMessage('Invalid category ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
@@ -37,6 +40,8 @@ router.delete("/:id",
 });
 
 router.put("/:id",
+    validateToken,
+    validateRole('ADMIN'),
     body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
     body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
     async (req :Request, res:Response): Promise<void> => {
@@ -70,6 +75,8 @@ router.put("/:id",
     });
 
 router.post("/",
+    validateToken,
+    validateRole('ADMIN'),
     body('name').trim().escape().isString().isLength({ min: 3 }).withMessage('Name is required'),
     body('description').trim().escape().isString().isLength({ min: 3 }).withMessage('Description is required'),
     async (req :Request, res:Response): Promise<void> => {

@@ -33,6 +33,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import PaginationComponent from "@/app/components/pagination";
+import {useSession} from "next-auth/react";
 
 
 
@@ -42,7 +43,7 @@ export default function CategoryConfiguration() {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 5;
 
-
+    const session = useSession();
     const formDefaultValues = {
         name: '',
         description: '',
@@ -84,6 +85,10 @@ export default function CategoryConfiguration() {
     const handleDeleteCategory = async (categoryId: string) => {
         try {
             await fetch(`/api/categories/${categoryId}`, {
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    "Content-Type": "application/json",
+                },
                 method: "DELETE",
             });
             if(editingCategory?._id === categoryId) {
@@ -119,7 +124,9 @@ export default function CategoryConfiguration() {
             try {
                 await fetch(`/api/categories/${editingCategory._id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
                 setCategories((prev) =>
@@ -138,7 +145,9 @@ export default function CategoryConfiguration() {
             try {
                 const response = await fetch("/api/categories", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
                 const newCategory = await response.json();

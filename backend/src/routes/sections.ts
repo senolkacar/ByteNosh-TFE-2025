@@ -4,6 +4,7 @@ import Section from "../models/section";
 import mongoose from "mongoose";
 import Table from "../models/table";
 import Reservation from "../models/reservation";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.get("/", async (req, res): Promise<void> => {
 });
 
 router.get("/:name",
+    validateToken,
     param('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
     async (req, res): Promise<void> => {
         const errors = validationResult(req);
@@ -40,6 +42,8 @@ router.get("/:name",
 );
 
 router.post("/",
+    validateToken,
+    validateRole('ADMIN'),
     body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
     body('description').trim().escape().isString().isLength({ min: 1 }).withMessage('Description is required'),
     body('tables').isArray().withMessage('Tables is required'),
@@ -108,6 +112,7 @@ router.post("/",
 );
 
 router.get("/:sectionId/tables",
+    validateToken,
     [
         param("sectionId").isMongoId().withMessage("Invalid section ID"),
         query("reservationDate").isISO8601().withMessage("Invalid date format"),
@@ -164,6 +169,7 @@ router.get("/:sectionId/tables",
 
 
 router.get("/availability/check-availability",
+    validateToken,
     [
         query("reservationDate").isISO8601().withMessage("Invalid date format"),
         query("timeSlot").isString().withMessage("Time slot is required"),

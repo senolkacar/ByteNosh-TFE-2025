@@ -60,7 +60,9 @@ export default function BlogPost() {
             try {
                 const response = await fetch(`/api/posts/${editingPost._id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
                 if (response.ok) {
@@ -84,7 +86,9 @@ export default function BlogPost() {
                 const post = { ...data, author: user };
                 const response = await fetch("/api/posts", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(post),
                 });
                 if (response.ok) {
@@ -108,6 +112,10 @@ export default function BlogPost() {
     const handleDeletePost = async (id: string) => {
         try {
             const response = await fetch(`/api/posts/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${session?.accessToken}`,
+                    'Content-Type': 'application/json',
+                },
                 method: "DELETE",
             });
             if (response.ok) {

@@ -39,6 +39,7 @@ import {
     AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import Image from "next/image";
+import {useSession} from "next-auth/react";
 
 
 
@@ -61,6 +62,8 @@ export default function MealConfiguration() {
     const [currentPage, setCurrentPage] = useState(1);
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     const rowsPerPage = 5;
+
+    const session = useSession();
     // Meal form setup
     const formDefaultValues = {
         name: '',
@@ -117,6 +120,10 @@ export default function MealConfiguration() {
         if (deleteMeal) {
             try {
                 const res = await fetch(`/api/meals/${deleteMeal}`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json",
+                    },
                     method: "DELETE",
                 });
                 if(editingMeal?._id === deleteMeal) {
@@ -166,7 +173,9 @@ export default function MealConfiguration() {
             try {
                  await fetch(`/api/meals/${editingMeal._id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
 
@@ -185,7 +194,9 @@ export default function MealConfiguration() {
             try {
                 const response = await fetch("/api/meals", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                 });
                 if (!response.ok) {

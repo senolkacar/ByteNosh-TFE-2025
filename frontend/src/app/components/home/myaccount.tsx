@@ -20,7 +20,7 @@ import { usePathname } from 'next/navigation';
 import DisplayUsername from "@/app/components/home/display-username";
 import { useEffect, useState } from "react";
 import User from "@/app/models/user";
-import { useSession } from "next-auth/react";
+import {useSession} from "next-auth/react";
 import Badge from '@mui/material/Badge';
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
@@ -39,17 +39,38 @@ export default function AccountMenu() {
     const [permissionGranted, setPermissionGranted] = useState(localStorage.getItem("permissionGranted") === "true");
     const notificationSound = React.useMemo(() => new Audio(`${apiBaseUrl}/sounds/notification.mp3`), []);
 
+    const session = useSession();
+
     useEffect(() => {
         async function fetchUser() {
+            if(!session) return;
+            const token = session?.data?.accessToken;
+            if (!token) {
+                console.error("No token found. User might not be logged in.");
+                return;
+            }
             try {
-                const response = await fetch(`/api/users/${email}`);
+                const response = await fetch(`/api/users/${email}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, // Pass the token here
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user");
+                }
+
                 const data = await response.json();
                 setUser(data);
             } catch (error) {
-                console.error('Error fetching user:', error);
+                console.error("Error fetching user:", error);
             }
         }
-        fetchUser();
+        if (email) {
+            fetchUser();
+        }
     }, [email]);
 
     useEffect(() => {

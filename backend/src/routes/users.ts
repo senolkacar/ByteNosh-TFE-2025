@@ -1,13 +1,21 @@
 import express, {Request, Response} from 'express';
 import {body, param, validationResult} from 'express-validator';
-import User from '../models/user';
+import User, {UserDocument} from '../models/user';
 import bcrypt from 'bcryptjs';
 import mongoose from "mongoose";
 import {sendEmail} from "../utils/mailer";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+interface CustomRequest extends Request {
+    user?: UserDocument;
+}
+
+router.get('/',
+    validateToken,
+    validateRole('ADMIN'),
+    async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
@@ -17,8 +25,9 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:email',
+    validateToken,
     param('email').escape().isEmail().withMessage('Invalid email'),
-    async (req :Request, res:Response): Promise<void> => {
+    async (req :CustomRequest, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
@@ -31,6 +40,10 @@ router.get('/:email',
                 res.status(400).json({ message: "User not found" });
                 return;
             }
+            if (req.user?.id.toString() !== user.id.toString()) {
+                res.status(403).json({ message: "You are not authorized to access this data" });
+                return;
+            }
             const userWithoutPassword = { ...user.toObject(), password: undefined };
             res.json(userWithoutPassword);
         } catch (error) {
@@ -38,20 +51,20 @@ router.get('/:email',
         }
 });
 
-router.put('/:id',
-    param('id').escape().isMongoId().withMessage('Invalid user ID'),
+router.put('/updateProfile',
     body('fullName').trim().escape().isString().isLength({ min: 1 }).withMessage('Full name is required'),
     body('email').trim().escape().isEmail().withMessage('Invalid email'),
     body('phone').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid phone number'),
     body('avatar').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid avatar URL'),
-    async (req :Request, res:Response): Promise<void> => {
+    async (req :CustomRequest, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
             return;
         }
-        const userId = req.params.id;
+
         const updatedUser = req.body;
+        const userId = req.user?.id;
         try {
             const user = await User.findById(userId);
             if (user) {
@@ -70,10 +83,10 @@ router.put('/:id',
         }
     });
 
-router.put('/:id/password',
-    param('id').escape().isMongoId().withMessage('Invalid user ID'),
+router.put('/changePassword',
+    validateToken,
     body('password').trim().escape().isString().isLength({ min: 6 }).withMessage('Password is required'),
-    async (req :Request, res:Response): Promise<void> => {
+    async (req :CustomRequest, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
@@ -83,6 +96,10 @@ router.put('/:id/password',
         const newPassword = req.body.password;
         try {
             const user = await User.findById(userId);
+            if (req.user?.id.toString() !== userId) {
+                res.status(403).json({ message: "You are not authorized to update this password" });
+                return;
+            }
             if (user) {
                 const hashedPassword = await bcrypt.hash(newPassword, 10);
                 await User.updateOne({ _id: userId }, { $set: { password: hashedPassword } });
@@ -96,6 +113,8 @@ router.put('/:id/password',
     });
 
 router.delete('/:id',
+    validateToken,
+    validateRole('ADMIN'),
     param('id').escape().isMongoId().withMessage('Invalid user ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
@@ -118,6 +137,8 @@ router.delete('/:id',
     });
 
 router.post('/',
+    validateToken,
+    validateRole('ADMIN'),
     body('fullName').trim().escape().isString().isLength({ min: 3 }).withMessage('Full name is required'),
     body('email').trim().escape().isEmail().withMessage('Invalid email'),
     body('phone').optional().trim().escape().isString(),
@@ -138,7 +159,7 @@ router.post('/',
                     res.status(400).json({ message: "Email already in use" });
                     return;
                 }
-                await User.updateOne({ _id: user._id }, { $set: updatedUser });
+                await User.updateOne({ _id: user.id }, { $set: updatedUser });
                 res.status(200).json({ message: "User updated successfully" });
             } else {
                 /*

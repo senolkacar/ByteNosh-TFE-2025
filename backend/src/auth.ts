@@ -1,21 +1,38 @@
-import express, { Request, Response } from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
-import User from './models/user';
+import User, { UserDocument } from './models/user';
 import dotenv from 'dotenv';
+import crypto from "crypto";
 
 dotenv.config({ path: './.env' });
 const router = express.Router();
 const JWT_SECRET = process.env.AUTH_SECRET!;
+const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not defined');
 }
+
+interface CustomRequest extends Request {
+    user?: UserDocument;
+}
+
+export const generateAccessToken = (userId: string): string => {
+    return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "15m" }); // Short-lived token
+};
+
+export const generateRefreshToken = (): { token: string; expiresAt: Date } => {
+    const token = crypto.randomBytes(64).toString("hex");
+    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY);
+    return { token, expiresAt };
+};
 
 // Register a new user
 router.post(
     '/register',
     body('email').isEmail(),
+    body('fullName').isString(),
     body('password').isLength({ min: 6 }),
     body('confirmPassword').isLength({ min: 6 }),
     async (req: Request, res: Response): Promise<void> => {
@@ -25,7 +42,7 @@ router.post(
             return;
         }
 
-        const { username, email, password, confirmPassword } = req.body;
+        const { fullName, email, password, confirmPassword } = req.body;
 
         if (password !== confirmPassword) {
             res.status(400).json({ message: 'Passwords do not match' });
@@ -40,7 +57,7 @@ router.post(
             }
 
             const hashedPassword = await bcrypt.hash(password, 8);
-            const newUser = new User({ username, email, password: hashedPassword, role: 'USER' });
+            const newUser = new User({ fullName, email, password: hashedPassword, role: 'USER' });
             await newUser.save();
 
             res.status(201).json({ message: 'User created successfully' });
@@ -52,35 +69,33 @@ router.post(
 
 // Login a user
 router.post(
-    '/login',
-    body('email').isEmail(),
-    body('password').exists(),
+    "/login",
+    body("email").isEmail(),
+    body("password").exists(),
     async (req: Request, res: Response): Promise<void> => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).json({ errors: errors.array() });
-            return;
-        }
-
         const { email, password } = req.body;
 
         try {
             const user = await User.findOne({ email });
-            if (!user || !user.password) {
-                res.status(400).json({ message: 'Invalid credentials' });
+            if (!user || !(await bcrypt.compare(password, user.password))) {
+                res.status(401).json({ message: "Invalid credentials" });
                 return;
             }
 
-            const isPasswordCorrect = await bcrypt.compare(password, user.password);
-            if (!isPasswordCorrect) {
-                res.status(400).json({ message: 'Invalid credentials' });
-                return;
-            }
+            // Generate tokens
+            const accessToken = generateAccessToken(user.id);
+            const { token: refreshToken, expiresAt } = generateRefreshToken();
 
-            const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-            res.status(200).json({ user, token });
+            // Update user's refresh token in the database
+            user.refreshToken = refreshToken;
+            user.refreshTokenExpiresAt = expiresAt;
+            user.replacedByToken = undefined;
+            await user.save();
+            //const { password: userPassword, ...userWithoutPassword } = user.toObject();
+
+            res.status(200).json({ user, accessToken, refreshToken });
         } catch (error) {
-            res.status(500).json({ message: 'Error logging in' });
+            res.status(500).json({ message: "Error logging in" });
         }
     }
 );
@@ -105,44 +120,103 @@ router.get('/validate', async (req: Request, res: Response): Promise<void> => {
     }
 });
 
+export const validateToken = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        res.status(401).json({ message: 'Access denied. No token provided.' });
+        return;
+    }
 
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        const user = await User.findById(decoded.id);
 
+        if (!user) {
+            res.status(401).json({ message: 'Invalid token. User does not exist.' });
+            return;
+        }
 
-// Return the user with the provided mail else return null
-router.get(
-    '/getUserByMail',
+        req.user = user; // Attach the user to the request object for later use
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid or expired token.' });
+    }
+};
+
+export const validateRole = (role: string) => {
+    return (req: CustomRequest, res: Response, next: NextFunction) => {
+        const user = req.user;
+        if (!user || user.role !== role) {
+            res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+            return;
+        }
+        next();
+    };
+};
+
+router.post(
+    "/refresh-token",
     async (req: Request, res: Response): Promise<void> => {
-        const { email } = req.body;
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            res.status(400).json({ message: "Refresh token is required" });
+            return;
+        }
 
         try {
-            const user = await User.findOne({ email });
-            if (!user) {
-                res.status(400).json({ message: 'User not found' });
+            const user = await User.findOne({ refreshToken });
+
+            // Validate refresh token
+            if (!user || user.refreshTokenExpiresAt! < new Date()) {
+                res.status(403).json({ message: "Invalid or expired refresh token" });
                 return;
             }
-            res.json(user);
+
+            // Rotate refresh token
+            const { token: newRefreshToken, expiresAt: newExpiresAt } = generateRefreshToken();
+            user.replacedByToken = newRefreshToken;
+            user.refreshToken = newRefreshToken;
+            user.refreshTokenExpiresAt = newExpiresAt;
+            await user.save();
+
+            // Issue new access token
+            const newAccessToken = generateAccessToken(user.id);
+
+            res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching user' });
+            res.status(500).json({ message: "Error refreshing token" });
         }
     }
 );
 
-router.get(
-    '/getUserById',
+router.post(
+    "/logout",
     async (req: Request, res: Response): Promise<void> => {
-        const { id } = req.body;
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            res.status(400).json({ message: "Refresh token is required" });
+            return;
+        }
 
         try {
-            const user = await User.findById(id);
-            if (!user) {
-                res.status(400).json({ message: 'User not found' });
-                return;
+            const user = await User.findOne({ refreshToken });
+            if (user) {
+                user.refreshToken = undefined;
+                user.refreshTokenExpiresAt = undefined;
+                user.replacedByToken = undefined;
+                await user.save();
             }
-            res.json(user);
+
+            res.status(200).json({ message: "Logged out successfully" });
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching user' });
+            res.status(500).json({ message: "Error logging out" });
         }
     }
 );
+
+
+
 
 export default router;

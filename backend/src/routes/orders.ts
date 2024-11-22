@@ -1,6 +1,12 @@
-import express from "express";
+import express, {Request} from "express";
 import Order from "../models/order";
 import { param, validationResult } from "express-validator";
+import {validateToken} from "../auth";
+import {UserDocument} from "../models/user";
+
+interface CustomRequest extends Request {
+    user?: UserDocument;
+}
 
 const router = express.Router();
 
@@ -46,33 +52,39 @@ router.get("/most-ordered", async (req, res): Promise<void> => {
 });
 
 router.get(
-    '/:userId',
-    param('userId').isMongoId().withMessage('Invalid user ID'),
-    async (req, res): Promise<void> => {
+    '/getUserLastOrder',
+    validateToken,
+    async (req: CustomRequest, res): Promise<void> => {
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
             return;
         }
 
-        const { userId } = req.params as Record<string, any>;
+        const userId = req.user?.id;
 
         try {
-            const lastReservation = await Order.findOne({ user: userId }).sort({ reservationTime: -1 });
-            if (!lastReservation) {
-                res.status(404).json({ message: 'No reservations found for this user' });
+            const lastOrder = await Order.findOne({ user: userId }).sort({ reservationTime: -1 });
+            if (!userId || !lastOrder || !lastOrder.user || lastOrder.user.toString() !== userId.toString()) {
+                res.status(403).json({ message: 'Access denied' });
                 return;
             }
-            const populatedLastReservation = await lastReservation.populate("meals");
-            const totalSum = populatedLastReservation.meals.reduce((sum:any, meal: any) => sum + meal.price, 0);
+            if (!lastOrder) {
+                res.status(404).json({ message: 'No orders found for this user' });
+                return;
+            }
+            const populatedLastOrder = await lastOrder.populate("meals");
+            const totalSum = populatedLastOrder.meals.reduce((sum: any, meal: any) => sum + meal.price, 0);
             res.json({ totalSum });
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching last reservation' });
+            res.status(500).json({ message: 'Error fetching last order' });
         }
     }
 );
 
 router.get('/getOne/:id',
+    validateToken,
     param('id').isMongoId().withMessage('Invalid order ID'),
     async (req, res): Promise<void> => {
         const errors = validationResult(req);

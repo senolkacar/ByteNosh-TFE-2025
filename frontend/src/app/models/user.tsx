@@ -7,4 +7,7 @@ export default interface User {
     password: string,
     role: "ADMIN" | "USER" | "EMPLOYEE",
     orders: string[],
+    refreshToken?: string; // Current valid refresh token
+    refreshTokenExpiresAt?: Date; // Expiry of the current refresh token
+    replacedByToken?: string;
 }

@@ -30,6 +30,7 @@ export default function Register() {
         resolver: zodResolver(RegisterSchema),
         defaultValues: {
             email: "",
+            fullName: "",
             password: "",
             confirmPassword: ""
         }
@@ -87,6 +88,25 @@ export default function Register() {
                                                             {...field}
                                                             placeholder="enter your mail"
                                                             type="email"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="fullName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Full Name
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            placeholder="enter your Full Name"
+                                                            type="text"
                                                         />
                                                     </FormControl>
                                                     <FormMessage />

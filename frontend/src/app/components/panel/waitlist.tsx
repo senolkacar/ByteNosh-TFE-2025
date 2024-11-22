@@ -5,16 +5,23 @@ import { io, Socket } from "socket.io-client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
 import {format} from "date-fns/format";
+import {useSession} from "next-auth/react";
 
 export default function Waitlist() {
     const [waitlists, setWaitlists] = useState<any[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const session = useSession();
     useEffect(() => {
         // Fetch existing waitlist data from the server on component mount
         async function fetchWaitlist() {
             try {
-                const response = await fetch("/api/waitlist");
+                const response = await fetch(`${apiBaseUrl}/api/waitlist`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
                 const data = await response.json();
                 const sortedData = data.sort((a: any, b: any) => a.createdAt - b.createdAt);
                 setWaitlists(sortedData);

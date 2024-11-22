@@ -1,10 +1,12 @@
 import express, {Request, Response} from "express";
 import {body, param, validationResult} from "express-validator";
 import Table from "../models/table";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
 router.put("/:id",
+    validateToken,
     param('id').escape().isMongoId().withMessage('Invalid table ID'),
     body('number').trim().escape().isNumeric().withMessage('Number is required'),
     body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
@@ -33,6 +35,8 @@ router.put("/:id",
     });
 
 router.post("/",
+    validateToken,
+    validateRole("ADMIN"),
     body('section').trim().escape().isString().isLength({ min: 1 }).withMessage('Section is required'),
     body('number').trim().escape().isNumeric().withMessage('Number is required'),
     body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
@@ -55,6 +59,7 @@ router.post("/",
     });
 
 router.delete("/:id",
+    validateToken,
     param('id').escape().isMongoId().withMessage('Invalid table ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);

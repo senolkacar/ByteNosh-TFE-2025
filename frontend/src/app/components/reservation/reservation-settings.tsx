@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import Waitlist from "@/app/components/reservation/waitlist";
 import toast from "react-hot-toast";
+import {useSession} from "next-auth/react";
 
 export default function ReservationSettings({ onCheckAvailability }: any) {
     const [closureDays, setClosureDays] = useState<Date[]>([]);
@@ -30,6 +31,7 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
     const [isTimeSlotEmpty, setIsTimeSlotEmpty] = useState(false);
     const [showWaitlistModal, setShowWaitlistModal] = useState(false);
 
+    const session = useSession();
     useEffect(() => {
         async function fetchClosureDays() {
             try {
@@ -95,7 +97,13 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
     };
 
     const handleCheckAvailability = async (date: any, selectedTimeSlot: any) => {
-        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date.toISOString()}&timeSlot=${selectedTimeSlot}`);
+        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date.toISOString()}&timeSlot=${selectedTimeSlot}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${session.data?.accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
         const availabilityData = await response.json();
 
         if (availabilityData.allSectionsFull) {

@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { toast, Toaster } from "react-hot-toast";
+import {useSession} from "next-auth/react";
 
 export default function ReservationsPage() {
     const [reservations, setReservations] = useState<any[]>([]);
@@ -33,7 +34,7 @@ export default function ReservationsPage() {
     const [selectedReservationData, setSelectedReservationData] = useState<any | null>(null);
     const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
-
+    const session = useSession();
 
     useEffect(() => {
         const q = query(
@@ -86,6 +87,10 @@ export default function ReservationsPage() {
 
     const handleCancelReservation = (reservationId: string) => {
         fetch('/api/reservations/' + reservationId + '/cancel', {
+            headers: {
+                'Authorization': `Bearer ${session.data?.accessToken}`,
+                'Content-Type': 'application/json',
+            },
             method: 'PUT',
         })
             .then(response => response.json())

@@ -37,11 +37,17 @@ export default function Profile() {
             phone: '',
         },
     });
+    const session = useSession();
 
     useEffect(() => {
         async function fetchUser() {
             try {
-                const response = await fetch(`/api/users/${email}`);
+                const response = await fetch(`/api/users/${email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 setUser(data);
                 form.reset(data);
@@ -54,9 +60,10 @@ export default function Profile() {
 
     const onSubmit = async (data: any) => {
         try {
-            const response = await fetch(`/api/users/${userID}`, {
+            const response = await fetch(`/api/users/updateProfile`, {
                 method: 'PUT',
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),

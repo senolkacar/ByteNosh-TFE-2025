@@ -37,12 +37,14 @@ export default function SettingsPage() {
         },
     });
 
+    const session = useSession();
     const onSubmit = async (data: any) => {
         console.log(userID);
         try {
-            const response = await fetch(`/api/users/${userID}/password`, {
+            const response = await fetch(`/api/users/changePassword`, {
                 method: 'PUT',
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ password: data.password }),

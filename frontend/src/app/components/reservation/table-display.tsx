@@ -88,7 +88,13 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
 
         try {
             const response = await fetch(
-                `/api/sections/${selectedSection._id}/tables?reservationDate=${date.toISOString()}&timeSlot=${timeSlot}`
+                `/api/sections/${selectedSection._id}/tables?reservationDate=${date.toISOString()}&timeSlot=${timeSlot}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
             );
             if (!response.ok) {
                 throw new Error("Failed to fetch tables");
@@ -157,6 +163,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
             const response = await fetch("/api/reservations", {
                 method: "POST",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
@@ -229,7 +236,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                 Reservation Confirmed!
                             </h3>
                             {qrCodeUrl && (
-                                <Image fill={true} src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
+                                <Image width="400" height="400" src={qrCodeUrl} alt="Reservation QR Code" className="mx-auto mb-4" />
                             )}
                             <p>
                                 Thank you for your reservation,{" "}

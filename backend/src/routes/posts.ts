@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import Post from "../models/post";
 import {body, param, validationResult} from "express-validator";
 import mongoose from "mongoose";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
@@ -16,6 +17,8 @@ router.get("/", async (req, res): Promise<void> => {
 
 router.post(
     "/",
+    validateToken,
+    validateRole('ADMIN'),
     body('title').trim().escape().isString().isLength({ min: 3 }).withMessage('Title is required'),
     body('body').isString().isLength({ min: 3 }).withMessage('Body is required'),
     async (req :Request, res:Response): Promise<void> => {
@@ -33,7 +36,10 @@ router.post(
         }
     });
 
-router.put("/:id",  param('id').escape().isMongoId().withMessage('Invalid post ID'),
+router.put("/:id",
+    validateToken,
+    validateRole('ADMIN'),
+    param('id').escape().isMongoId().withMessage('Invalid post ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -55,7 +61,10 @@ router.put("/:id",  param('id').escape().isMongoId().withMessage('Invalid post I
         }
     });
 
-router.delete("/:id",   param('id').escape().isMongoId().withMessage('Invalid post ID'),
+router.delete("/:id",
+    validateToken,
+    validateRole('ADMIN'),
+    param('id').escape().isMongoId().withMessage('Invalid post ID'),
     async (req :Request, res:Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

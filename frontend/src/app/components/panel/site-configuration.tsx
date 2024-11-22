@@ -10,6 +10,7 @@ import Config from "@/app/models/config";
 import { FormFieldComponent } from "@/app/components/panel/form-field";
 import { CollapsibleSection } from "@/app/components/panel/collapsible-section";
 import { Form } from "@/components/ui/form";
+import {useSession} from "next-auth/react";
 
 const schema = z.object({
     name: z.string().min(1),
@@ -73,6 +74,8 @@ export default function SiteConfiguration() {
         resolver: zodResolver(schema),
     });
 
+    const session = useSession();
+
     useEffect(() => {
         if (config) {
             form.reset(config);
@@ -94,6 +97,7 @@ export default function SiteConfiguration() {
         fetch('/api/config', {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${session.data?.accessToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(updatedFields),

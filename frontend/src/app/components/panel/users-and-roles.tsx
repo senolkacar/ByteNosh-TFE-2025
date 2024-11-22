@@ -20,6 +20,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {useSession} from "next-auth/react";
 
 const schema = z.object({
     fullName: z.string().min(3, "Name must be at least 3 characters"),
@@ -35,7 +36,7 @@ export default function UsersAndRoles() {
     const [formData, setFormData] = useState<any>(null);
     const [showDeleteDialog, setDeleteShowDialog] = useState(false);
     const [deleteUser, setDeleteUser] = useState<string | null>(null);
-
+    const session = useSession();
     const form = useForm({
         mode: "onChange",
         resolver: zodResolver(schema),
@@ -55,7 +56,12 @@ export default function UsersAndRoles() {
 
     const searchUserByEmail = async (email: string) => {
         try {
-            const res = await fetch(`/api/users/${email}`);
+            const res = await fetch(`/api/users/${email}`, {
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    "Content-Type": "application/json",
+                }
+            });
             if (res.ok) {
                 return await res.json();
             } else {
@@ -91,6 +97,7 @@ export default function UsersAndRoles() {
                 const res = await fetch(`/api/users/${deleteUser}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
                         'Content-Type': 'application/json',
                     },
                 });
@@ -128,6 +135,7 @@ export default function UsersAndRoles() {
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({...data, id: user?._id }),

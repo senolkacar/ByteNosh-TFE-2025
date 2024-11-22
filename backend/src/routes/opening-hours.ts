@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import {body, param, validationResult} from 'express-validator';
 import Timeslot from "../models/timeslot";
 import { parseISO, getDay } from 'date-fns';
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
@@ -39,6 +40,8 @@ router.get('/', async (req: Request, res: Response): Promise<void> =>  {
 });
 
 router.post('/',
+    validateToken,
+    validateRole('ADMIN'),
     body('day').trim().escape().isString().isLength({ min: 1 }).withMessage('Day is required'),
     body('openHour').isDate().withMessage('Invalid open hour'),
     body('closeHour').isDate().withMessage('Invalid close hour'),
@@ -55,6 +58,8 @@ router.post('/',
 });
 
 router.put('/',
+    validateToken,
+    validateRole('ADMIN'),
     body('day').trim().escape().isString().isLength({ min: 1 }).withMessage('Day is required'),
     body('openHour').isDate().withMessage('Invalid open hour'),
     body('closeHour').isDate().withMessage('Invalid close hour'),

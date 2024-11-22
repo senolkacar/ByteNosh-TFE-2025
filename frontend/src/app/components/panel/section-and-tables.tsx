@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import {Badge} from "@/components/ui/badge";
 import {Checkbox} from "@/components/ui/checkbox";
+import {useSession} from "next-auth/react";
 
 
 const sectionSchema = z.object({
@@ -39,6 +40,8 @@ export default function SectionAndTables() {
     const [initialTables, setInitialTables] = useState<TableModel[]>([]);
     const [tablesModified, setTablesModified] = useState(false);
 
+
+    const session = useSession();
     const form = useForm({
         mode: "onChange",
         resolver: zodResolver(sectionSchema),
@@ -60,7 +63,6 @@ export default function SectionAndTables() {
         setTablesModified(hasChanges);
     }, [tables, initialTables]);
 
-    let nextId = 0;
 
     const handleAddTable = async (table: TableFormValues) => {
         try {
@@ -76,6 +78,10 @@ export default function SectionAndTables() {
         if (!table._id) return;
         try {
             const response = await fetch(`/api/tables/${table._id}`, {
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    "Content-Type": "application/json",
+                },
                 method: "DELETE",
             });
             if (response.ok) {
@@ -118,6 +124,7 @@ export default function SectionAndTables() {
             const response = await fetch("/api/sections", {
                 method: "POST",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(sectionData),
@@ -140,6 +147,7 @@ export default function SectionAndTables() {
             const response = await fetch(`/api/tables/${table._id}`, {
                 method: "PUT",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(table),

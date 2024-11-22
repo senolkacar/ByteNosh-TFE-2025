@@ -1,10 +1,13 @@
 import express from "express";
 import  Waitlist from "../models/waitlist";
 import { getSocketIO } from "../utils/socket";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/",
+    validateToken,
+    async (req, res) => {
     const { name, contact, guests, reservationDate, timeSlot } = req.body;
 
     try {
@@ -27,7 +30,10 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+router.get("/",
+    validateToken,
+    validateRole('ADMIN'),
+    async (req, res) => {
     try {
         const waitlistEntries = await Waitlist.find();
         res.status(200).json(waitlistEntries);

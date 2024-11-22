@@ -58,6 +58,7 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
             const response = await fetch("/api/waitlist", {
                 method: "POST",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({

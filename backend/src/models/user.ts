@@ -1,18 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-const userSchema = new mongoose.Schema({
-    id: String,
-    fullName: String,
-    email: String,
-    phone: String,
-    avatar: String,
-    password: String,
-    role: {
-        type: String,
-        enum: ['ADMIN', 'USER', 'EMPLOYEE'],
-        default: 'USER'
-    },
-    reservations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reservation' }],
+export interface UserDocument extends Document {
+    fullName: string,
+    email: string,
+    password: string,
+    phone: string,
+    avatar: string,
+    role: string,
+    refreshToken?: string; // Current valid refresh token
+    refreshTokenExpiresAt?: Date; // Expiry of the current refresh token
+    replacedByToken?: string; // Token that replaced the current token (rotation tracking)
+}
+
+const UserSchema: Schema = new Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fullName: { type: String, required: true },
+    phone: { type: String },
+    avatar: { type: String },
+    role: { type: String, default: "USER" },
+    refreshToken: { type: String },
+    refreshTokenExpiresAt: { type: Date },
+    replacedByToken: { type: String },
 });
 
-export default mongoose.model('User', userSchema);
+export default mongoose.model<UserDocument>("User", UserSchema);

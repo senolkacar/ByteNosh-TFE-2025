@@ -22,7 +22,12 @@ export default function Reservations() {
         async function fetchReservations() {
             if (!userId) return;
             try {
-                const response = await fetch(`/api/reservations/all/${userId}`);
+                const response = await fetch(`/api/reservations/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const data = await response.json();
                 setReservations(data.reservations);
             } catch (error) {
@@ -34,8 +39,11 @@ export default function Reservations() {
     const handleReservationCancel = async (reservationId: string) => {
         try {
             const response = await fetch(`/api/reservations/${reservationId}/cancel`, {
-                method: '' +
-                    'PUT',
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
             });
             if (response.ok) {
                 const updatedReservations = reservations.map((reservation) => {
@@ -145,7 +153,7 @@ export default function Reservations() {
                                 <DialogTitle>QR Code</DialogTitle>
                             </DialogHeader>
                             <div className="flex justify-center">
-                                {qrCodeData && <Image fill={true}  src={qrCodeData} alt="QR Code" />}
+                                {qrCodeData && <Image width="400" height="400"  src={qrCodeData} alt="QR Code" />}
                             </div>
                             <DialogFooter>
                                 <Button onClick={() => setShowQRCodeDialog(false)}>Close</Button>

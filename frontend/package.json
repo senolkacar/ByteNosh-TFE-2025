@@ -40,6 +40,7 @@
     "firebase": "^11.0.1",
     "framer-motion": "^11.11.11",
     "i": "^0.3.7",
+    "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.453.0",
     "mongodb": "^6.10.0",

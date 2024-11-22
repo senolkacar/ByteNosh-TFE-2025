@@ -1,6 +1,7 @@
 import express, {Request, Response} from "express";
 import SiteConfig from "../models/siteconfig";
 import {body, validationResult} from "express-validator";
+import {validateRole, validateToken} from "../auth";
 
 const router = express.Router();
 
@@ -15,6 +16,8 @@ router.get("/",async (req, res): Promise<void> => {
 });
 
 router.post("/",
+    validateToken,
+    validateRole("ADMIN"),
     body('name').trim().escape().isString().isLength({ min: 1 }).withMessage('Name is required'),
     body('slogan').trim().escape().isString().isLength({ min: 1 }).withMessage('Slogan is required'),
     body('about').optional().trim().escape().isString().isLength({ min: 1 }).withMessage('Invalid value for about'),

@@ -5,8 +5,13 @@ import admin from "firebase-admin";
 import QRCode from "qrcode";
 import encryptData from "../utils/qr-code";
 import { sendEmail } from "../utils/mailer";
-import User from "../models/user";
+import User, {UserDocument} from "../models/user";
 import { getSocketIO } from "../utils/socket";
+import {validateToken} from "../auth";
+
+interface CustomRequest extends Request {
+    user?: UserDocument;
+}
 
 const router = express.Router();
 
@@ -51,6 +56,7 @@ async function saveReservationToFirestore(reservation: any) {
 
 router.post(
     "/",
+    validateToken,
     [
         body("tableId").isMongoId().withMessage("Invalid table ID"),
         body("sectionId").isMongoId().withMessage("Invalid section ID"),
@@ -148,7 +154,63 @@ router.post(
     }
 );
 
+router.get('/last',
+    validateToken,
+    async (req: CustomRequest, res: Response): Promise<void> => {
+        const user = req.user;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        try {
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            const reservation = await Reservation.findOne({ user: user.id }).sort({ createdAt: -1 });
+            if (!reservation) {
+                res.status(404).json({ message: "Reservation not found" });
+                return;
+            }
+
+            res.json({ reservation });
+        } catch (error) {
+            console.error("Error fetching reservation:", error);
+            res.status(500).json({ message: "Error fetching reservation" });
+        }
+    }
+);
+
+router.get('/all',
+    validateToken,
+    async (req: CustomRequest, res: Response): Promise<void> => {
+        const user = req.user;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+        try {
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            const reservations = await Reservation.find({ user: user.id })
+                .populate("table", "name")
+                .populate("section", "name");
+
+            res.json({ reservations });
+        } catch (error) {
+            console.error("Error fetching reservations:", error);
+            res.status(500).json({ message: "Error fetching reservations" });
+        }
+    }
+)
+
 router.get("/:id",
+    validateToken,
     param("id").isMongoId().withMessage("Invalid reservation ID"),
     async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
@@ -178,8 +240,9 @@ router.get("/:id",
 
 
 router.put("/:id/cancel",
+    validateToken,
     param("id").isMongoId().withMessage("Invalid reservation ID"),
-    async (req: Request, res: Response): Promise<void> => {
+    async (req: CustomRequest, res: Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({ errors: errors.array() });
@@ -192,6 +255,11 @@ router.put("/:id/cancel",
             const reservation = await Reservation.findById(id);
             if (!reservation) {
                 res.status(404).json({ message: "Reservation not found" });
+                return;
+            }
+
+            if (req.user?.role !== 'ADMIN' && reservation.user?.toString() !== req.user?.id?.toString()) {
+                res.status(403).json({ message: "You are not authorized to cancel this reservation" });
                 return;
             }
 
@@ -239,51 +307,6 @@ router.put("/:id/cancel",
     }
 );
 
-router.get('/last/:userId'
-    , param("userId").isMongoId().withMessage("Invalid user ID")
-    , async (req: Request, res: Response): Promise<void> => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).json({ errors: errors.array() });
-            return;
-        }
 
-        const { userId } = req.params;
-
-        try {
-            const reservation = await Reservation.findOne({ user: userId }).sort({ createdAt: -1 });
-            if (!reservation) {
-                res.status(404).json({ message: "Reservation not found" });
-                return;
-            }
-
-            res.json({ reservation });
-        } catch (error) {
-            console.error("Error fetching reservation:", error);
-            res.status(500).json({ message: "Error fetching reservation" });
-        }
-    }
-)
-
-router.get('/all/:userId',
-    param("userId").isMongoId().withMessage("Invalid user ID"),
-    async (req: Request, res: Response): Promise<void> => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(400).json({ errors: errors.array() });
-            return;
-        }
-
-        const { userId } = req.params;
-
-        try {
-            const reservations = await Reservation.find({ user: userId }).populate("table", "name").populate("section", "name");
-            res.json({ reservations });
-        } catch (error) {
-            console.error("Error fetching reservations:", error);
-            res.status(500).json({ message: "Error fetching reservations" });
-        }
-    }
-)
 
 export default router;

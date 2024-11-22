@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover"
 import {Separator} from "@/components/ui/separator";
 import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {useSession} from "next-auth/react";
 
 type HoursMap = { [key in DayOfWeek]?: Timeslot };
 
@@ -27,6 +28,8 @@ const OpeningHoursConfig = () => {
     const [date, setDate] = useState<Date>()
     const [closedDays, setClosedDays] = useState<Closure[]>([]);
     const [reason, setReason] = useState<string>("");
+
+    const session = useSession();
 
     useEffect(() => {
         async function fetchClosures() {
@@ -58,12 +61,13 @@ const OpeningHoursConfig = () => {
         fetchHours();
     }, []);
 
-    const handleChange = (day: DayOfWeek, key: keyof Timeslot, value: string) => {
+    const handleChange = (day: DayOfWeek, key: keyof Timeslot, value: string | boolean) => {
         setHours((prev) => ({
             ...prev,
             [day]: { ...prev[day], [key]: value } as Timeslot,
         }));
     };
+
 
     const handleCloseDay = async () => {
         if (!date) {
@@ -74,6 +78,7 @@ const OpeningHoursConfig = () => {
             await fetch("/api/closures", {
                 method: "POST",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ date, reason }),
@@ -91,6 +96,7 @@ const OpeningHoursConfig = () => {
             await fetch("/api/closures", {
                 method: "DELETE",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ date: day }),
@@ -107,11 +113,14 @@ const OpeningHoursConfig = () => {
         handleChange(day, key, timeValue);
     };
 
+
+
     const handleSave = () => {
         try{
             fetch("/api/opening-hours", {
                 method: "PUT",
                 headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(Object.values(hours)),
@@ -140,8 +149,8 @@ const OpeningHoursConfig = () => {
                         <CollapsibleContent>
                             <div className="flex items-center space-x-4 mt-2">
                                 <Switch
-                                    checked={hours[day as DayOfWeek]?.isOpen || false}
-                                    onCheckedChange={(checked: boolean) => handleChange(day as DayOfWeek, "isOpen", checked.toString())}
+                                    checked={!!hours[day as DayOfWeek]?.isOpen}
+                                    onCheckedChange={(checked: boolean) => handleChange(day as DayOfWeek, "isOpen", checked)}
                                 />
                                 <Label>{hours[day as DayOfWeek]?.isOpen ? "Open" : "Closed"}</Label>
                                 {hours[day as DayOfWeek]?.isOpen && (

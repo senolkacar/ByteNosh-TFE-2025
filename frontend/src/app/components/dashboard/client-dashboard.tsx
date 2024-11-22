@@ -48,22 +48,38 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
     const [reservationToCancel, setReservationToCancel] = useState<string | null>(null);
 
     const session = useSession();
-    const userId = session.data?.user?.id;
     useEffect(() => {
-        if (!userId) return;
-
         async function fetchLastReservation() {
+            if (!session || !session.data?.accessToken) {
+                console.error("No access token found");
+                return;
+            }
             try {
-                const response = await fetch(`/api/reservations/last/${userId}`);
+                const response = await fetch(`/api/reservations/last`, {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok || response.status === 404) {
+                    throw new Error(`Error fetching reservation: ${response.status}`);
+                }
+
                 const data = await response.json();
                 setLastReservation(data);
 
+
+
                 const reservationTime = new Date(data.reservation.reservationTime);
                 const currentTime = new Date();
-
                 if (reservationTime > currentTime) {
                     try {
-                        const response = await fetch(`/api/reservations/${data.reservation._id}`);
+                        const response = await fetch(`/api/reservations/${data.reservation._id}`, {
+                            headers: {
+                                'Authorization': `Bearer ${session.data?.accessToken}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
                         const reservationData = await response.json();
                         setUpcomingReservation(reservationData);
                     } catch (error) {
@@ -72,7 +88,12 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                 }
 
                 try{
-                    const response = await fetch(`/api/orders/${userId}`);
+                    const response = await fetch(`/api/orders/getUserLastOrder`, {
+                        headers: {
+                            'Authorization': `Bearer ${session.data?.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
                     const totalAmount = await response.json();
                     setLastOrder(totalAmount.totalSum);
                 } catch (error) {
@@ -80,7 +101,12 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
                 }
 
                 try {
-                    const response = await fetch(`/api/reservations/all/${userId}`);
+                    const response = await fetch(`/api/reservations/all`, {
+                        headers: {
+                            'Authorization': `Bearer ${session.data?.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
                     const data = await response.json();
                     setReservations(data.reservations);
                 } catch (error) {
@@ -92,7 +118,7 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
             }
         }
         fetchLastReservation();
-    }, [userId]);
+    }, [session.data?.accessToken]);
 
     const handleReservationCancelConfirmation = (reservationId: string) => {
         setReservationToCancel(reservationId);
@@ -105,6 +131,10 @@ export function ClientDashboard({ setActiveSection }: { setActiveSection: (secti
         try {
             const response = await fetch(`/api/reservations/${reservationToCancel}/cancel`, {
                 method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
             });
             if (response.ok) {
                 const updatedReservations = reservations.map((reservation) => {
