@@ -267,7 +267,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ReservationScreen(userId: widget.userData['_id']),
+                    builder: (context) => ReservationScreen(),
                   ),
                 );
                 break;

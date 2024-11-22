@@ -47,21 +47,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
-        final String token = responseData['token'];
+        final String? token = responseData['accessToken'];
 
-        // Save JWT token to secure storage
-        await storage.write(key: 'user_token', value: token);
+        if (token != null) {
+          // Save JWT token to secure storage
+          await storage.write(key: 'user_token', value: token);
 
-        // Navigate to HomepageScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomepageScreen(
-              userEmail: email,
-              userData: responseData['user'],
+          // Navigate to HomepageScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomepageScreen(
+                userEmail: email,
+                userData: responseData['user'],
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: Token is missing')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: ${response.body}')),

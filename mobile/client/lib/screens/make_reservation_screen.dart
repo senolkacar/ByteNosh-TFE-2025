@@ -4,11 +4,13 @@ import 'dart:convert';
 import '/constants/api_constants.dart';
 import 'package:intl/intl.dart';
 import '/models/table.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+
+final storage = FlutterSecureStorage();
 
 class MakeReservationScreen extends StatefulWidget {
-  final String userId;
-
-  MakeReservationScreen({required this.userId});
   @override
   State<MakeReservationScreen> createState() => _MakeReservationScreenState();
 }
@@ -25,11 +27,30 @@ class _MakeReservationScreenState extends State<MakeReservationScreen> {
   bool _loadingSections = false;
   bool _loadingTables = false;
   TableInfo? _selectedTable; // Define _selectedTable as a nullable type
+  String? _userId;
+  String? _accessToken;
 
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     _fetchSections();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Retrieve the token from secure storage
+      final token = await storage.read(key: 'user_token');
+      if (token != null) {
+        setState(() {
+          _accessToken = token;
+          Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+          _userId = decodedToken['id']; // Extract user ID from the token payload
+        });
+      }
+    } catch (error) {
+      print('Error loading user data: $error');
+    }
   }
 
   Future<void> _fetchSections() async {
@@ -69,6 +90,10 @@ class _MakeReservationScreenState extends State<MakeReservationScreen> {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/opening-hours?date=${selectedDate.toIso8601String()}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : 'Bearer $_accessToken',
+        },
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -104,6 +129,10 @@ class _MakeReservationScreenState extends State<MakeReservationScreen> {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/sections/$_selectedSection/tables?reservationDate=${_selectedDate!.toIso8601String()}&timeSlot=$_selectedTimeSlot'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization' : 'Bearer $_accessToken',
+        },
       );
       if (response.statusCode == 200) {
         final List<dynamic> tables = jsonDecode(response.body);
@@ -163,9 +192,11 @@ class _MakeReservationScreenState extends State<MakeReservationScreen> {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/reservations'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json',
+          'Authorization':'Bearer $_accessToken'
+        },
         body: jsonEncode({
-          'userId': widget.userId,
+          'userId': _userId,
           'tableId': _selectedTable!.id,
           'reservationDate': _selectedDate!.toIso8601String(),
           'timeSlot': _selectedTimeSlot,

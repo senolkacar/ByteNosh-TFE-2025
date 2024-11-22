@@ -4,20 +4,50 @@ import 'dart:convert';
 import '/constants/api_constants.dart';
 import 'package:intl/intl.dart';
 import 'make_reservation_screen.dart';
-import 'dart:convert';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final storage = FlutterSecureStorage();
 
 class ReservationScreen extends StatefulWidget {
-  final String userId;
-
-  const ReservationScreen({super.key, required this.userId});
 
   @override
   State<ReservationScreen> createState() => _ReservationScreenState();
 }
 
 class _ReservationScreenState extends State<ReservationScreen> {
+  String? _userId;
+  String? _accessToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Retrieve the token from secure storage
+      final token = await storage.read(key: 'user_token');
+      if (token != null) {
+        setState(() {
+          _accessToken = token;
+          Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+          _userId = decodedToken['id']; // Extract user ID from the token payload
+        });
+      }
+    } catch (error) {
+      print('Error loading user data: $error');
+    }
+  }
+
   Future<List<dynamic>> fetchUserReservations() async {
-    final response = await http.get(Uri.parse('$baseUrl/api/reservations/all/${widget.userId}'));
+    final response = await http.get(Uri.parse('$baseUrl/api/reservations/all'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' : 'Bearer $_accessToken',
+      },
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body)['reservations'];
@@ -27,7 +57,12 @@ class _ReservationScreenState extends State<ReservationScreen> {
         if (reservation['orders'] != null) {
           List<dynamic> ordersDetails = [];
           for (String orderId in reservation['orders']) {
-            final orderResponse = await http.get(Uri.parse('$baseUrl/api/orders/getOne/$orderId'));
+            final orderResponse = await http.get(Uri.parse('$baseUrl/api/orders/getOne/$orderId'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $_accessToken',
+            },
+            );
             if (orderResponse.statusCode == 200) {
               ordersDetails.add(jsonDecode(orderResponse.body));
             } else {
@@ -49,7 +84,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MakeReservationScreen(userId: widget.userId),
+        builder: (context) => MakeReservationScreen(),
       ),
     );
   }
