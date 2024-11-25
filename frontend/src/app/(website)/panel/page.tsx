@@ -5,7 +5,6 @@ import SiteConfiguration from "@/app/components/panel/site-configuration";
 import UsersAndRoles from "@/app/components/panel/users-and-roles";
 import MenuManagement from "@/app/components/panel/menu-management";
 import BlogPost from "@/app/components/panel/blogpost";
-import ReservationSettings from "@/app/components/panel/reservation-settings";
 import OpeningHoursConfig from "@/app/components/panel/oppening-hours";
 import SectionAndTables from "@/app/components/panel/section-and-tables";
 import Reservations from "@/app/components/panel/reservations";
@@ -28,8 +27,6 @@ export default function Panel() {
                 return <OpeningHoursConfig />;
             case "SectionsAndTables":
                 return <SectionAndTables />;
-            case "ReservationSettings":
-                return <ReservationSettings />;
             case "Reservations":
                 return <Reservations />;
             case "Waitlist":
@@ -60,14 +57,11 @@ export default function Panel() {
                         <Link href="#" onClick={() => setSelectedLink("BlogPosts")} className={`${selectedLink === "BlogPosts" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Blog & Posts
                         </Link>
-                        <Link href="#" onClick={() => setSelectedLink("OpeningHours")} className={`${selectedLink === "OpeninHours" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
+                        <Link href="#" onClick={() => setSelectedLink("OpeningHours")} className={`${selectedLink === "OpeningHours" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Opening Hours
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("SectionsAndTables")} className={`${selectedLink === "SectionsAndTables" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Sections & Tables
-                        </Link>
-                        <Link href="#" onClick={() => setSelectedLink("ReservationSettings")} className={`${selectedLink === "ReservationSettings" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
-                            Reservation Settings
                         </Link>
                         <Link href="#" onClick={() => setSelectedLink("Reservations")} className={`${selectedLink === "Reservations" ? "font-bold bg-gray-200 rounded" : ""} text-primary hover:text-cyan-700`}>
                             Reservations

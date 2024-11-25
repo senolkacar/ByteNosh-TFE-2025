@@ -52,7 +52,12 @@ export default function ReservationsPage() {
 
     useEffect(() => {
         if (selectedReservationId) {
-            fetch('/api/reservations/' + selectedReservationId)
+            fetch('/api/reservations/' + selectedReservationId, {
+                headers: {
+                    'Authorization': `Bearer ${session.data?.accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            })
                 .then(response => response.json())
                 .then(data => setSelectedReservationData(data.reservation))
                 .catch(error => console.error('Error fetching reservation details:', error));
@@ -60,7 +65,7 @@ export default function ReservationsPage() {
     }, [selectedReservationId]);
 
     const handleReservationDetails = (reservationId: string) => {
-
+        setSelectedReservationId(reservationId);
     };
 
     const handleMarkAsRead = async (reservationId: string) => {

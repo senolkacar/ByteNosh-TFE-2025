@@ -96,7 +96,14 @@ export default function SectionAndTables() {
 
     const handleSearchSection = async (name: string) => {
         try {
-            const response = await fetch(`/api/sections/${encodeURIComponent(name)}`);
+            const response = await fetch(`/api/sections/${encodeURIComponent(name)}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${session.data?.accessToken}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
             if (!response.ok) {
                 if (response.status === 404) {
                     toast.error("Section not found");
