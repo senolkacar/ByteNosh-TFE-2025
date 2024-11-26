@@ -4,6 +4,20 @@ import {body} from "express-validator";
 
 const router = express.Router();
 
+const getCurrentWeekRange = (): { startOfWeek: Date; endOfWeek: Date } => {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // Sunday - Saturday : 0 - 6
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(now);
+    endOfWeek.setDate(now.getDate() + (6 - dayOfWeek));
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return { startOfWeek, endOfWeek };
+};
+
 router.get("/", async (req, res) => {
   try {
     const closures = await Closure.find();
@@ -42,6 +56,22 @@ router.delete("/",
         }else{
             res.status(400).json({message: "Date not found"});
         }
+});
+
+router.get("/current-week-closures", async (req, res) : Promise<void> => {
+    try {
+        const { startOfWeek, endOfWeek } = getCurrentWeekRange();
+        const closures = await Closure.find({
+            date: {
+                $gte: startOfWeek,
+                $lte: endOfWeek,
+            },
+        }).exec();
+        res.json(closures);
+    } catch (error) {
+        console.error("Error fetching current week closures:", error);
+        res.status(500).json({ message: "Error fetching current week closures" });
+    }
 });
 
 export default router;

@@ -5,6 +5,7 @@ import {RegisterButton} from "@/components/auth/register-button";
 import Config from "@/app/models/config";
 import {useEffect, useState} from "react";
 import Link from "next/link";
+import ClosureAlert from "@/app/components/home/closurealert";
 
 export default function HomeHero() {
     const [config, setConfig] = useState<Config>();
@@ -19,6 +20,7 @@ export default function HomeHero() {
     return (
         <div className="bg-amber-50 px-4 py-24">
         <section className="mx-auto max-w-screen-xl p-8">
+            <ClosureAlert/>
             <div className="flex flex-col items-center md:grid grid-cols-2">
             <div className="py-12 col-span-1">
                 <h1 className="text-center text-6xl font-semibold md:text-left">
