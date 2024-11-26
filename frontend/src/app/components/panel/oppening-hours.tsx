@@ -110,6 +110,18 @@ const OpeningHoursConfig = () => {
     }
 
     const handleTimeChange = (day: DayOfWeek, key: "openHour" | "closeHour", timeValue: string) => {
+        const updatedHours = { ...hours[day], [key]: timeValue } as Timeslot;
+
+        if (key === "openHour" && updatedHours.closeHour && timeValue >= updatedHours.closeHour) {
+            toast.error("Open hour must be before close hour");
+            return;
+        }
+
+        if (key === "closeHour" && updatedHours.openHour && timeValue <= updatedHours.openHour) {
+            toast.error("Close hour must be after open hour");
+            return;
+        }
+
         handleChange(day, key, timeValue);
     };
 
