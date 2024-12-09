@@ -38,7 +38,7 @@ export default function Register() {
 
     const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
         try {
-            const res = await fetch(`${apiBaseUrl}/api/auth/register`, {
+            const res = await fetch(`${apiBaseUrl}/api/auth-backend/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

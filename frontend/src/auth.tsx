@@ -13,7 +13,7 @@ import {jwtDecode, JwtPayload } from "jwt-decode";
 
 const refreshAccessToken = async (refreshToken: string) => {
     try {
-        const response = await fetch(`${apiBaseUrl}/api/auth/refresh-token`, {
+        const response = await fetch(`${apiBaseUrl}/api/auth-backend/refresh-token`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -55,7 +55,7 @@ const authOptions: NextAuthConfig = {
 
                     const { email, password } = credentials;
                     try {
-                        const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
+                        const res = await fetch(`${apiBaseUrl}/api/auth-backend/login`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
