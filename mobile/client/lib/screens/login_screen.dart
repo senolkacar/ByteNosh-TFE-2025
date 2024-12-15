@@ -1,15 +1,11 @@
 import 'dart:convert';
-
 import 'package:client/screens/homepage_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:client/components/input_field.dart';
 import 'package:client/components/login_button.dart';
 import 'package:http/http.dart' as http;
 import '/constants/api_constants.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-final storage = FlutterSecureStorage();
+import 'package:client/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -20,7 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -29,31 +24,31 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void signUserIn() async {
-    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-      final email = emailController.text;
-      final password = passwordController.text;
+  Future<void> signUserIn() async {
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      return;
+    }
 
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
+        Uri.parse('$baseUrl/api/auth-backend/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
-        final String? token = responseData['accessToken'];
+        final accessToken = responseData['accessToken'];
+        final refreshToken = responseData['refreshToken'];
 
-        if (token != null) {
-          // Save JWT token to secure storage
-          await storage.write(key: 'user_token', value: token);
+        if (accessToken != null && refreshToken != null) {
+          // Wait for the tokens to be fully saved
+          await ApiService.saveTokens(accessToken, refreshToken);
 
-          // Navigate to HomepageScreen
+          // Navigate only after the tokens are saved
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -64,16 +59,21 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: Token is missing')),
-          );
+          showError('Login failed: Missing tokens');
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: ${response.body}')),
-        );
+        showError('Login failed: ${response.body}');
       }
+    } catch (e) {
+      showError('An error occurred: $e');
     }
+  }
+
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -94,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       color: Colors.pink[900],
                       fontSize: 40,
-                      fontFamily: GoogleFonts.rubik().fontFamily,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -108,37 +107,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   InputField(
                     controller: passwordController,
                     hintText: 'Password',
-                    obscureText: !_passwordVisible,
+                    obscureText: true,
                     isPassword: true,
                     validator: validatePassword,
                   ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 25),
-                  LoginButton(
-                    onTap: signUserIn,
-                  ),
+                  LoginButton(onTap: signUserIn),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
+                      Text('Not a member?'),
+                      SizedBox(width: 4),
                       Text(
-                        'Not a member?',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
                         'Register now',
                         style: TextStyle(
                           color: Colors.blue,
@@ -161,9 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (value == null || value.isEmpty) {
       return 'Please enter an email';
     }
-    final RegExp emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$',
-    );
+    final RegExp emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Please enter a valid email';
     }

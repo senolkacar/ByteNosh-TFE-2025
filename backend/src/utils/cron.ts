@@ -10,7 +10,7 @@ cron.schedule("*/5 * * * *", async () => {
         const waitlistEntries = await Waitlist.find({ status: "WAITING" });
 
         for (const waitlistEntry of waitlistEntries) {
-            const { reservationDate, timeSlot } = waitlistEntry;
+            const { reservationDate, timeSlot, guests } = waitlistEntry;
 
             // Step 1: Find all available tables for the given date and timeslot
             const reservations = await Reservation.find({
@@ -23,13 +23,21 @@ cron.schedule("*/5 * * * *", async () => {
             });
 
             const reservedTableIds = reservations.map((reservation) => reservation.table);
-            const availableTable = await Table.findOne({
-                _id: { $nin: reservedTableIds },
-                status: "AVAILABLE",
-                seats: { $gte: waitlistEntry.guests },
-            });
 
-            // Step 2: If an available table is found, update waitlist status and notify the user
+            // Step 2: Determine the table size based on the number of guests
+            let tableQuery: any = { _id: { $nin: reservedTableIds }, status: "AVAILABLE" };
+
+            if (guests < 2) {
+                tableQuery.seats = 2;
+            } else if (guests >= 2 && guests < 4) {
+                tableQuery.seats = { $in: [2, 4] };
+            } else if (guests >= 4) {
+                tableQuery.seats = { $in: [4, 6] };
+            }
+
+            const availableTable = await Table.findOne(tableQuery);
+
+            // Step 3: If an available table is found, update waitlist status and notify the user
             if (availableTable) {
                 // Update waitlist entry status to "NOTIFIED"
                 await Waitlist.findByIdAndUpdate(waitlistEntry._id, { status: "NOTIFIED" });

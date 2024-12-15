@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:client/screens/login_screen.dart';
 import 'package:client/screens/homepage_screen.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:client/services/api_service.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '/constants/api_constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiService.initializeTokens();
   runApp(const MobileApp());
 }
 
@@ -16,6 +17,17 @@ class MobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: const Locale('fr', 'BE'),
+      supportedLocales: const [
+        Locale('en', 'US'), // English (US)
+        Locale('fr', 'FR'), // French (France)
+        Locale('fr', 'BE'), // French (Belgium)
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         primarySwatch: Colors.pink,
         fontFamily: 'Rubik',
@@ -31,8 +43,6 @@ class AuthCheckScreen extends StatefulWidget {
 }
 
 class _AuthCheckScreenState extends State<AuthCheckScreen> {
-  final storage = FlutterSecureStorage();
-
   @override
   void initState() {
     super.initState();
@@ -40,14 +50,13 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
   }
 
   Future<void> checkLoginStatus() async {
-    String? token = await storage.read(key: 'user_token');
+    if (ApiService.accessToken == null || ApiService.refreshToken == null) {
+      logout(); // No tokens found, navigate to login
+      return;
+    }
 
-    if (token != null) {
-      // Validate token with the backend
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/auth/validate'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+    try {
+      final response = await ApiService.apiRequest('/api/auth-backend/validate', context: context);
 
       if (response.statusCode == 200) {
         final userData = jsonDecode(response.body);
@@ -61,20 +70,19 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
           ),
         );
       } else {
-        // Token is invalid or expired
-        await storage.delete(key: 'user_token');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        logout();
       }
-    } else {
-      // No token found
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
+    } catch (e) {
+      logout();
     }
+  }
+
+  void logout() async {
+    await ApiService.clearStorage();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
   }
 
   @override
@@ -84,3 +92,4 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     );
   }
 }
+

@@ -88,7 +88,11 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
 
     const fetchOpeningHoursForDate = async (selectedDate: Date) => {
         try {
-            const response = await fetch(`/api/opening-hours?date=${selectedDate.toISOString()}`);
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            const date = `${year}-${month}-${day}`;
+            const response = await fetch(`/api/opening-hours?date=${date}`);
             const { openHour, closeHour } = await response.json();
             generateTimeSlots(selectedDate, openHour, closeHour);
         } catch (error) {
@@ -97,7 +101,12 @@ export default function ReservationSettings({ onCheckAvailability }: any) {
     };
 
     const handleCheckAvailability = async (date: any, selectedTimeSlot: any) => {
-        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${date.toISOString()}&timeSlot=${selectedTimeSlot}`, {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+
+        const response = await fetch(`/api/sections/availability/check-availability?reservationDate=${dateString}&timeSlot=${selectedTimeSlot}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${session.data?.accessToken}`,

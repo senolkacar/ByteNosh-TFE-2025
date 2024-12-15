@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface RefreshToken {
+    token: string;
+    expiresAt: Date;
+}
+
 export interface UserDocument extends Document {
     fullName: string,
     email: string,
@@ -7,9 +12,7 @@ export interface UserDocument extends Document {
     phone: string,
     avatar: string,
     role: string,
-    refreshToken?: string; // Current valid refresh token
-    refreshTokenExpiresAt?: Date; // Expiry of the current refresh token
-    replacedByToken?: string; // Token that replaced the current token (rotation tracking)
+    refreshTokens: RefreshToken[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -19,9 +22,12 @@ const UserSchema: Schema = new Schema({
     phone: { type: String },
     avatar: { type: String },
     role: { type: String, default: "USER" },
-    refreshToken: { type: String },
-    refreshTokenExpiresAt: { type: Date },
-    replacedByToken: { type: String },
+    refreshTokens: [
+        {
+            token: { type: String, required: true },
+            expiresAt: { type: Date, required: true },
+        },
+    ],
 });
 
 export default mongoose.model<UserDocument>("User", UserSchema);

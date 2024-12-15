@@ -133,6 +133,10 @@ const authOptions: NextAuthConfig = {
         },
 
         async session({ session, token }: { session: any; token: JWT }) {
+            if (!token?.accessToken) {
+                console.log("Session expired. Logging out.");
+                return null; // Force logout
+            }
             if (token) {
                 session.user = {
                     ...session.user,

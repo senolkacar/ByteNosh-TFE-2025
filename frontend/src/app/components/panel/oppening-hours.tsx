@@ -234,21 +234,28 @@ const OpeningHoursConfig = () => {
                             <TableHead className="flex justify-center">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
+                    //toadd
                     <TableBody>
-                        {closedDays.map((closure) => (
-                            <TableRow key={new Date(closure.date).toISOString()}>
-                                <TableCell>{format(closure.date, "PPP")}</TableCell>
-                                <TableCell>{closure.reason}</TableCell>
-                                <TableCell className="flex justify-center">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => handleOpenDay(closure.date)}
-                                    >
-                                        Open
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {closedDays.map((closure) => {
+                            const year = closure.date.getFullYear();
+                            const month = String(closure.date.getMonth() + 1).padStart(2, '0');
+                            const day = String(closure.date.getDate()).padStart(2, '0');
+                            const dateString = `${year}-${month}-${day}`;
+                            return (
+                                <TableRow key={dateString}>
+                                    <TableCell>{format(closure.date, "PPP")}</TableCell>
+                                    <TableCell>{closure.reason}</TableCell>
+                                    <TableCell className="flex justify-center">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => handleOpenDay(closure.date)}
+                                        >
+                                            Open
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </div>

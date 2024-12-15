@@ -55,6 +55,10 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
 
     const onSubmit = async (data: any) => {
         try {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
             const response = await fetch("/api/waitlist", {
                 method: "POST",
                 headers: {
@@ -63,7 +67,7 @@ export default function Waitlist({ date, timeSlot, guests, onWaitlistSubmitted }
                 },
                 body: JSON.stringify({
                     ...data,
-                    reservationDate: date.toISOString(),
+                    reservationDate: dateString,
                     timeSlot,
                 }),
             });

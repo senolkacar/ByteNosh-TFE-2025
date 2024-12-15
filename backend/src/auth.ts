@@ -2,7 +2,7 @@ import express, {NextFunction, Request, Response} from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
-import User, { UserDocument } from './models/user';
+import User, { UserDocument, RefreshToken } from './models/user';
 import dotenv from 'dotenv';
 import crypto from "crypto";
 
@@ -57,9 +57,14 @@ router.post(
             }
 
             const hashedPassword = await bcrypt.hash(password, 8);
-            const newUser = new User({ fullName, email, password: hashedPassword, role: 'USER' });
+            const newUser = new User({
+                fullName,
+                email,
+                password: hashedPassword,
+                role: 'USER',
+                refreshTokens: [],
+            });
             await newUser.save();
-
             res.status(201).json({ message: 'User created successfully' });
         } catch (error) {
             res.status(500).json({ message: 'Error creating user' });
@@ -84,16 +89,12 @@ router.post(
 
             // Generate tokens
             const accessToken = generateAccessToken(user.id);
-            const { token: refreshToken, expiresAt } = generateRefreshToken();
+            const refreshToken = generateRefreshToken();
 
-            // Update user's refresh token in the database
-            user.refreshToken = refreshToken;
-            user.refreshTokenExpiresAt = expiresAt;
-            user.replacedByToken = undefined;
+            user.refreshTokens.push(refreshToken);
             await user.save();
-            //const { password: userPassword, ...userWithoutPassword } = user.toObject();
 
-            res.status(200).json({ user, accessToken, refreshToken });
+            res.status(200).json({ user, accessToken, refreshToken: refreshToken.token });
         } catch (error) {
             res.status(500).json({ message: "Error logging in" });
         }
@@ -154,41 +155,38 @@ export const validateRole = (role: string) => {
     };
 };
 
-router.post(
-    "/refresh-token",
-    async (req: Request, res: Response): Promise<void> => {
-        const { refreshToken } = req.body;
+router.post('/refresh-token', async (req: Request, res: Response): Promise<void> => {
+    const { refreshToken } = req.body;
 
-        if (!refreshToken) {
-            res.status(400).json({ message: "Refresh token is required" });
+    // Check if refresh token is provided
+    if (!refreshToken) {
+        res.status(400).json({ message: 'Refresh token is required' });
+        return;
+    }
+
+    try {
+        // Find the user and check for valid refresh tokens
+        const user = await User.findOne({
+            refreshTokens: { $elemMatch: { token: refreshToken, expiresAt: { $gt: new Date() } } },
+        });
+
+        if (!user) {
+            res.status(403).json({ message: 'Invalid or expired refresh token' });
             return;
         }
+        const newRefreshToken = generateRefreshToken();
 
-        try {
-            const user = await User.findOne({ refreshToken });
+        user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== refreshToken);
+        user.refreshTokens.push(newRefreshToken);
+        await user.save();
 
-            // Validate refresh token
-            if (!user || user.refreshTokenExpiresAt! < new Date()) {
-                res.status(403).json({ message: "Invalid or expired refresh token" });
-                return;
-            }
+        const newAccessToken = generateAccessToken(user.id);
 
-            // Rotate refresh token
-            const { token: newRefreshToken, expiresAt: newExpiresAt } = generateRefreshToken();
-            user.replacedByToken = newRefreshToken;
-            user.refreshToken = newRefreshToken;
-            user.refreshTokenExpiresAt = newExpiresAt;
-            await user.save();
-
-            // Issue new access token
-            const newAccessToken = generateAccessToken(user.id);
-
-            res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-        } catch (error) {
-            res.status(500).json({ message: "Error refreshing token" });
-        }
+        res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken.token });
+    } catch (error) {
+        res.status(500).json({ message: 'Error refreshing token' });
     }
-);
+});
 
 router.post(
     "/logout",
@@ -201,14 +199,14 @@ router.post(
         }
 
         try {
-            const user = await User.findOne({ refreshToken });
+            const user = await User.findOne({
+                refreshTokens: { $elemMatch: { token: refreshToken } },
+            });
+
             if (user) {
-                user.refreshToken = undefined;
-                user.refreshTokenExpiresAt = undefined;
-                user.replacedByToken = undefined;
+                user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== refreshToken);
                 await user.save();
             }
-
             res.status(200).json({ message: "Logged out successfully" });
         } catch (error) {
             res.status(500).json({ message: "Error logging out" });

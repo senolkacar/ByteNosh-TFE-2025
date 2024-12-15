@@ -55,11 +55,14 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                 console.error("Failed to fetch sections", error);
             }
         }
-
         async function fetchWeatherRecommendation() {
             if (!date) return;
             try {
-                const response = await fetch(`/api/weather?date=${date.toISOString()}`);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
+                const response = await fetch(`/api/weather?date=${dateString}`);
                 if (!response.ok) {
                     const errorData = await response.json();
                     setWeatherMessage(errorData.error || "Failed to fetch weather data");
@@ -87,8 +90,12 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
         setError(null);
 
         try {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
             const response = await fetch(
-                `/api/sections/${selectedSection._id}/tables?reservationDate=${date.toISOString()}&timeSlot=${timeSlot}`,
+                `/api/sections/${selectedSection._id}/tables?reservationDate=${dateString}&timeSlot=${timeSlot}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${session.data?.accessToken}`,
@@ -101,14 +108,16 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
             }
 
             const data = await response.json();
+            const selectableTables = data.filter((table: any) => !isTableDisabled(table) && table.status !== "RESERVED");
 
-            if (data.some((table: any) => table.status === "AVAILABLE")) {
+            if (selectableTables.length > 0) {
                 setNoTableAvailable(false);
-                setTablesData(data);
             } else {
                 setNoTableAvailable(true);
                 setShowWaitlistModal(true);
             }
+
+            setTablesData(data);
         } catch (err: any) {
             setError(err.message || "An error occurred");
         } finally {
@@ -160,6 +169,10 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
     const handleReservation = async () => {
         setLoading(true);
         try {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
             const response = await fetch("/api/reservations", {
                 method: "POST",
                 headers: {
@@ -170,7 +183,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                     tableId: selectedTable?._id,
                     sectionId: selectedSection._id,
                     guests,
-                    reservationDate: date,
+                    reservationDate: dateString,
                     timeSlot,
                     userId: session.data?.user?.id,
                 }),
