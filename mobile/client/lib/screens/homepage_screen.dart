@@ -21,6 +21,7 @@ class HomepageScreen extends StatefulWidget {
 class _HomepageScreenState extends State<HomepageScreen> {
   late Future<List<FoodItem>> foodItems;
   TextEditingController searchController = TextEditingController();
+  String selectedCategory = 'All dishes';
 
   @override
   void initState() {
@@ -29,11 +30,15 @@ class _HomepageScreenState extends State<HomepageScreen> {
   }
 
   Future<List<FoodItem>> fetchFoodItems() async {
-    final response = await ApiService.apiRequest('/api/meals',context: context);
+    final response = await ApiService.apiRequest('/api/meals', context: context);
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse.map((item) => FoodItem.fromJson(item as Map<String, dynamic>)).toList();
+      List<FoodItem> items = jsonResponse.map((item) => FoodItem.fromJson(item as Map<String, dynamic>)).toList();
+      if (selectedCategory != 'All dishes') {
+        items = items.where((item) => item.category.name == selectedCategory).toList();
+      }
+      return items;
     } else {
       throw Exception('Failed to load food items');
     }
@@ -46,6 +51,13 @@ class _HomepageScreenState extends State<HomepageScreen> {
         return AddItemModal(foodItem: foodItem);
       },
     );
+  }
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+      foodItems = fetchFoodItems();
+    });
   }
 
   @override
@@ -96,6 +108,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                     ),
                     child: const Text('View All'),
                     onPressed: () {
+                      _onCategorySelected('All dishes');
                     },
                   ),
                 ]),
@@ -108,34 +121,49 @@ class _HomepageScreenState extends State<HomepageScreen> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  Card(
-                    child: Container(
-                      width: 100,
-                      child: Center(child: Text('All dishes')),
+                  GestureDetector(
+                    onTap: () => _onCategorySelected('All dishes'),
+                    child: Card(
+                      child: Container(
+                        width: 100,
+                        child: Center(child: Text('All dishes')),
+                      ),
                     ),
                   ),
-                  Card(
-                    child: Container(
-                      width: 100,
-                      child: Center(child: Text('Starters')),
+                  GestureDetector(
+                    onTap: () => _onCategorySelected('Starters'),
+                    child: Card(
+                      child: Container(
+                        width: 100,
+                        child: Center(child: Text('Starters')),
+                      ),
                     ),
                   ),
-                  Card(
-                    child: Container(
-                      width: 100,
-                      child: Center(child: Text('Main Dishes')),
+                  GestureDetector(
+                    onTap: () => _onCategorySelected('Main Dishes'),
+                    child: Card(
+                      child: Container(
+                        width: 100,
+                        child: Center(child: Text('Main Dishes')),
+                      ),
                     ),
                   ),
-                  Card(
-                    child: Container(
-                      width: 100,
-                      child: Center(child: Text('Desserts')),
+                  GestureDetector(
+                    onTap: () => _onCategorySelected('Desserts'),
+                    child: Card(
+                      child: Container(
+                        width: 100,
+                        child: Center(child: Text('Desserts')),
+                      ),
                     ),
                   ),
-                  Card(
-                    child: Container(
-                      width: 100,
-                      child: Center(child: Text('Drinks')),
+                  GestureDetector(
+                    onTap: () => _onCategorySelected('Drinks'),
+                    child: Card(
+                      child: Container(
+                        width: 100,
+                        child: Center(child: Text('Drinks')),
+                      ),
                     ),
                   ),
                 ],
@@ -224,11 +252,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     style: ElevatedButton.styleFrom(
                                       foregroundColor: Colors.pink,
                                     ),
-                                      onPressed: () {
-                                        _showAddItemModal(foodItem);
-                                      },
-                                      icon: Icon(Icons.read_more),
-                                      label: Text('More'),
+                                    onPressed: () {
+                                      _showAddItemModal(foodItem);
+                                    },
+                                    icon: Icon(Icons.read_more),
+                                    label: Text('More'),
                                   ),
                                 ],
                               ),
@@ -244,46 +272,45 @@ class _HomepageScreenState extends State<HomepageScreen> {
           ),
         ],
       ),
-
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.event),
-              label: 'Reservations',
-            ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile'
-            ),
-          ],
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReservationScreen(),
-                  ),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(userEmail: widget.userEmail),
-                  ),
-                );
-                break;
-            }
-          },
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Reservations',
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile'
+          ),
+        ],
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReservationScreen(),
+                ),
+              );
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(userEmail: widget.userEmail),
+                ),
+              );
+              break;
+          }
+        },
+      ),
     );
   }
 }
