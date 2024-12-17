@@ -8,6 +8,8 @@
   import 'package:flutter_secure_storage/flutter_secure_storage.dart';
   import 'package:web_socket_channel/io.dart';
   import '/constants/api_constants.dart';
+  import 'package:fluttertoast/fluttertoast.dart';
+
 
 
   final storage = FlutterSecureStorage();
@@ -308,13 +310,17 @@
           final openHour = data['openHour'];
           final closeHour = data['closeHour'];
           _generateTimeSlots(selectedDate, openHour, closeHour);
-          if(selectedDate == DateTime.now() && _isTimeSlotEmpty) {
+          if (selectedDate.year == DateTime.now().year &&
+              selectedDate.month == DateTime.now().month &&
+              selectedDate.day == DateTime.now().day) {
             setState(() {
               _isTimeSlotEmpty = _timeSlots.isEmpty;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('No available time slots for today. Please select another date.')),
-            );
+            if (_isTimeSlotEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('No available time slots for today. Please select another date.')),
+              );
+            }
           }
         } else {
           throw Exception('Failed to load time slots');
@@ -440,6 +446,7 @@
         setState(() {
           _selectedDate = date;
           _selectedTimeSlot = null;
+          _isTimeSlotEmpty = false;
         });
         _fetchTimeSlots(date);
       }
@@ -599,8 +606,12 @@
             .toList();
       }
 
-      // Guests > 4: Allow only tables for 6
-      return availableTables.where((table) => table.seats == 6).toList();
+      if(_numberOfGuests! > 4 && _numberOfGuests! <= 6) {
+        // Guests > 4: Allow only tables for 6
+        return availableTables.where((table) => table.seats == 6).toList();
+      }
+
+      return [];
     }
 
     @override
@@ -664,27 +675,40 @@
               else ...[
                 Text('Available Time Slots:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                  ),
-                  hint: Text('Select a time slot'),
-                  value: _selectedTimeSlot,
-                  items: _timeSlots.map((slot) {
-                    return DropdownMenuItem<String>(
-                      value: slot,
-                      child: Text(slot),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTimeSlot = value;
-                    });
+                GestureDetector(
+                  onTap: () {
+                    if (_timeSlots.isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "No time slots left for this day",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                      );
+                    }
                   },
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                    hint: Text('Select a time slot'),
+                    value: _selectedTimeSlot,
+                    items: _timeSlots.map((slot) {
+                      return DropdownMenuItem<String>(
+                        value: slot,
+                        child: Text(slot),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTimeSlot = value;
+                      });
+                    },
+                  ),
                 ),
               ],
               SizedBox(height: 16),
@@ -735,6 +759,7 @@
                     _numberOfGuests = int.tryParse(value);
                     _showTables = false;
                   });
+
                 },
                 onFieldSubmitted: (_) {
                   _guestFocusNode.unfocus(); // Unfocus the text field to prevent form submission
@@ -751,7 +776,7 @@
                   ),
                 ),
                 onPressed: () {
-                  if (_numberOfGuests != null && _numberOfGuests! > 0) {
+                  if (_numberOfGuests != null && _numberOfGuests! > 0 && _numberOfGuests! <= 6) {
                     setState(() {
                       _showTables = true;
                       _loadingTables = true;

@@ -4,8 +4,9 @@ import '/models/food_item.dart';
 import '/screens/food_details.dart';
 import '/screens/profile_screen.dart';
 import '/screens/reservation_screen.dart';
-import 'package:http/http.dart' as http;
 import '/constants/api_constants.dart';
+import '/components/closure_alert.dart';
+import '/services/api_service.dart';
 
 class HomepageScreen extends StatefulWidget {
   final String userEmail;
@@ -28,7 +29,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
   }
 
   Future<List<FoodItem>> fetchFoodItems() async {
-    final response = await http.get(Uri.parse('$baseUrl/api/meals'));
+    final response = await ApiService.apiRequest('/api/meals',context: context);
 
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -99,6 +100,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                   ),
                 ]),
           ),
+          ClosureAlert(),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
