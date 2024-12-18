@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http; // for HTTP requests
@@ -49,7 +50,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception('Failed to load profile');
       }
     } catch (error) {
-      print('Error fetching user: $error');
+      if (kDebugMode) {
+        print('Error fetching user: $error');
+      }
     }
   }
 
@@ -70,7 +73,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception('Failed to upload image');
       }
     } catch (error) {
-      print('Error uploading image: $error');
+      if (kDebugMode) {
+        print('Error uploading image: $error');
+      }
     }
   }
 
@@ -94,7 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception('Failed to update profile');
       }
     } catch (error) {
-      print('Error updating profile: $error');
+      if (kDebugMode) {
+        print('Error updating profile: $error');
+      }
     }
   }
 

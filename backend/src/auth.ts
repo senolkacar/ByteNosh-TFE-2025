@@ -22,6 +22,10 @@ export const generateAccessToken = (userId: string): string => {
     return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "15m" }); // Short-lived token
 };
 
+export const generateEmployeeAccessToken = (userId: string): string => {
+    return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '7d' }); // Long-lived token
+}
+
 export const generateRefreshToken = (): { token: string; expiresAt: Date } => {
     const token = crypto.randomBytes(64).toString("hex");
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY);
@@ -88,7 +92,7 @@ router.post(
             }
 
             // Generate tokens
-            const accessToken = generateAccessToken(user.id);
+            const accessToken = user.role === 'EMPLOYEE' ? generateEmployeeAccessToken(user.id) : generateAccessToken(user.id);
             const refreshToken = generateRefreshToken();
 
             user.refreshTokens.push(refreshToken);

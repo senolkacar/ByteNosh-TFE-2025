@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -37,7 +38,9 @@ class _ReservationScreenState extends State<ReservationScreen>
         });
       }
     } catch (error) {
-      print('Error loading user data: $error');
+      if (kDebugMode) {
+        print('Error loading user data: $error');
+      }
     }
   }
 
@@ -100,9 +103,10 @@ class _ReservationScreenState extends State<ReservationScreen>
 
         setState(() {}); // Refresh the reservations list
       } else {
-        print('Response: ${response.body}');
-        throw Exception('Failed to cancel reservation with reservation id: $reservationId' +
-            '\nResponse: ${response.body}');
+        if (kDebugMode) {
+          print('Response: ${response.body}');
+        }
+        throw Exception('Failed to cancel reservation with reservation id: $reservationId');
       }
     } catch (e) {
       Navigator.pop(context);

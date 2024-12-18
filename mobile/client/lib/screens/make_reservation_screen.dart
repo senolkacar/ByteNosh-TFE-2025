@@ -1,4 +1,5 @@
-  import 'package:flutter/material.dart';
+  import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
   import 'dart:convert';
   import '../services/api_service.dart';
   import 'package:intl/intl.dart';
@@ -66,7 +67,9 @@
           });
         }
       } catch (error) {
-        print('Error loading user data: $error');
+        if (kDebugMode) {
+          print('Error loading user data: $error');
+        }
       }
     }
 
@@ -265,7 +268,9 @@
               .map<String>((day) => day['day'].toString().toLowerCase()) // Ensure lowercase
               .toList();
 
-          print("Closed Days from API: $closedDays");
+          if (kDebugMode) {
+            print("Closed Days from API: $closedDays");
+          }
 
           setState(() {
             _disabledDays = closedDays;
@@ -274,7 +279,9 @@
           throw Exception('Failed to fetch opening hours');
         }
       } catch (error) {
-        print('Failed to fetch opening hours: $error');
+        if (kDebugMode) {
+          print('Failed to fetch opening hours: $error');
+        }
       }
     }
 
@@ -292,7 +299,9 @@
           throw Exception('Failed to fetch closure days');
         }
       } catch (error) {
-        print('Failed to fetch closure days: $error');
+        if (kDebugMode) {
+          print('Failed to fetch closure days: $error');
+        }
       }
     }
 
@@ -476,13 +485,6 @@
 
       final noSlotsToday = isToday && _noTimeSlotLeft(selectedDate);
 
-      print("Checking Date: $selectedDate, "
-          "IsPast: $isPast, "
-          "IsClosureDay: $isClosureDay, "
-          "Selected Weekday: $selectedWeekday, "
-          "IsDisabledWeekday: $isDisabledWeekday, "
-          "NoSlotsToday: $noSlotsToday");
-
       return isPast || isClosureDay || isDisabledWeekday || noSlotsToday;
     }
 
@@ -559,12 +561,16 @@
           );
         } else {
           final errorResponse = jsonDecode(response.body);
-          print('Error Response: ${errorResponse.toString()}');
+          if (kDebugMode) {
+            print('Error Response: ${errorResponse.toString()}');
+          }
           throw Exception('Failed to make reservation: ${response.body}');
         }
       } catch (e) {
         Navigator.pop(context); // Close loading indicator
-        print('Exception: $e');
+        if (kDebugMode) {
+          print('Exception: $e');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
@@ -659,7 +665,9 @@
                     if (pickedDate != null) {
                       _handleDateSelection(pickedDate);
                     } else {
-                      print("No date selected");
+                      if (kDebugMode) {
+                        print("No date selected");
+                      }
                     }
                   },
                   child: Text(
