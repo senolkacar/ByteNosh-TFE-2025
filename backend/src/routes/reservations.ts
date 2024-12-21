@@ -8,6 +8,7 @@ import { sendEmail } from "../utils/mailer";
 import User, {UserDocument} from "../models/user";
 import { getSocketIO } from "../utils/socket";
 import {validateToken} from "../auth";
+import Table from "../models/table";
 
 interface CustomRequest extends Request {
     user?: UserDocument;
@@ -105,6 +106,11 @@ router.post(
             await savedReservation.save();
             await saveReservationToFirestore(savedReservation);
 
+            // Update table status
+            await Table.findByIdAndUpdate(tableId, { status: "RESERVED" });
+
+            const io = getSocketIO();
+            io.emit("update-table-status", { tableId, status: "RESERVED" });
             const reservationDateObj = new Date(reservationDate);
 
             const emailSubject = "Your Reservation Confirmation";
@@ -270,6 +276,11 @@ router.put("/:id/cancel",
             const firestoreRef = firestore.collection('reservations').doc(id);
             await firestoreRef.update({ status: "CANCELLED" });
 
+            // Update table status
+            await Table.findByIdAndUpdate(reservation.table, { status: "AVAILABLE" });
+
+            const io = getSocketIO();
+            io.emit("update-table-status", { tableId: reservation.table, status: "RESERVED" });
 
             const reservationDateObj = new Date(reservation.reservationTime as unknown as string);
 
@@ -297,7 +308,6 @@ router.put("/:id/cancel",
 
             await admin.messaging().send(message);
 
-            const io = getSocketIO();
             io.emit("table-available", { tableId: reservation.table, timeSlot: reservation.timeSlot });
             res.json({ reservation });
         } catch (error) {

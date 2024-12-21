@@ -49,6 +49,10 @@ export const initializeSocket = (httpServer: HttpServer) => {
             }
         });
 
+        socket.on("update-table-status", (data) => {
+            io.emit("update-table-status", data);
+        });
+
         socket.on("disconnect", () => {
             console.log("Client disconnected:", socket.id);
         });

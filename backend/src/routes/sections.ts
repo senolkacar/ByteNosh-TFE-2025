@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import Table from "../models/table";
 import Reservation from "../models/reservation";
 import {validateRole, validateToken} from "../auth";
+import calculateTableStatus from "../utils/update-table-status";
 
 const router = express.Router();
 
@@ -131,38 +132,17 @@ router.get("/:sectionId/tables",
         try {
             const reservationDateObj = new Date(reservationDate);
 
-            // Step 1: Find all tables in the specified section
             const tables = await Table.find({ section: sectionId }).lean();
 
-            // Step 2: Find reservations for the specified date and time slot
-            const reservations = await Reservation.find({
-                table: { $in: tables.map(table => table._id) },
-                reservationTime: {
-                    $gte: reservationDateObj,
-                    $lt: new Date(reservationDateObj.getTime() + 24 * 60 * 60 * 1000), // End of the day
-                },
-                timeSlot,  // Ensure we filter by timeSlot as well
-                status: { $in: ["PENDING", "CONFIRMED"] },
-            }).lean();
-
-            // Step 3: Map reservations to table statuses
-            const tableStatusMap: Record<string, string> = {};
-            reservations.forEach(reservation => {
-                if (reservation.table) {
-                    tableStatusMap[reservation.table.toString()] = "RESERVED";
-                }
-            });
-
-            // Step 4: Attach status to each table
-            const tablesWithStatus = tables.map(table => ({
-                ...table,
-                status: table._id ? tableStatusMap[table._id.toString()] || 'AVAILABLE' : 'UNKNOWN',
+            const tablesWithStatus = await Promise.all(tables.map(async (table) => {
+                const status = await calculateTableStatus(table._id, reservationDateObj, timeSlot);
+                return { ...table, status };
             }));
 
             res.status(200).json(tablesWithStatus);
         } catch (error) {
-            console.error("Error fetching tables:", error as any); // Log full error details
-            res.status(500).json({ message: "Error fetching tables", error: (error as any).message });
+            console.error("Error fetching tables:", error);
+            res.status(500).json({ message: "Error fetching tables", error: (error as Error).message });
         }
     }
 );

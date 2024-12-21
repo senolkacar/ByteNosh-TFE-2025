@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth-backend/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'email': email, 'password': password, 'appType': 'employeeApp'}),
       );
 
       if (response.statusCode == 200) {

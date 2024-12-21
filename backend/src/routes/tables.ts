@@ -2,8 +2,69 @@ import express, {Request, Response} from "express";
 import {body, param, validationResult} from "express-validator";
 import Table from "../models/table";
 import {validateRole, validateToken} from "../auth";
+import {getSocketIO} from "../utils/socket";
+import calculateTableStatus from "../utils/update-table-status";
 
 const router = express.Router();
+
+router.put("/:id/occupy",
+    validateToken,
+    param('id').escape().isMongoId().withMessage('Invalid table ID'),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const tableId = req.params.id;
+        try {
+            const table = await Table.findById(tableId);
+            if (table) {
+                table.status = "OCCUPIED";
+                await table.save();
+                const io = getSocketIO();
+                io.emit("update-table-status", { tableId, status: "OCCUPIED" });
+
+                res.status(200).json(table);
+            } else {
+                res.status(404).json({ message: "Table not found" });
+            }
+        } catch (error) {
+            res.status(500).json({ message: "Error updating table status" });
+        }
+    }
+);
+
+router.put("/:id/free",
+    validateToken,
+    param('id').escape().isMongoId().withMessage('Invalid table ID'),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const tableId = req.params.id;
+        try {
+            const table = await Table.findById(tableId);
+            if (table) {
+                table.status = "AVAILABLE";
+                await table.save();
+                const io = getSocketIO();
+                io.emit("update-table-status", { tableId, status: "AVAILABLE" });
+
+                res.status(200).json(table);
+            } else {
+                res.status(404).json({ message: "Table not found" });
+            }
+        } catch (error) {
+            res.status(500).json({ message: "Error updating table status" });
+        }
+    }
+);
+
 
 router.put("/:id",
     validateToken,
@@ -31,6 +92,33 @@ router.put("/:id",
             }
         } catch (error) {
             res.status(500).json({ message: "Error updating table" });
+        }
+    });
+
+router.get('/section/:sectionId',
+    validateToken,
+    param('sectionId').escape().isMongoId().withMessage('Invalid section ID'),
+    async (req: Request, res: Response): Promise<void> => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        const sectionId = req.params.sectionId;
+        const { reservationDate, timeSlot } = req.query as { reservationDate: string, timeSlot: string };
+
+        try {
+            const tables = await Table.find({ section: sectionId }).lean();
+
+            const tablesWithStatus = await Promise.all(tables.map(async (table) => {
+                const status = await calculateTableStatus(table._id, reservationDate, timeSlot);
+                return { ...table, status };
+            }));
+
+            res.json(tablesWithStatus);
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching tables" });
         }
     });
 

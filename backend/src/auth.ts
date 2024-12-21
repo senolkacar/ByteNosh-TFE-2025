@@ -90,6 +90,10 @@ router.post(
                 res.status(401).json({ message: "Invalid credentials" });
                 return;
             }
+            if ((user.role !== "EMPLOYEE" && user.role !== "ADMIN") && req.body.appType === "employeeApp") {
+                res.status(403).json({ message: "Unauthorized for this app" });
+                return;
+            }
 
             // Generate tokens
             const accessToken = user.role === 'EMPLOYEE' ? generateEmployeeAccessToken(user.id) : generateAccessToken(user.id);
