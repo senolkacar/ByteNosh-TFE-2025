@@ -47,6 +47,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
   void _showAddItemModal(FoodItem foodItem) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return AddItemModal(foodItem: foodItem);
       },
@@ -60,6 +61,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
     });
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,110 +80,110 @@ class _HomepageScreenState extends State<HomepageScreen> {
                   fontWeight: FontWeight.bold, color: Colors.black)),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Our Menu',
-                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.pink[900],
-                      backgroundColor: Colors.white,
-                      textStyle: TextStyle(fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Our Menu',
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.pink[900],
+                        backgroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      child: const Text('View All'),
+                      onPressed: () {
+                        _onCategorySelected('All dishes');
+                      },
                     ),
-                    child: const Text('View All'),
-                    onPressed: () {
-                      _onCategorySelected('All dishes');
-                    },
-                  ),
-                ]),
-          ),
-          ClosureAlert(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 100.0, // Set a fixed height for the container
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  GestureDetector(
-                    onTap: () => _onCategorySelected('All dishes'),
-                    child: Card(
-                      child: Container(
-                        width: 100,
-                        child: Center(child: Text('All dishes')),
+                  ]),
+            ),
+            ClosureAlert(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 100.0, // Set a fixed height for the container
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _onCategorySelected('All dishes'),
+                      child: Card(
+                        child: Container(
+                          width: 100,
+                          child: Center(child: Text('All dishes')),
+                        ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _onCategorySelected('Starters'),
-                    child: Card(
-                      child: Container(
-                        width: 100,
-                        child: Center(child: Text('Starters')),
+                    GestureDetector(
+                      onTap: () => _onCategorySelected('Starters'),
+                      child: Card(
+                        child: Container(
+                          width: 100,
+                          child: Center(child: Text('Starters')),
+                        ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _onCategorySelected('Main Dishes'),
-                    child: Card(
-                      child: Container(
-                        width: 100,
-                        child: Center(child: Text('Main Dishes')),
+                    GestureDetector(
+                      onTap: () => _onCategorySelected('Main Dishes'),
+                      child: Card(
+                        child: Container(
+                          width: 100,
+                          child: Center(child: Text('Main Dishes')),
+                        ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _onCategorySelected('Desserts'),
-                    child: Card(
-                      child: Container(
-                        width: 100,
-                        child: Center(child: Text('Desserts')),
+                    GestureDetector(
+                      onTap: () => _onCategorySelected('Desserts'),
+                      child: Card(
+                        child: Container(
+                          width: 100,
+                          child: Center(child: Text('Desserts')),
+                        ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _onCategorySelected('Drinks'),
-                    child: Card(
-                      child: Container(
-                        width: 100,
-                        child: Center(child: Text('Drinks')),
+                    GestureDetector(
+                      onTap: () => _onCategorySelected('Drinks'),
+                      child: Card(
+                        child: Container(
+                          width: 100,
+                          child: Center(child: Text('Drinks')),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Popular Dishes',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Popular Dishes',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<FoodItem>>(
+            FutureBuilder<List<FoodItem>>(
               future: foodItems,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -192,11 +194,13 @@ class _HomepageScreenState extends State<HomepageScreen> {
                   return Center(child: Text('No popular dishes available'));
                 } else {
                   return GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 8.0,
                       mainAxisSpacing: 8.0,
-                      childAspectRatio: 2/2.5,
+                      childAspectRatio: 2/3, // Adjusted aspect ratio
                     ),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
@@ -228,12 +232,17 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(foodItem.description,maxLines: 2,
-                                overflow: TextOverflow.ellipsis,),
+                              child: Text(
+                                foodItem.description,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             Spacer(),
                             Padding(
@@ -241,22 +250,25 @@ class _HomepageScreenState extends State<HomepageScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    '${foodItem.price.toStringAsFixed(2)}€',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                  Flexible(
+                                    child: Text(
+                                      '${foodItem.price.toStringAsFixed(2)}€',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ),
                                   ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.pink,
+                                      minimumSize: Size(0, 40),
+                                      padding: EdgeInsets.symmetric(horizontal: 8.0),
                                     ),
                                     onPressed: () {
                                       _showAddItemModal(foodItem);
                                     },
-                                    icon: Icon(Icons.read_more),
-                                    label: Text('More'),
+                                    icon: Icon(Icons.read_more, size: 16),
+                                    label: Text('More', style: TextStyle(fontSize: 14)),
                                   ),
                                 ],
                               ),
@@ -269,8 +281,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
                 }
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

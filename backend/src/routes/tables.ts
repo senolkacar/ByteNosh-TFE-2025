@@ -22,6 +22,7 @@ router.put("/:id/occupy",
             const table = await Table.findById(tableId);
             if (table) {
                 table.status = "OCCUPIED";
+                table.occupiedUntil = new Date(new Date().setHours(23, 59, 59, 999));
                 await table.save();
                 const io = getSocketIO();
                 io.emit("update-table-status", { tableId, status: "OCCUPIED" });

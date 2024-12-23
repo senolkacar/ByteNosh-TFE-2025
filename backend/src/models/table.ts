@@ -9,7 +9,8 @@ const tableSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['AVAILABLE', 'RESERVED', 'OCCUPIED']
-    }
+    },
+    occupiedUntil: Date,
 });
 
 export default mongoose.model('Table', tableSchema);

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
   import 'package:jwt_decode/jwt_decode.dart';
   import 'reservation_screen.dart';
   import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-  import 'package:web_socket_channel/io.dart';
+  import 'package:socket_io_client/socket_io_client.dart' as IO;
   import '/constants/api_constants.dart';
   import 'package:fluttertoast/fluttertoast.dart';
 
@@ -40,7 +40,7 @@ import 'package:flutter/material.dart';
     bool _noTableAvailable = false;
     bool _loadingWaitlist = false;
     bool _showTables = false;
-    final channel = IOWebSocketChannel.connect('ws://$baseUrl/socket');
+    late IO.Socket socket;
     final FocusNode _guestFocusNode = FocusNode();
     final nameController = TextEditingController();
     final contactController = TextEditingController();
@@ -53,6 +53,44 @@ import 'package:flutter/material.dart';
       _fetchSections();
       _fetchOpeningHours();
       _fetchClosureDays();
+      _initializeSocketIO();
+    }
+    void _initializeSocketIO() {
+      socket = IO.io(
+        'http://$baseUrl',
+        IO.OptionBuilder()
+            .setTransports(['websocket'])
+            .disableAutoConnect()
+            .build(),
+      );
+
+      socket.connect();
+
+      socket.onConnect((_) {
+        print('Connected to Socket.IO');
+      });
+
+      socket.onDisconnect((_) {
+        print('Disconnected from Socket.IO');
+      });
+
+      socket.on('waitlist-update', (data) {
+        print('Waitlist update received: $data');
+      });
+
+      socket.onError((error) {
+        print('Socket.IO Error: $error');
+      });
+
+      socket.onReconnect((attempt) {
+        print('Reconnected after $attempt attempts');
+      });
+    }
+
+    @override
+    void dispose() {
+      socket.dispose();
+      super.dispose();
     }
 
     Future<void> _loadUserData() async {
@@ -131,7 +169,7 @@ import 'package:flutter/material.dart';
 
         if (response.statusCode == 201) {
           final data = jsonDecode(response.body);
-          channel.sink.add(jsonEncode({'event': 'waitlist-update', 'data': data}));
+          socket.emit('waitlist-update', data);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('You have been added to the waitlist.')),
           );
@@ -250,11 +288,7 @@ import 'package:flutter/material.dart';
       );
     }
 
-    @override
-    void dispose() {
-      channel.sink.close();
-      super.dispose();
-    }
+
 
     Future<void> _fetchOpeningHours() async {
       try {

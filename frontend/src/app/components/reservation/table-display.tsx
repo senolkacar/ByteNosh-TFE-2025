@@ -142,10 +142,10 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
             return table.seats !== 2;
         }
         if (guests === 2) {
-            return table.seats === 6 || (table.seats === 4 && tablesData.some((t) => t.seats === 2 && t.status !== 'RESERVED'));
+            return table.seats === 6 || (table.seats === 4 && tablesData.some((t) => t.seats === 2 && (t.status !== 'RESERVED' || t.status!=="OCCUPIED")));
         }
         if (guests > 2 && guests <= 4) {
-            return table.seats === 2 || (table.seats === 6 && tablesData.some((t) => t.seats === 4 && t.status !== 'RESERVED'));
+            return table.seats === 2 || (table.seats === 6 && tablesData.some((t) => t.seats === 4 && (t.status !== 'RESERVED' || t.status!=="OCCUPIED")));
         }
         if (guests > 4) {
             return table.seats !== 6;
@@ -367,7 +367,7 @@ export default function TableDisplay({ date, timeSlot, onBack }: any) {
                                             isReserved={table.status === "RESERVED"}
                                             isSelected={selectedTable?.name === table.name}
                                             isDisabled={
-                                                isTableDisabled(table) || table.status === "RESERVED"
+                                                isTableDisabled(table) || table.status === "RESERVED" || table.status === "OCCUPIED"
                                             }
                                             onSelect={() => !isTableDisabled(table) && handleSelect(table)}
                                         />

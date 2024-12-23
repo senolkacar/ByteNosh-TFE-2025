@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/services/api_service.dart';
 import '/screens/login_screen.dart';
 import '/screens/homepage_screen.dart';
@@ -8,6 +9,7 @@ import 'dart:convert';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiService.initializeTokens();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
 
