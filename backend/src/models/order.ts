@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
     table: { type: mongoose.Schema.Types.ObjectId, ref: 'Table' },
-    meals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }],
+    meals: [{
+        meal: { type: mongoose.Schema.Types.ObjectId, ref: 'Meal' },
+        quantity: { type: Number, required: true }
+    }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
     date: Date,
     status: {

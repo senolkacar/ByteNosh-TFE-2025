@@ -133,6 +133,8 @@ class ApiService {
         return await http.post(url, headers: headers, body: jsonEncode(data));
       case 'PUT':
         return await http.put(url, headers: headers, body: jsonEncode(data));
+      case 'PATCH':
+        return await http.patch(url, headers: headers, body: jsonEncode(data));
       case 'DELETE':
         return await http.delete(url, headers: headers, body: jsonEncode(data));
       case 'GET':

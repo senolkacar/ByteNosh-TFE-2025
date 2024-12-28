@@ -571,7 +571,10 @@ async function main(): Promise<void> {
             // Orders linked to reservation
             {
                 table: tables.find(t => t.name === 'Table 3')!._id,
-                meals: meals.filter(m => ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => m._id),
+                meals: meals.filter(m => ['Spaghetti Carbonara', 'Margherita Pizza'].includes(m.name)).map(m => ({
+                                meal: m._id,
+                                quantity: 1
+                                })),
                 date: new Date(),
                 status: 'IN_PROGRESS',
                 reservation: reservations[0]._id,
@@ -579,7 +582,10 @@ async function main(): Promise<void> {
             },
             {
                 table: tables.find(t => t.name === 'Table 4')!._id,
-                meals: meals.filter(m => ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => m._id),
+                meals: meals.filter(m => ['Caesar Salad', 'Bruschetta'].includes(m.name)).map(m => ({
+                                meal: m._id,
+                                quantity: 2
+                                })),
                 date: new Date(),
                 status: 'SERVED',
                 reservation: reservations[1]._id,
@@ -588,7 +594,10 @@ async function main(): Promise<void> {
             // Walk-in order (no reservation)
             {
                 table: tables.find(t => t.name === 'Table 4')!._id,
-                meals: meals.filter(m => ['Tiramisu', 'Pastéis de Nata'].includes(m.name)).map(m => m._id),
+                 meals: meals.filter(m => ['Tiramisu', 'Pastéis de Nata'].includes(m.name)).map(m => ({
+                                                meal: m._id,
+                                                quantity: 2
+                                                })),
                 date: new Date(),
                 status: 'PENDING'
                 // No reservation field for walk-in

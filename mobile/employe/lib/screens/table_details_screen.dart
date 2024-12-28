@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
 import '/models/table.dart';
+import '/screens/encode_order_screen.dart';
 import '/services/api_service.dart';
+import '/screens/view_order_screen.dart';
 
 
 class TableDetailsScreen extends StatefulWidget {
@@ -98,7 +100,12 @@ class _TableDetailsScreenState extends State<TableDetailsScreen> {
             SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                // Navigate to view orders screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewOrderScreen(table: table),
+                  ),
+                );
               },
               icon: Icon(Icons.view_list),
               label: Text('View Orders'),
@@ -114,7 +121,12 @@ class _TableDetailsScreenState extends State<TableDetailsScreen> {
             SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                // Navigate to encode new orders screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EncodeOrderScreen(table: table),
+                  ),
+                );
               },
               icon: Icon(Icons.add),
               label: Text('Encode New Orders'),
