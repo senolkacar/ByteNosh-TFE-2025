@@ -139,6 +139,34 @@ router.get('/table/:id',
     }
 );
 
+router.get('/payment-status',
+    async (req, res): Promise<void> => {
+        const { paymentIntentId } = req.query as Record<string, any>;
+
+        if(!paymentIntentId){
+            res.status(400).json({ message: 'Payment intent ID is required' });
+            return;
+        }
+
+        try {
+            const order = await Order.findOne({ paymentIntentId });
+            if (!order) {
+                res.status(404).json({ message: 'Order not found' });
+                return;
+            }
+            res.status(200).json({
+                orderId: order._id,
+                paymentIntentId: order.paymentIntentId,
+                paymentStatus: order.paymentStatus,
+            });
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching payment status' });
+        }
+
+
+    }
+    )
+
 
 
 router.delete("/:id",

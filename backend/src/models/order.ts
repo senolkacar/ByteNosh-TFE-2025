@@ -10,9 +10,16 @@ const orderSchema = new mongoose.Schema({
     date: Date,
     status: {
         type: String,
-        enum: ['PENDING', 'IN_PROGRESS', 'SERVED', 'PAID', 'CANCELLED'],
+        enum: ['PENDING', 'IN_PROGRESS', 'SERVED', 'PAID', 'CANCELLED','ARCHIVED'],
         default: 'PENDING'
     },
+    paymentStatus: {
+        type: String,
+        enum: ['AWAITING_PAYMENT', 'PAID', 'EXPIRED', 'REFUNDED', 'FAILED'],
+        default: 'AWAITING_PAYMENT'
+    },
+    paymentIntentId: { type: String, required: false },
+    paymentIdentifier: { type: String, required: false },
     reservation: { type: mongoose.Schema.Types.ObjectId, ref: 'Reservation', default: null },
     createdAt: { type: Date, default: Date.now },
     notes: String

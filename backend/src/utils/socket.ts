@@ -49,6 +49,10 @@ export const initializeSocket = (httpServer: HttpServer) => {
             }
         });
 
+        socket.on("payment-status-updated", (data) => {
+            io.emit("payment-status-updated", data);
+        });
+
         socket.on("update-table-status", (data) => {
             io.emit("update-table-status", data);
         });

@@ -1,6 +1,5 @@
 import 'package:employe/screens/take_order_screen.dart';
 import 'package:flutter/material.dart';
-import '/screens/request_payment.dart';
 import '/screens/scan_qr_code_screen.dart';
 
 class HomepageScreen extends StatefulWidget {
@@ -48,10 +47,6 @@ class _HomepageScreenState extends State<HomepageScreen> {
               icon: Icon(Icons.qr_code_scanner),
               label: 'Scan QR Code',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: 'Request Payment',
-          ),
         ],
         onTap: (index) {
           switch (index) {
@@ -70,14 +65,6 @@ class _HomepageScreenState extends State<HomepageScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ScanQrCodeScreen(),
-                ),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RequestPayment(),
                 ),
               );
               break;

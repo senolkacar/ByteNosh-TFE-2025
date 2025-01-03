@@ -5,6 +5,7 @@ class Order {
   String? user;
   DateTime? date;
   String? status;
+  String? paymentStatus;
   String? reservation;
   DateTime? createdAt;
   String? notes;
@@ -16,6 +17,7 @@ class Order {
     this.user,
     this.date,
     this.status,
+    this.paymentStatus,
     this.reservation,
     this.createdAt,
     this.notes,
@@ -29,6 +31,7 @@ class Order {
       user: json['user'],
       date: json['date'] != null ? DateTime.parse(json['date']) : null,
       status: json['status'],
+      paymentStatus: json['paymentStatus'],
       reservation: json['reservation'],
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       notes: json['notes'],
@@ -43,6 +46,7 @@ class Order {
       'user': user,
       'date': date?.toIso8601String(),
       'status': status,
+      'paymentStatus': paymentStatus,
       'reservation': reservation,
       'createdAt': createdAt?.toIso8601String(),
       'notes': notes,

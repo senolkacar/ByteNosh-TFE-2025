@@ -4,6 +4,7 @@ import '/models/table.dart';
 import '/screens/encode_order_screen.dart';
 import '/services/api_service.dart';
 import '/screens/view_order_screen.dart';
+import '/screens/request_payment.dart';
 
 
 class TableDetailsScreen extends StatefulWidget {
@@ -162,7 +163,12 @@ class _TableDetailsScreenState extends State<TableDetailsScreen> {
             SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                // Request payment
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RequestPayment(tableId: table.id),
+                  ),
+                );
               },
               icon: Icon(Icons.payment),
               label: Text('Request Payment'),

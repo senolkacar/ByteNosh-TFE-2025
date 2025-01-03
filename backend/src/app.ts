@@ -28,6 +28,8 @@ import weatherRoutes from './routes/weather';
 import reservationRoutes from './routes/reservations';
 import contactRoutes from './routes/contact';
 import waitlistRoutes from "./routes/waitlist";
+import paymentRoutes from "./routes/payment";
+import webhook from "./routes/webhook";
 import "../src/utils/cron";
 import "../src/utils/upcoming-reservation-job";
 
@@ -37,6 +39,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
     credentials: true,
 }));
+app.use('/api/payment-process',webhook);
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/opening-hours', openingHoursRoutes);
@@ -53,6 +56,8 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/payment', paymentRoutes);
+
 
 
 mongoose.connect(DB_URI as string);
