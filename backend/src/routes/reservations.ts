@@ -3,7 +3,7 @@ import {body, param, validationResult} from "express-validator";
 import Reservation from "../models/reservation";
 import admin from "firebase-admin";
 import QRCode from "qrcode";
-import encryptData from "../utils/qr-code";
+import {encryptData,decryptData} from "../utils/qr-code";
 import { sendEmail } from "../utils/mailer";
 import User, {UserDocument} from "../models/user";
 import { getSocketIO } from "../utils/socket";
@@ -188,6 +188,38 @@ router.get('/last',
         }
     }
 );
+
+router.post("/scan-qr", validateToken, async (req: CustomRequest, res: Response): Promise<void> => {
+    const { qrData } = req.body;
+
+    try {
+        const encryptionKey = process.env.QR_ENCRYPTION_KEY;
+        if (!encryptionKey) {
+            res.status(500).json({ message: "Encryption key not configured" });
+            return;
+        }
+
+        // Decrypt the QR code data
+        const decryptedData = decryptData(qrData, encryptionKey);
+
+        // Find the reservation using the decrypted data
+        const reservation = await Reservation.findById(decryptedData.reservationId)
+            .populate('table', 'name')
+            .populate('section', 'name');
+
+        if (!reservation) {
+            res.status(404).json({ message: "Reservation not found" });
+            return;
+        }
+
+        res.json({
+            reservation
+        });
+    } catch (error) {
+        console.error("Error scanning QR code:", error);
+        res.status(500).json({ message: "Error processing QR code" });
+    }
+});
 
 router.get('/all',
     validateToken,
