@@ -67,7 +67,7 @@ router.get(
         const userId = req.user?.id;
 
         try {
-            const lastOrder = await Order.findOne({ user: userId }).sort({ reservationTime: -1 });
+            const lastOrder = await Order.findOne({ user: userId }).sort({ createdAt: -1 }).populate('meals.meal');
             if (!userId || !lastOrder || !lastOrder.user || lastOrder.user.toString() !== userId.toString()) {
                 res.status(403).json({ message: 'Access denied' });
                 return;
@@ -76,9 +76,8 @@ router.get(
                 res.status(404).json({ message: 'No orders found for this user' });
                 return;
             }
-            const populatedLastOrder = await lastOrder.populate("meals");
-            const totalSum = populatedLastOrder.meals.reduce((sum: any, meal: any) => sum + meal.price, 0);
-            res.json({ totalSum });
+            const totalSum = lastOrder.meals.reduce((sum: number, mealItem: any) => sum + mealItem.meal.price * mealItem.quantity, 0);
+            res.json({ totalSum, lastOrder });
         } catch (error) {
             res.status(500).json({ message: 'Error fetching last order' });
         }
@@ -98,7 +97,7 @@ router.get('/getOne/:id',
         const { id } = req.params as Record<string, any>;
 
         try {
-            const order = await Order.findById(id).populate('meals', 'name description price');
+            const order = await Order.findById(id).populate('meals.meal', 'name description price');
             if (!order) {
                 res.status(404).json({ message: 'Order not found' });
                 return;

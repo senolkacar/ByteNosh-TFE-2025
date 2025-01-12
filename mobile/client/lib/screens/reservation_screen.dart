@@ -369,46 +369,45 @@ class _ReservationScreenState extends State<ReservationScreen>
 
   Widget _buildOrders(List<dynamic> orders) {
     return Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: orders.map((order) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: orders.map((order) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.fastfood, color: Colors.blueGrey),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Meals: ${order['meals'].map((meal) => meal['name']).join(', ')}',
-                  style: TextStyle(fontSize: 16, color: Colors.blueGrey),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.fastfood, color: Colors.blueGrey),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Meals: ${order['meals'].map((meal) => '${meal['meal']['name']} (x${meal['quantity']})').join(', ')}',
+                      style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.blueGrey),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Order Status: ${order['status']}',
+                      style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.blueGrey),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Order Status: ${order['status']}',
-                  style: TextStyle(fontSize: 16, color: Colors.blueGrey),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      }).toList(),
     );
-  }).toList(),
-
-);
   }
 }
 
