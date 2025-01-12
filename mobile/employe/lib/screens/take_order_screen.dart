@@ -6,7 +6,6 @@ import 'package:jwt_decode/jwt_decode.dart';
 import '/services/api_service.dart';
 import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import '/constants/api_constants.dart';
 import '/screens/table_details_screen.dart';
 
 final storage = FlutterSecureStorage();
@@ -210,6 +209,7 @@ class _TakeOrderScreenState extends State<TakeOrderScreen> {
               onChanged: (value) {
                 setState(() {
                   _selectedSection = value;
+                  _tables = [];
                 });
               },
             ),

@@ -1,3 +1,4 @@
+import 'package:employe/screens/profile_screen.dart';
 import 'package:employe/screens/take_order_screen.dart';
 import 'package:flutter/material.dart';
 import '/screens/scan_qr_code_screen.dart';
@@ -31,14 +32,10 @@ class _HomepageScreenState extends State<HomepageScreen> {
                   fontWeight: FontWeight.bold, color: Colors.black)),
         ],
       ),
-      body: Text('Homepage'),
+      body: TakeOrderScreen(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long),
             label: 'Take Order',
@@ -46,6 +43,10 @@ class _HomepageScreenState extends State<HomepageScreen> {
           BottomNavigationBarItem(
               icon: Icon(Icons.qr_code_scanner),
               label: 'Scan QR Code',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
         onTap: (index) {
@@ -56,18 +57,17 @@ class _HomepageScreenState extends State<HomepageScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TakeOrderScreen(),
-                ),
-              );
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
                   builder: (context) => ScanQrCodeScreen(),
                 ),
               );
               break;
+              case 2:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(userEmail: widget.userEmail),
+                  ),
+                );
           }
         },
       ),
